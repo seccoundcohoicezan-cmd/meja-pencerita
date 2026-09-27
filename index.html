@@ -1,0 +1,1422 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Meja Pencerita — Sistem Lengkap</title>
+<style>
+:root{--walnut:#221812;--walnut2:#2f231b;--vellum:#e9dcbf;--vellum2:#f5ecd6;--ink:#2a1d13;--blood:#8b1a1a;--wax:#a3241f;--gold:#c9a24a;--moss:#3f6b3a;--steel:#2d5277;--amber:#8a6d1f;--plum:#553070;--line:#b89a5e}
+*{box-sizing:border-box}html,body{margin:0}
+body{background:var(--walnut);background-image:radial-gradient(circle at 20% 0%,#3a2a1f 0,transparent 55%);color:var(--ink);font-family:"Palatino Linotype","Book Antiqua",Palatino,Georgia,serif;font-size:16px;line-height:1.45;min-height:100vh}
+button,input,select,textarea{font:inherit;color:inherit}
+header{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;padding:16px 24px 8px;flex-wrap:wrap}
+header h1{margin:0;font-size:26px;color:var(--gold)}header p{margin:2px 0 0;color:#bfae8a;font-style:italic;font-size:14px}
+nav.tabs{display:flex;gap:4px;flex-wrap:wrap;padding:0 24px;margin-bottom:-1px;position:relative;z-index:1}
+.tab{background:#3b2c21;color:#d8c7a2;border:1px solid #5a4533;border-bottom:0;border-radius:4px 4px 0 0;padding:10px 14px;cursor:pointer}
+.tab.active{background:var(--vellum);color:var(--blood);border-color:var(--line);font-weight:700}
+.tab .n{display:inline-block;background:var(--walnut2);color:var(--vellum);border-radius:50%;width:20px;height:20px;font-size:12px;line-height:20px;text-align:center;margin-right:6px}
+.tab.active .n{background:var(--blood)}
+.page{display:none;padding:0 24px 30px}.page.active{display:block}
+@media (max-width:900px){nav.tabs,.page{padding-left:10px;padding-right:10px}header{padding:12px 10px 6px}}
+.panel{background:var(--vellum);border:1px solid var(--line);border-radius:4px;box-shadow:inset 0 0 0 3px var(--vellum2),inset 0 0 0 4px var(--line);padding:16px}
+.panel+.panel{margin-top:14px}
+.panel h2{margin:0 0 10px;font-size:19px;color:var(--blood)}.panel h3{margin:16px 0 6px;font-size:15.5px}
+.small{font-size:13.5px;color:#5b4632}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media (max-width:760px){.grid2,.grid3{grid-template-columns:1fr}}
+.field{display:flex;flex-direction:column;gap:3px;font-size:13.5px}
+.field input,.field select,.field textarea,select.s,input.s{background:var(--vellum2);border:1px solid #9c8358;border-radius:3px;padding:7px 8px;min-width:0}
+textarea{resize:vertical}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:10px}
+.btn{background:var(--blood);color:#fbeedb;border:1px solid #5b0f0c;border-radius:3px;padding:10px 18px;cursor:pointer;font-weight:700;font-size:15px}
+.btn:hover{background:#9f2320}.btn.alt{background:var(--steel);border-color:#1c3550}.btn.green{background:var(--moss);border-color:#24401f}
+.btn:disabled,.dbtn:disabled{opacity:.45;cursor:default}
+.dbtn{border:1px solid #9c8358;background:#e2d2ad;color:var(--ink);border-radius:3px;cursor:pointer;padding:6px 10px;font-size:14px}
+.dbtn:hover{background:#ecdfbf}.dbtn.red{color:var(--blood);border-color:var(--blood)}
+button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;align-items:center}
+.hint{font-size:14px;background:#f5ecd6;border:1px dashed #b39866;padding:9px 11px;margin:8px 0}
+.warn{font-size:14px;background:#f8dcd4;border:1px solid var(--wax);padding:9px 11px;margin:8px 0}
+.ok{font-size:14px;background:#dfead9;border:1px solid var(--moss);padding:9px 11px;margin:8px 0}
+table.grid{width:100%;border-collapse:collapse;font-size:14.5px;background:var(--vellum2)}
+table.grid th{background:var(--walnut2);color:var(--vellum);font-weight:600;text-align:left;padding:7px 8px;font-size:13px}
+table.grid td{border-bottom:1px solid #d8c49b;padding:6px 8px;vertical-align:middle}
+table.grid tr.off td{opacity:.45}.scroll{overflow-x:auto}.tot{font-weight:700;font-size:17px;text-align:right}
+input.die{width:64px;text-align:center;font-weight:700;font-size:18px;background:var(--vellum2);border:1px solid #9c8358;border-radius:3px;padding:5px 4px}
+input.die.bad{border-color:var(--wax);background:#f8dcd4}
+/* hero cards (editor) */
+.hcard{border:1px solid #b39866;background:var(--vellum2);border-radius:3px;padding:12px;margin-bottom:12px}
+.hcard summary{cursor:pointer;font-weight:700;font-size:16px;list-style:none;display:flex;justify-content:space-between;gap:8px;align-items:center}
+.hcard summary::-webkit-details-marker{display:none}
+.hcard .sec{margin-top:10px;padding-top:8px;border-top:1px dashed #c6ad7c}
+.hcard .sec b.t{color:var(--blood);font-size:14px}
+.pill{display:inline-block;background:var(--walnut2);color:var(--vellum);padding:0 7px;border-radius:3px;font-size:13px}
+.tagk{display:inline-block;color:#fff;padding:1px 7px;border-radius:2px;font-size:12px;font-family:Arial,sans-serif;font-weight:700;margin-left:6px}
+.t-solo{background:var(--moss)}.t-kelompok{background:var(--steel)}.t-bos{background:var(--plum)}.t-duel{background:var(--blood)}.t-tanpa_dadu{background:#6b5a3e}.t-skill_khusus{background:var(--amber)}.t-pengorbanan{background:#5b0f0c}
+/* play */
+.play{display:grid;grid-template-columns:330px 1fr;gap:16px}
+@media (max-width:980px){.play{grid-template-columns:1fr}}
+.hero{padding:8px 0;border-bottom:1px dashed #c6ad7c}.hero:last-child{border-bottom:0}
+.hero .top{display:flex;justify-content:space-between;align-items:center;gap:6px}
+.heart{background:none;border:0;cursor:pointer;font-size:20px;line-height:1;padding:0 1px;color:var(--wax)}.heart.off{color:#bba98a}
+.hero.down b{text-decoration:line-through;color:#8c7a60}
+.badge{font-size:11px;background:#5b4632;color:var(--vellum);padding:1px 5px;border-radius:2px;margin-left:5px;font-family:Arial,sans-serif}
+.badge.skill{background:var(--amber)}.badge.shield{background:var(--steel)}
+.dots{display:inline-flex;gap:3px;margin-left:4px}.dot{width:10px;height:10px;border-radius:50%;background:var(--amber);display:inline-block}.dot.used{background:#d3c29c}
+.hbtns{display:flex;gap:5px;margin-top:5px;flex-wrap:wrap}.hbtns .dbtn{padding:3px 8px;font-size:12.5px}
+.sbbox{display:flex;align-items:center;gap:12px}
+.sbnum{width:58px;height:58px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#c6443a,#7d1512 70%);color:#fbe9d0;display:grid;place-items:center;font-size:26px;font-weight:700;border:3px solid #5b0f0c}
+.sbnum.zero{background:#efe3c8;color:#8a7350;border-color:#a88b58}
+.mini{border:1px solid #8c7350;background:var(--vellum2);border-radius:3px;width:30px;height:30px;cursor:pointer;padding:0;font-size:17px}
+.log{max-height:230px;overflow:auto;font-size:13px;background:var(--vellum2);border:1px solid #cdb68a;padding:6px 10px}
+.log div{padding:3px 0;border-bottom:1px dotted #d5c29b}
+.read{background:#efe4c9;border-left:4px solid var(--blood);padding:12px 16px;font-style:italic;margin:8px 0 12px}
+.read p{margin:0 0 10px}.read p:last-child{margin:0}
+.quest{background:#e6dcef;border:1px solid var(--plum);padding:9px 12px;margin:8px 0;font-size:14.5px}
+.opt{border:1px solid #b39866;background:var(--vellum2);padding:10px 12px;margin-bottom:10px;border-radius:3px}
+.opt h4{margin:0 0 4px;font-size:15.5px}
+.opt .res{font-size:14px;margin:3px 0}
+.opt.chosen{outline:3px solid var(--gold)}
+.roller{margin-top:14px;border:2px solid var(--ink);background:var(--vellum);padding:14px}
+.verdict{margin-top:12px;border:2px solid var(--ink);background:var(--vellum2)}
+.vhead{padding:10px 14px;color:#fff;font-size:21px;font-weight:700}.vhead small{display:block;font-size:14px;font-weight:400;opacity:.92}
+.vbody{padding:10px 14px}.win{background:var(--moss)}.thin{background:var(--amber)}.lose{background:var(--blood)}
+.score{display:flex;gap:22px;flex-wrap:wrap}.score div{font-size:14px}.score b{font-size:30px;display:block;line-height:1.1}
+.chk{display:flex;gap:6px;align-items:center;font-size:14.5px}
+.guide ol{padding-left:22px}.guide li{margin-bottom:6px}.guide h3{color:var(--blood)}
+details.gm{margin:8px 0;font-size:14px}details.gm summary{cursor:pointer;color:var(--blood);font-weight:700}
+.genre-list{display:flex;flex-direction:column;gap:12px;max-width:1100px;margin:0 auto}
+.gcard{display:grid;grid-template-columns:44px 1fr auto;align-items:center;gap:10px;background:linear-gradient(135deg,#2a2622,#262a33);border:1px solid #3a3530;border-radius:8px;padding:20px 26px;color:#f1ebe0;cursor:pointer;text-align:left;width:100%}
+.gcard:hover{border-color:var(--gold);background:linear-gradient(135deg,#322c26,#2c313c)}
+.gcard .gn{font-size:21px;color:#9a948a;font-family:Arial,sans-serif;font-weight:700}
+.gcard .gt{font-size:21px;font-weight:700;font-family:Arial,sans-serif}
+.gcard .gd{font-size:14px;color:#b9b1a4;margin-top:2px}
+.gcard .gs{font-size:12.5px;color:var(--gold);font-family:Arial,sans-serif;text-align:right}
+.gcard .arrow{color:#9a948a;font-size:20px;margin-left:10px}
+.genre-head{max-width:1100px;margin:10px auto 18px;color:#f1ebe0}
+.genre-head h2{font-size:30px;margin:0;font-weight:400}.genre-head p{color:#b9b1a4;margin:4px 0 0}
+.gbadge{display:inline-block;background:var(--gold);color:var(--walnut);font-weight:700;padding:3px 10px;border-radius:3px;font-size:14px;font-family:Arial,sans-serif}
+.rules li{margin-bottom:4px}
+.termtbl td:first-child{color:#6b5a3e}
+.event{border:1px solid #6b5a3e;background:#efe6d0;padding:10px 12px;margin:10px 0}
+.event h4{margin:0 0 4px}.ev-bencana{background:#5b0f0c}.ev-buruk{background:var(--blood)}.ev-tenang{background:#6b5a3e}.ev-baik{background:var(--moss)}.ev-sangat_baik{background:#2e5a2a}.ev-keajaiban{background:var(--gold);color:var(--walnut)!important}
+.dlabel{font-size:12.5px;color:#6b5a3e;font-family:Arial,sans-serif}
+.rolled{background:var(--vellum2);border:1px solid #9c8358;border-radius:3px;padding:7px 8px;min-height:36px}
+.buildbox{display:flex;gap:14px;flex-wrap:wrap;align-items:center;background:#efe4c9;border:1px dashed #9c8358;padding:10px 12px;margin-top:8px}
+.buildbox .bx{min-width:120px}.buildbox .bx b{display:block;font-size:17px}
+.photo-row{display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap}
+.thumb{width:90px;height:160px;object-fit:cover;border:1px solid #9c8358;border-radius:3px;background:#2a2622;display:block}
+.thumb.empty{display:grid;place-items:center;color:#9a948a;font-size:12px;text-align:center}
+body.viewer-mode header,body.viewer-mode nav,body.viewer-mode .page{display:none!important}
+#viewer{display:none;max-width:560px;margin:0 auto;padding:28px 14px 40px}
+body.viewer-mode #viewer{display:block}
+#viewer .vimg{width:100%;max-width:440px;display:block;margin:0 auto;border-radius:10px;box-shadow:0 10px 40px rgba(0,0,0,.5)}
+#viewer h1{color:var(--gold);text-align:center;margin:0 0 6px}
+.modal{position:fixed;inset:0;background:rgba(20,12,8,.65);display:none;align-items:center;justify-content:center;z-index:50;padding:14px}
+.modal.show{display:flex}.modal .panel{max-width:460px;width:100%}
+</style>
+</head>
+<body>
+<header class="noterm">
+  <div><h1>Meja Pencerita</h1><p>Sistem lengkap: pahlawan, pembuat prompt cerita, dan meja permainan. Semua offline.</p></div>
+  <div class="row" style="margin:0">
+    <span id="genreBadge" class="gbadge noterm" style="display:none"></span>
+    <button class="dbtn" id="changeGenre" style="display:none">Ganti genre</button>
+    <button class="dbtn" id="exportAll">Simpan semua ke file</button>
+    <label class="dbtn" style="cursor:pointer">Buka file simpanan<input type="file" id="importAll" accept=".json,application/json" hidden></label>
+  </div>
+</header>
+<section class="page" id="p-genre">
+  <div class="genre-head noterm"><h2>Pilih genre cerita...</h2><p>Setiap genre punya daftar pahlawan, aturan build, istilah, dan cerita sendiri. Tekan angka 1–7 untuk memilih cepat.</p></div>
+  <div class="genre-list noterm" id="genreList"></div>
+</section>
+<nav class="tabs" role="tablist" id="mainNav">
+  <button class="tab" data-p="heroes"><span class="n">1</span>Pahlawan</button>
+  <button class="tab" data-p="prompt"><span class="n">2</span>Cerita Baru</button>
+  <button class="tab" data-p="load"><span class="n">3</span>Muat Cerita</button>
+  <button class="tab" data-p="play"><span class="n">4</span>Main</button>
+  <button class="tab" data-p="help">Cara Pakai</button>
+</nav>
+
+<!-- ================= 1. PAHLAWAN ================= -->
+<section class="page" id="p-heroes">
+  <div class="panel">
+    <div id="genreRules"></div>
+  </div>
+  <div class="panel">
+    <h2>Formulir WhatsApp</h2>
+    <p class="small">Salin formulir, kirim ke grup atau ke setiap pemain. Pemain mengisi lalu mengirim balik. Tempel semua balasan di kotak bawah (boleh beberapa formulir sekaligus). Bonus dadu dan sifat dilempar sistem, pemain tidak perlu mengisinya.</p>
+    <div class="actions" style="margin-top:0"><button class="btn alt" id="copyForm" type="button">Salin formulir kosong</button><span id="formMsg" class="small"></span></div>
+    <div class="field" style="margin-top:10px"><label for="waIn">Tempel balasan formulir dari WA</label><textarea id="waIn" rows="7" placeholder="Tempel chat WA yang sudah diisi pemain di sini..."></textarea></div>
+    <div class="actions"><button class="btn" id="waParse" type="button">Isi dari formulir</button><label class="chk"><input type="checkbox" id="waRoll" checked> Langsung lempar bonus &amp; sifat</label></div>
+    <div id="waMsg"></div>
+    <h3>Alamat situs untuk link kartu</h3>
+    <div class="row"><input class="s noterm" id="siteUrl" placeholder="contoh: https://meja-pencerita.vercel.app" style="flex:1"></div>
+    <p class="small" id="siteHint"></p>
+  </div>
+  <div class="panel">
+    <h2>Data Pahlawan</h2>
+    <p class="small">Daftar ini khusus untuk genre yang sedang dipilih. Skill Khusus selalu 3x per cerita. Skill Pengorbanan selalu dibayar dengan Nyawa.</p>
+    <div id="buildStatus"></div>
+    <div id="heroList"></div>
+    <div class="actions"><button class="btn" id="addHero">+ Tambah pahlawan</button></div>
+  </div>
+</section>
+
+<!-- ================= 2. CERITA BARU ================= -->
+<section class="page" id="p-prompt">
+  <div class="panel">
+    <h2>Data Sistem &amp; Plot Kasar</h2>
+    <div class="grid2">
+      <div class="field"><label for="sJudul">Judul cerita &amp; bab</label><input id="sJudul" placeholder="contoh: Gerhana di Valmora, Bab II"></div>
+      <div class="field"><label for="sAdegan">Jumlah adegan target</label><input id="sAdegan" placeholder="contoh: 6-8"></div>
+      <div class="field"><label for="sRamuan">Ramuan awal (pulih 1 Nyawa)</label><input id="sRamuan" type="number" min="0"></div>
+      <div class="field"><label for="sSbMax">Stack Bayangan maksimum</label><input id="sSbMax" type="number" min="1"></div>
+      <div class="field"><label for="sSbBos">Bonus bos per 1 Stack</label><input id="sSbBos" type="number" min="0"></div>
+    </div>
+    <h3>Pakem Dadu Kesulitan (dilempar GM)</h3>
+    <div class="scroll"><table class="grid" id="tierTbl"></table></div>
+    <h3>Peluang sukses per dadu kelas</h3>
+    <p class="small">Dihitung dari rata-rata bonus pahlawan yang ikut. Hijau = wajar (25–90%).</p>
+    <div class="scroll"><table class="grid" id="chanceTbl"></table></div>
+    <h3>Peluang melawan tingkat bos</h3>
+    <div class="scroll"><table class="grid" id="bossChanceTbl"></table></div>
+    <h3>Ambang Ending (berdasarkan Stack Bayangan akhir)</h3>
+    <div id="endList"></div>
+    <div class="actions"><button class="dbtn" id="addEnd">+ Ending</button></div>
+    <h3>Pahlawan yang ikut</h3>
+    <div id="ikutList" class="row"></div>
+    <h3>Plot kasar</h3>
+    <div class="field"><textarea id="sPlot" rows="5" placeholder="3–6 kalimat garis besar. AI yang akan mengembangkannya menjadi adegan."></textarea></div>
+    <h3>Bos / tantangan puncak (opsional)</h3>
+    <div class="grid3">
+      <div class="field"><label for="sBosNama">Nama &amp; ciri khas</label><input id="sBosNama"></div>
+      <div class="field"><label for="sBosTier">Tingkat bos</label><select id="sBosTier"><option value="">Biarkan AI memilih</option><option value="bos_lemah">Bos Lemah</option><option value="bos_kuat">Bos Kuat</option><option value="raja_bos">Raja Bos</option></select></div>
+      <div class="field"><label for="sBosAdd">Nilai tambahan bos (opsional)</label><input id="sBosAdd" type="number"></div>
+    </div>
+    <div class="actions"><button class="btn" id="makePrompt">Buat prompt</button></div>
+    <div id="promptMsg"></div>
+  </div>
+  <div class="panel" id="promptBox" style="display:none">
+    <h2>Prompt siap dikirim</h2>
+    <p class="small">Salin seluruh teks ini, tempel ke AI (misalnya Claude) di percakapan baru. Setelah AI selesai menulis, salin seluruh jawabannya ke tab <b>3. Muat Cerita</b>.</p>
+    <div class="field"><textarea id="promptOut" rows="16" readonly></textarea></div>
+    <div class="actions"><button class="btn alt" id="copyPrompt">Salin prompt</button><span id="copyMsg" class="small"></span></div>
+  </div>
+</section>
+
+<!-- ================= 3. MUAT CERITA ================= -->
+<section class="page" id="p-load">
+  <div class="panel">
+    <h2>Muat Cerita dari AI</h2>
+    <p class="small">Tempel <b>seluruh</b> jawaban AI di sini, termasuk blok data JSON di bagian akhirnya. Sistem akan membaca blok data itu.</p>
+    <div class="field"><textarea id="storyIn" rows="14" placeholder="Tempel jawaban AI di sini..."></textarea></div>
+    <div class="actions"><button class="btn" id="parseStory">Baca cerita</button><label class="dbtn" style="cursor:pointer">Atau buka file .json cerita<input type="file" id="storyFile" accept=".json,application/json" hidden></label></div>
+    <div id="parseMsg"></div>
+  </div>
+  <div class="panel" id="storyPreview" style="display:none"></div>
+</section>
+
+<!-- ================= 4. MAIN ================= -->
+<section class="page" id="p-play">
+  <div id="playEmpty" class="panel"><h2>Belum ada cerita</h2><p>Muat cerita dulu di tab <b>3. Muat Cerita</b>, lalu klik <b>Mulai sesi baru</b>.</p></div>
+  <div class="play" id="playWrap" style="display:none">
+    <aside>
+      <div class="panel">
+        <h2 id="pTitle">Cerita</h2>
+        <div id="party"></div>
+        <h3>Stack Bayangan</h3>
+        <div class="sbbox"><div class="sbnum" id="sbNum">0</div>
+          <div><div class="row" style="margin:0"><button class="mini" id="sbMinus" aria-label="Kurangi stack">−</button><button class="mini" id="sbPlus" aria-label="Tambah stack">+</button></div>
+          <div class="small" id="sbInfo"></div></div></div>
+        <div id="shiftInfo"></div>
+        <h3>Ramuan</h3>
+        <div class="row" style="margin:0"><button class="mini" data-ram="-1" aria-label="Kurangi ramuan">−</button><b id="ramNum" style="min-width:24px;text-align:center">0</b><button class="mini" data-ram="1" aria-label="Tambah ramuan">+</button>
+          <select class="s" id="potTarget" style="flex:1"></select><button class="dbtn" id="usePot">Minum</button></div>
+        <h3>Quest</h3><div id="questList" class="small"></div>
+        <h3>Barang &amp; hadiah</h3><div id="itemList" class="small"></div>
+        <div class="row" style="margin-top:6px"><input class="s" id="itemIn" placeholder="tambah barang..." style="flex:1"><button class="dbtn" id="addItem">+</button></div>
+      </div>
+      <div class="panel"><h2>Catatan Sesi</h2><div class="log" id="log"></div></div>
+    </aside>
+    <main>
+      <div class="panel">
+        <div class="row" style="justify-content:space-between">
+          <div class="field" style="flex:1;min-width:220px"><label for="scnSel">Adegan</label><select id="scnSel"></select></div>
+          <div class="row" style="margin:0"><button class="dbtn" id="prevScn">← Sebelumnya</button><button class="dbtn" id="nextScn">Berikutnya →</button><button class="dbtn red" id="toEnding">Ke Ending</button></div>
+        </div>
+        <div id="scene"></div>
+      </div>
+    </main>
+  </div>
+</section>
+
+<!-- ================= CARA PAKAI ================= -->
+<section class="page guide" id="p-help">
+  <div class="panel">
+    <h2>Cara Pakai Sistem Meja Pencerita</h2>
+    <h3>Langkah 0 — Pilih genre</h3>
+    <ol>
+      <li>Di layar awal, pilih genre: Fantasy, Custom, Archive, Apocalyptic, Zombies, Cyberpunk, atau Mystery. Tekan angka 1–7 untuk memilih cepat.</li>
+      <li>Setiap genre punya <b>daftar pahlawan, cerita, dan sesi sendiri</b>. Berpindah genre tidak menghapus apa pun.</li>
+      <li>Genre mengubah istilah di layar (misalnya Nyawa menjadi Kewarasan di Mystery), menambah kolom build khusus, dan mengatur nada cerita di prompt.</li>
+      <li><b>Custom:</b> kamu mengatur sendiri nama genre, nada, aturan, istilah, dan kolom build.</li>
+      <li>Klik <b>Ganti genre</b> di kanan atas untuk kembali ke layar pilihan.</li>
+    </ol>
+    <h3>Langkah 1 — Isi pahlawan (sekali per genre)</h3>
+    <ol>
+      <li>Buka tab <b>1. Pahlawan</b>. Baca kotak <b>Aturan Genre</b> di atas: di sana tertulis apa saja yang harus dibuild setiap pemain.</li>
+      <li>Klik <b>+ Tambah pahlawan</b>. Kolom <b>Build khusus genre</b> wajib diisi.</li>
+      <li>Isi nama, kelas, senjata, <b>dadu kelas</b>, bonus dadu, nyawa, kemampuan dasar, Skill Khusus, Skill Pengorbanan, dan kepribadian.</li>
+      <li>Pilih juga <b>efek mekanis</b> skill agar sistem bisa menghitungnya otomatis. Kalau tidak cocok dengan pilihan yang ada, pilih "Hanya dicatat".</li>
+      <li>Semua tersimpan otomatis di browser. Klik <b>Simpan semua ke file</b> di kanan atas untuk cadangan.</li>
+    </ol>
+    <h3>Langkah 1b — Formulir WhatsApp</h3>
+    <ol>
+      <li>Di tab <b>1. Pahlawan</b>, klik <b>Salin formulir kosong</b> lalu kirim ke pemain lewat WA.</li>
+      <li>Pemain mengisi setelah tanda titik dua dan mengirim balik. Mereka juga membuat <b>password kartu</b> sendiri.</li>
+      <li>Tempel semua balasan (boleh beberapa sekaligus) di kotak <b>Tempel balasan formulir</b>, lalu klik <b>Isi dari formulir</b>. Semua kolom langsung terisi.</li>
+      <li>Jika "Langsung lempar bonus &amp; sifat" dicentang, sistem otomatis melempar <b>bonus dadu (d4 + 1)</b> dan <b>sifat baik + sifat buruk (d20)</b>.</li>
+    </ol>
+    <h3>Langkah 1c — Kartu karakter</h3>
+    <ol>
+      <li>Buka kartu pahlawan, klik <b>Pilih foto</b> (opsional). Foto disimpan di browser ini saja.</li>
+      <li><b>Unduh kartu (PNG)</b> menghasilkan kartu 1080 × 1920 piksel (ukuran story HP), lengkap dengan foto.</li>
+      <li><b>Salin link + pesan WA</b> membuat link kartu yang dikunci dengan password pemain, lalu menyalin pesan siap kirim. Link ini hanya bekerja setelah kamu mengisi <b>Alamat situs</b> (alamat Vercel).</li>
+      <li>Saat pemain membuka link, mereka memasukkan password sendiri, lalu bisa menambahkan foto dan mengunduh kartunya. Foto di link tidak ikut tersimpan online.</li>
+    </ol>
+    <h3>Langkah 2 — Buat prompt cerita</h3>
+    <ol>
+      <li>Buka tab <b>2. Cerita Baru</b>. Isi judul, ending, pahlawan yang ikut, dan plot kasar.</li>
+      <li>Lihat tabel <b>peluang sukses</b> dan <b>peluang melawan bos</b> untuk memastikan kelompokmu seimbang.</li>
+      <li>Klik <b>Buat prompt</b>, lalu <b>Salin prompt</b>.</li>
+      <li>Buka AI (misalnya Claude) di percakapan baru, tempel, dan kirim.</li>
+    </ol>
+    <h3>Langkah 3 — Muat cerita</h3>
+    <ol>
+      <li>Salin <b>seluruh</b> jawaban AI, termasuk blok data JSON di bagian paling bawah.</li>
+      <li>Tempel di tab <b>3. Muat Cerita</b> dan klik <b>Baca cerita</b>.</li>
+      <li>Jika ada peringatan, baca pesannya. Biasanya cukup minta AI: "tulis ulang blok JSON-nya saja sesuai format".</li>
+      <li>Klik <b>Mulai sesi baru</b>.</li>
+    </ol>
+    <h3>Langkah 4 — Bermain</h3>
+    <ol>
+      <li>Bacakan kotak narasi. Tanya pemain memilih opsi A, B, C...</li>
+      <li>Klik <b>Mainkan opsi ini</b>. Sistem membuka kalkulator sesuai jenis tantangan: Solo, Kelompok, Serangan Bos, atau Duel.</li>
+      <li>Ketik dadu tiap pemain (atau klik Acak), klik <b>Hitung</b>, bacakan hasilnya, lalu klik <b>Terapkan</b>. Nyawa, Stack, ramuan, dan barang berubah otomatis.</li>
+      <li>Klik tombol <b>Lanjut ke Adegan ...</b> yang muncul. Setelah adegan terakhir, sistem menampilkan ending sesuai Stack Bayangan.</li>
+    </ol>
+    <h3>Skill di meja permainan</h3>
+    <ol>
+      <li><b>Skill Khusus</b> (tombol ⚡ di panel kiri): 3x per cerita. Jika efeknya bonus, bonus itu "aktif" dan otomatis masuk ke lemparan berikutnya pahlawan itu. Jika efeknya perisai, perisai otomatis membatalkan luka tim pada hasil berikutnya.</li>
+      <li><b>Skill Pengorbanan</b> (tombol ♥ di panel kiri): pemakai kehilangan Nyawa sesuai biaya. Pola Tumbal langsung memulihkan 2 Nyawa rekan. Pola Putar Waktu: ganti angka dadu yang ingin diulang, lalu hitung lagi sebelum menekan Terapkan.</li>
+    </ol>
+    <h3>Aturan dadu (D&amp;D polyhedral)</h3>
+    <ol>
+      <li><b>Pemain</b> melempar <b>dadu kelas</b>-nya (d20, d12 + d8, d8 + d6 + d4, atau d10 + d6 + d4), menjumlahkan hasilnya, lalu mengetik totalnya. Sistem menambah bonus otomatis.</li>
+      <li><b>GM</b> melempar <b>Dadu Kesulitan</b> sesuai tingkat: Sangat Mudah d4 + d6, Mudah d8 + d6, Sedang d12 + d8, Sulit d20 + d6, Sangat Sulit d20 + d12, Mustahil d20 + d12 + d8. Nilai pemain ≥ hasil GM berarti berhasil.</li>
+      <li><b>Kritis:</b> semua dadu pemain angka maksimal (misalnya d12 + d8 = 12 dan 8). Selalu berhasil, Stack −1. <b>Gagal Total:</b> semua dadu angka 1. Selalu gagal, Stack +1.</li>
+      <li><b>Kelompok:</b> GM melempar sekali, setiap pemain dibandingkan. Berhasil jika setengah atau lebih lulus.</li>
+      <li><b>Serangan Bos:</b> GM melempar satu set dadu bos untuk setiap pahlawan yang ikut (Bos Lemah d12 + d8, Bos Kuat d20 + d6, Raja Bos d20 + d12), lalu mengetik total per jenis dadu. Tim ≥ bos Menang · kurang 1–6 Menang Tipis · kurang 7+ Gagal.</li>
+      <li><b>Duel:</b> 3 ronde, juara melawan dadu tingkat lawan. Nilai sama dimenangkan lawan.</li>
+      <li><b>Kejadian acak d100:</b> di setiap adegan ada kotak Kejadian Acak. Jika GM mau, lempar d10 persen (puluhan) + d10 (satuan), ketik hasilnya, klik Cek kejadian, lalu Terapkan efek. Kejadian yang mengubah tingkat akan otomatis berlaku di tantangan berikutnya.</li>
+      <li>Tingkat kesulitan bisa diganti GM di kalkulator sebelum menghitung.</li>
+    </ol>
+  </div>
+</section>
+
+<section id="viewer" class="noterm">
+  <h1>Kartu Karakter</h1>
+  <div class="panel" id="vLock">
+    <h2>Kartu ini dikunci</h2>
+    <p>Masukkan password yang kamu buat sendiri saat mengisi formulir karakter.</p>
+    <div class="row"><input type="password" class="s" id="vPw" placeholder="password" style="flex:1" autocomplete="current-password"><button class="btn" id="vOpen">Buka kartu</button></div>
+    <div id="vMsg"></div>
+  </div>
+  <div id="vCard" style="display:none">
+    <img class="vimg" id="vImg" alt="Kartu karakter">
+    <div class="panel" style="margin-top:16px">
+      <h2>Tambahkan fotomu</h2>
+      <p class="small">Foto hanya dipakai di perangkatmu untuk membuat kartu, tidak dikirim ke mana pun.</p>
+      <div class="actions"><label class="dbtn" style="cursor:pointer">Pilih foto<input type="file" id="vPhoto" accept="image/*" hidden></label><button class="btn" id="vDl">Unduh kartu</button></div>
+    </div>
+    <div class="panel" id="vText"></div>
+  </div>
+</section>
+<div class="modal" id="modal"><div class="panel" id="modalBody"></div></div>
+
+<script>
+/* ======================= STATE ======================= */
+const KEY='meja-pencerita-sistem-v2', OLDKEY='meja-pencerita-sistem-v1';
+const GENRE_ORDER=['fantasy','custom','archive','apocalyptic','zombies','cyberpunk','mystery'];
+const GENRES={
+ fantasy:{nama:'Fantasy',desc:'Kerajaan, sihir, makhluk mitos, dan iblis dari masa lalu.',
+  nada:'Fantasi abad pertengahan yang epik dan puitis: kastel, desa, gereja, sihir, makhluk mitos. Narasi penuh emosi, dialog bergaya klasik.',
+  aturan:'Sihir selalu punya harga. Setiap musuh besar punya alasan dan sejarah. Sisipkan satu misteri kuno yang bisa berlanjut ke bab berikutnya.',
+  istilah:{nyawa:'Hati',ramuan:'Ramuan',stack:'Stack Bayangan',tumbang:'Tumbang',pahlawan:'Pahlawan',bos:'Bos'},
+  build:[{id:'ras',nama:'Ras / bangsa',ket:'manusia, elf, kurcaci, dan sebagainya'},{id:'asal',nama:'Asal-usul',ket:'satu kalimat masa lalu'},{id:'sumpah',nama:'Sumpah / tujuan pribadi',ket:'apa yang ia kejar'}],
+  ending:['Ending Cahaya','Ending Fajar Kelabu','Ending Bayangan']},
+ archive:{nama:'Archive',desc:'Arsip kuno, perpustakaan terlarang, dan dokumen rahasia.',
+  nada:'Misteri sejarah yang cerdas dan menegangkan: perpustakaan tua, biara, museum, ruang arsip rahasia, kode sandi, dan ordo rahasia penjaga kebenaran. Narasi tenang namun penuh ketegangan.',
+  aturan:'Setiap adegan menyimpan minimal satu dokumen, simbol, atau sandi yang bisa dipecahkan pemain. Kebenaran terungkap sepotong demi sepotong. Musuh bekerja dari balik bayangan.',
+  istilah:{nyawa:'Tekad',ramuan:'Tonik',stack:'Kecurigaan',tumbang:'Pingsan',pahlawan:'Penjelajah',bos:'Penjaga Rahasia'},
+  build:[{id:'era',nama:'Era / asal',ket:'dari zaman atau negeri mana'},{id:'bidang',nama:'Bidang keahlian',ket:'bahasa kuno, kriptografi, restorasi, sejarah'},{id:'org',nama:'Organisasi / pelindung',ket:'universitas, gereja, museum, ordo'},{id:'dicari',nama:'Rahasia yang ia cari',ket:'dokumen atau kebenaran pribadi'}],
+  ending:['Kebenaran Terungkap','Setengah Kebenaran','Arsip Terkubur']},
+ apocalyptic:{nama:'Apocalyptic',desc:'Dunia setelah kiamat: gurun, reruntuhan, dan harapan kecil.',
+  nada:'Pasca-kiamat yang keras dan melankolis: kota runtuh, gurun radiasi, kelangkaan air dan bahan bakar, komunitas kecil yang bertahan. Narasi berdebu dan sunyi, tetapi menyimpan harapan.',
+  aturan:'Sumber daya selalu langka, jadi setiap pilihan punya harga. Tunjukkan sisa-sisa dunia lama. Manusia lain bisa lebih berbahaya daripada alam.',
+  istilah:{nyawa:'Nyawa',ramuan:'Medkit',stack:'Radiasi',tumbang:'Tak Sadar',pahlawan:'Penyintas',bos:'Ancaman'},
+  build:[{id:'keahlian',nama:'Keahlian bertahan hidup',ket:'berburu, mekanik, navigasi, medis'},{id:'perlengkapan',nama:'Perlengkapan / kendaraan',ket:'satu barang andalan'},{id:'luka',nama:'Luka masa lalu',ket:'apa yang hilang saat kiamat'},{id:'lindungi',nama:'Yang ingin ia lindungi',ket:'orang, tempat, atau janji'}],
+  ending:['Oasis Baru','Bertahan Hidup','Debu dan Abu']},
+ zombies:{nama:'Zombies',desc:'Wabah mayat hidup. Bertahan, atau menjadi salah satu dari mereka.',
+  nada:'Horor bertahan hidup yang tegang: kota dilanda wabah, gerombolan zombie, persediaan menipis, keputusan moral yang berat. Narasi cepat dan mencekam, sesekali sunyi yang menakutkan.',
+  aturan:'Suara menarik zombie, jadi pilihan yang ribut harus berisiko. Setiap tempat aman hanya sementara. Sesama penyintas bisa menjadi sekutu atau ancaman.',
+  istilah:{nyawa:'Nyawa',ramuan:'Perban',stack:'Infeksi',tumbang:'Terkapar',pahlawan:'Penyintas',bos:'Ancaman'},
+  build:[{id:'profesi',nama:'Profesi sebelum wabah',ket:''},{id:'bawaan',nama:'Barang bawaan',ket:''},{id:'takut',nama:'Ketakutan terbesar',ket:''},{id:'moral',nama:'Garis moral',ket:'hal yang tidak akan pernah ia lakukan'}],
+  ending:['Zona Aman','Selamat dengan Luka','Wabah Menang']},
+ cyberpunk:{nama:'Cyberpunk',desc:'Neon, korporasi, implan, dan kota yang tak pernah tidur.',
+  nada:'Cyberpunk noir: megakota neon, hujan asam, korporasi raksasa, geng jalanan, hacker, implan sibernetik. Narasi tajam, bergaya, penuh slang jalanan.',
+  aturan:'Setiap pekerjaan punya klien dengan agenda tersembunyi. Teknologi selalu punya celah. Korporasi tidak pernah benar-benar kalah.',
+  istilah:{nyawa:'Integritas',ramuan:'Stimpak',stack:'Heat',tumbang:'Offline',pahlawan:'Runner',bos:'Target'},
+  build:[{id:'julukan',nama:'Julukan jalanan',ket:''},{id:'implan',nama:'Implan sibernetik',ket:'implan utama dan efeknya'},{id:'peran',nama:'Peran kru',ket:'netrunner, solo, techie, face, fixer'},{id:'utang',nama:'Utang / afiliasi',ket:'kepada siapa ia berutang'}],
+  ending:['Legenda Jalanan','Bayaran Selesai','Flatline']},
+ mystery:{nama:'Mystery',desc:'Kasus, petunjuk, dan dalang yang bersembunyi di antara kita.',
+  nada:'Misteri detektif: kota berkabut, rumah tua, pesta mewah, saksi yang berbohong. Narasi penuh detail kecil yang ternyata penting, dengan twist yang adil.',
+  aturan:'Sebar petunjuk secara adil: pemain yang teliti harus bisa menebak dalangnya sebelum akhir. Setiap tersangka punya motif. Sertakan minimal satu petunjuk palsu.',
+  istilah:{nyawa:'Kewarasan',ramuan:'Teh Penenang',stack:'Jejak Dingin',tumbang:'Terguncang',pahlawan:'Penyelidik',bos:'Dalang'},
+  build:[{id:'profesi',nama:'Profesi',ket:''},{id:'metode',nama:'Metode investigasi',ket:'deduksi, interogasi, forensik, intuisi'},{id:'rahasia',nama:'Rahasia pribadi',ket:''},{id:'koneksi',nama:'Koneksi dengan kasus',ket:''}],
+  ending:['Kasus Terpecahkan','Kebenaran Sebagian','Pelaku Lolos']}
+};
+const KJ={fantasy:[30,40,30],archive:[25,45,30],apocalyptic:[45,35,20],zombies:[45,35,20],cyberpunk:[35,40,25],mystery:[30,40,30]};
+Object.entries(KJ).forEach(([g,v])=>{GENRES[g].kejadian={buruk:v[0],tenang:v[1],baik:v[2]}});
+const EV_TYPES={bencana:'Bencana',buruk:'Buruk',tenang:'Tenang',baik:'Baik',sangat_baik:'Sangat Baik',keajaiban:'Keajaiban'};
+const EV_DEFAULT={bencana:{nyawa_acak:-1},buruk:{tingkat:1},tenang:{},baik:{ramuan:1},sangat_baik:{stack:-1},keajaiban:{item:'Barang langka (GM tentukan)'}};
+const EV_TEXT={bencana:'Sesuatu yang sangat buruk terjadi. GM menceritakan bentuknya sesuai adegan.',buruk:'Keadaan memburuk. GM menceritakan hambatannya.',tenang:'Tidak terjadi apa-apa. Bacakan suasana sekitar.',baik:'Keberuntungan kecil berpihak pada kelompok.',sangat_baik:'Keberuntungan besar berpihak pada kelompok.',keajaiban:'Keajaiban! Kelompok menemukan sesuatu yang sangat berharga.'};
+function bands(k){k=k||{buruk:30,tenang:40};let b=clamp(num(k.buruk,30),2,96),t=clamp(num(k.tenang,40),0,98-b);const g=100-b-t;const bc=Math.max(1,Math.round(b/3)),top=Math.max(2,Math.round(g/3));
+  return [{j:'bencana',a:1,z:bc},{j:'buruk',a:bc+1,z:b},{j:'tenang',a:b+1,z:b+t},{j:'baik',a:b+t+1,z:100-top},{j:'sangat_baik',a:101-top,z:99},{j:'keajaiban',a:100,z:100}].filter(x=>x.z>=x.a)}
+const pad2=n=>n===100?'100':String(n).padStart(2,'0');
+const TRAITS={
+ umum:{baik:['Pemberani','Setia kawan','Cerdik','Sabar','Jujur','Murah hati','Tekun','Humoris','Tenang di bawah tekanan','Penuh rasa ingin tahu','Pelindung','Rendah hati','Optimis','Teliti','Karismatik','Pemaaf','Disiplin','Kreatif','Tangguh','Bijaksana'],
+  buruk:['Ceroboh','Keras kepala','Pemarah','Penakut','Sombong','Pelupa','Serakah','Pencemburu','Malas','Mudah curiga','Suka pamer','Tidak sabaran','Pendendam','Cerewet','Pesimis','Mudah panik','Egois','Suka berbohong kecil','Terlalu percaya orang','Gegabah']},
+ fantasy:{baik:['Berhati singa','Pegang sumpah ksatria','Diberkati bulan','Lidah perak','Mata elang','Tangan penyembuh','Sahabat para hewan','Hafal legenda kuno','Kaki secepat angin','Tak kenal lelah','Murah hati pada rakyat','Tenang seperti danau','Keberuntungan pengembara','Pelindung yang lemah','Haus ilmu','Sabar seperti batu','Jujur sampai akhir','Penghibur kedai','Teguh iman','Pemimpin alami'],
+  buruk:['Haus kejayaan','Takut sihir gelap','Sumbu pendek','Terlalu sombong','Dihantui mimpi buruk','Rakus emas','Mudah percaya orang asing','Menyimpan dendam lama','Ceroboh dengan api','Keras kepala','Takut air dalam','Mudah mabuk','Pembual','Sering lupa janji','Penakut dalam gelap','Iri pada bangsawan','Tak bisa berbohong','Gegabah menyerang','Susah bangun pagi','Dibayangi masa lalu']},
+ archive:{baik:['Ingatan fotografis','Fasih bahasa mati','Pemecah sandi','Tangan terampil restorasi','Pengamat detail','Sabar membaca','Jaringan pustakawan','Tenang di ruang gelap','Pencatat yang rapi','Intuisi sejarah','Pandai menyamar','Lidah diplomat','Setia pada kebenaran','Tahan debu dan lembap','Pencari pola','Hafal peta kuno','Hormat pada leluhur','Rasa ingin tahu besar','Tekun sampai pagi','Keberuntungan penemu'],
+  buruk:['Terobsesi kebenaran','Rabun senja','Takut ruang sempit','Sombong akademis','Pelupa urusan sehari-hari','Batuk debu','Tergila-gila dokumen langka','Canggung bergaul','Terlalu banyak bicara','Paranoid ordo rahasia','Ceroboh menyentuh artefak','Keras kepala soal teori','Mudah lelah','Suka "meminjam" buku','Takut kegelapan','Mudah cemas','Tidak sabaran','Punya rahasia memalukan','Dimusuhi rival akademis','Mudah tersesat']},
+ apocalyptic:{baik:['Pencari air','Mekanik bertangan dingin','Hemat persediaan','Tahan panas gurun','Penembak jitu','Penenang kelompok','Navigator bintang','Tahan radiasi ringan','Jago barter','Pelindung anak-anak','Pemburu senyap','Pemulung jeli','Tidur ringan dan sigap','Kuat mengangkat beban','Penjaga harapan','Setia pada komunitas','Pengobat lapangan','Pengintai tajam','Pembuat api','Tekad baja'],
+  buruk:['Serakah ransum','Trauma ledakan','Tidak percaya siapa pun','Batuk debu','Temperamen gurun','Kecanduan rokok lama','Dendam pada perampok','Ceroboh membuat suara','Mudah menyerah','Payah membaca arah','Sakit punggung','Suka mencuri kecil-kecilan','Mimpi buruk kiamat','Keras kepala','Rakus bensin','Pemarah saat lapar','Terlalu percaya orang asing','Takut terowongan gelap','Kaki pincang','Suka bertaruh']},
+ zombies:{baik:['Refleks cepat','Pelari jarak jauh','Tenang melihat darah','Ahli barikade','Hafal jalan kota','Pembuat senjata darurat','Pendengaran tajam','Pelindung kelompok','Hemat peluru','Pemanjat lincah','Pemberi semangat','Pandai menyimpan rahasia','Paramedis dadakan','Bergerak senyap','Tahan lapar','Pengemudi andal','Pemikir jernih','Setia sampai akhir','Humor gelap penenang','Tidak mudah panik'],
+  buruk:['Mudah panik','Batuk keras','Takut darah','Ceroboh dan berisik','Egois demi selamat','Keras kepala','Tak tega melawan yang dikenal','Mudah lelah','Pemarah','Rakus persediaan','Menyimpan rahasia kelam','Susah tidur','Pelupa','Terlalu percaya orang','Suka mengambil barang','Suka berbohong','Kaki lemah','Pesimis','Suka ambil risiko','Trauma kehilangan keluarga']},
+ cyberpunk:{baik:['Tangan hacker','Refleks implan','Jaringan fixer luas','Lidah tajam','Mata kamera','Tenang saat baku tembak','Mekanik chrome','Setia pada kru','Pengemudi neon','Pendengar rumor','Ahli identitas palsu','Kebal propaganda','Tahan stimulan','Pembaca bahasa tubuh','Hemat eddies','Penawar ulung','Punya tempat persembunyian','Naluri jalanan','Tidak bisa disuap','Keberuntungan setan'],
+  buruk:['Kecanduan braindance','Berutang pada geng','Implan sering glitch','Sombong soal chrome','Paranoid korporat','Temperamen pendek','Dicari polisi','Mudah tergoda uang','Rakus implan','Insomnia neon','Pembual','Tidak percaya siapa pun','Ceroboh jejak digital','Dendam pada korporasi','Suka taruhan','Pembohong kebiasaan','Takut mati otak','Mantan pengkhianat','Mudah mabuk','Terlalu nekat']},
+ mystery:{baik:['Mata detektif','Ingatan kuat','Pendengar sabar','Pembaca kebohongan','Tenang menghadapi mayat','Pandai menyamar','Logika dingin','Jaringan informan','Pencatat yang rapi','Intuisi tajam','Lidah manis','Sabar menunggu','Penghafal wajah','Berani keluar malam','Jujur','Pengamat cuaca dan waktu','Paham racun','Tangan cepat','Rendah hati','Gigih mencari kebenaran'],
+  buruk:['Terobsesi kasus','Susah tidur','Kecanduan kopi','Sinis','Mudah curiga','Sombong soal deduksi','Canggung bergaul','Dihantui kasus lama','Takut darah','Sering lupa janji','Terlalu blak-blakan','Pemarah','Ceroboh dengan bukti','Mudah terpancing emosi','Punya rahasia kelam','Malas menulis laporan','Berutang judi','Tidak percaya polisi','Keras kepala','Mudah luluh oleh air mata']}
+};
+const traitTable=g=>TRAITS[g]||TRAITS.umum;
+const ACCENT={fantasy:'#d9a441',archive:'#c9a26a',apocalyptic:'#e0883a',zombies:'#9ccc4f',cyberpunk:'#ff3d8b',mystery:'#9fb8d4',custom:'#d9a441'};
+const uid=()=>Math.random().toString(36).slice(2,10)+Date.now().toString(36).slice(-4);
+const TERM_LABELS=[['nyawa','Nyawa'],['ramuan','Ramuan'],['stack','Stack Bayangan'],['tumbang','Tumbang'],['pahlawan','Pahlawan'],['bos','Bos']];
+const defCustom=()=>({nama:'Custom',desc:'Buat genre sendiri: atur istilah, nada, dan aturan build.',nada:'',aturan:'',
+  istilah:{nyawa:'Nyawa',ramuan:'Ramuan',stack:'Stack Bayangan',tumbang:'Tumbang',pahlawan:'Pahlawan',bos:'Bos'},build:[],ending:['Ending Baik','Ending Netral','Ending Buruk'],kejadian:{buruk:30,tenang:40,baik:30}});
+const defSys=(g)=>{const gd=g?GD(g):null;const en=gd&&gd.ending&&gd.ending.length?gd.ending:['Ending Cahaya','Ending Fajar Kelabu','Ending Bayangan'];
+  return {judul:'',adegan:'',ramuan:2,sbMax:10,sbBos:2,
+  tk:[{n:'Mudah',v:10},{n:'Sedang',v:14},{n:'Sulit',v:18},{n:'Sangat Sulit',v:22}],
+  ending:en.map((n,i)=>({nama:n,maks:[3,7,10][i]??10})),ikut:[],plot:'',bos:{nama:'',tingkat:'',tambahan:''}}};
+let R=null;
+try{R=JSON.parse(localStorage.getItem(KEY))}catch(e){R=null}
+if(!R||typeof R!=='object'||!R.ws){R={genre:null,ws:{},custom:defCustom()};
+  try{const o=JSON.parse(localStorage.getItem(OLDKEY));if(o&&Array.isArray(o.heroes)&&(o.heroes.length||o.story))R.ws.fantasy={heroes:o.heroes,sys:o.sys,story:o.story,sesi:o.sesi,draft:o.draft}}catch(e){}}
+R.custom=Object.assign(defCustom(),R.custom||{});R.custom.kejadian=Object.assign({buruk:30,tenang:40,baik:30},R.custom.kejadian||{});R.custom.istilah=Object.assign(defCustom().istilah,R.custom.istilah||{});
+function GD(g){return g==='custom'?R.custom:GENRES[g]}
+function G(){return GD(R.genre)}
+function ws(g){if(!R.ws[g])R.ws[g]={heroes:[],sys:defSys(g),story:null,sesi:null};const w=R.ws[g];w.sys=Object.assign(defSys(g),w.sys||{});w.heroes=w.heroes||[];w.heroes.forEach(h=>{h.gf=h.gf||{};h.uid=h.uid||uid()});return w}
+let W=R.genre?ws(R.genre):null;
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(R))}catch(e){}};
+
+/* ======================= HELPERS ======================= */
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const num=(v,d=0)=>{const n=parseFloat(v);return isNaN(n)?d:n};
+/* ---- Sistem dadu D&D polyhedral ---- */
+const POOLS={'d20':[20],'d12+d8':[12,8],'d8+d6+d4':[8,6,4],'d10+d6+d4':[10,6,4]};
+const POOL_DESC={'d20':'untung-untungan, sering Kritis','d12+d8':'stabil','d8+d6+d4':'sangat stabil','d10+d6+d4':'stabil, sedikit lebih kuat'};
+const TIERS=[{k:'sangat_mudah',n:'Sangat Mudah',d:[4,6]},{k:'mudah',n:'Mudah',d:[8,6]},{k:'sedang',n:'Sedang',d:[12,8]},{k:'sulit',n:'Sulit',d:[20,6]},{k:'sangat_sulit',n:'Sangat Sulit',d:[20,12]},{k:'mustahil',n:'Mustahil',d:[20,12,8]}];
+const BOSS_TIERS=[{k:'bos_lemah',n:'Bos Lemah',d:[12,8]},{k:'bos_kuat',n:'Bos Kuat',d:[20,6]},{k:'raja_bos',n:'Raja Bos',d:[20,12]}];
+const sum=a=>a.reduce((x,y)=>x+y,0);
+const dStr=a=>a.map(x=>'d'+x).join(' + ');
+const rollArr=a=>a.reduce((t,x)=>t+1+Math.floor(Math.random()*x),0);
+const tierOf=(k,list=TIERS)=>list.find(t=>t.k===k);
+function findTier(v,list=TIERS){if(v===undefined||v===null||v==='')return null;const raw=String(v).toLowerCase().trim(),s=raw.replace(/[\s-]+/g,'_');
+  let t=list.find(x=>x.k===s||x.n.toLowerCase()===raw);if(t)return t.k;
+  t=[...list].sort((a,b)=>b.k.length-a.k.length).find(x=>s.includes(x.k));return t?t.k:null}
+function tkToTier(n){n=num(n,NaN);if(isNaN(n))return null;return n<=7?'sangat_mudah':n<=9?'mudah':n<=12?'sedang':n<=15?'sulit':n<=19?'sangat_sulit':'mustahil'}
+function shiftTier(k,by,list=TIERS){const i=list.findIndex(t=>t.k===k);if(i<0)return k;return list[clamp(i+by,0,list.length-1)].k}
+function rollD100(){const v=Math.floor(Math.random()*10)*10+Math.floor(Math.random()*10);return v===0?100:v}
+function dv(el){const mn=num(el.dataset.min,1),mx=num(el.dataset.max,100),v=parseInt(el.value,10),ok=v>=mn&&v<=mx;el.classList.toggle('bad',el.value!==''&&!ok);return ok?v:null}
+function dieInput(cls,dice,extra=''){const mn=dice.length,mx=sum(dice);return `<span style="display:flex;gap:4px;align-items:center"><input class="die ${cls}" type="number" data-min="${mn}" data-max="${mx}" data-dice="${dice.join(',')}" ${extra}><button class="dbtn" data-acak="1" type="button">Acak</button></span>`}
+function setDice(inp,dice){inp.dataset.dice=dice.join(',');inp.dataset.min=dice.length;inp.dataset.max=sum(dice);dv(inp)}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-acak]');if(!b)return;const inp=b.parentElement.querySelector('input.die');if(!inp)return;
+  const d=inp.dataset.dice==='d100'?null:inp.dataset.dice.split(',').map(Number);inp.value=d?rollArr(d):rollD100();dv(inp);inp.dispatchEvent(new Event('input',{bubbles:true}))});
+/* distribusi peluang */
+function distOf(dice){let d={0:1};dice.forEach(n=>{const nd={};for(const s in d)for(let k=1;k<=n;k++){const t=+s+k;nd[t]=(nd[t]||0)+d[s]/n}d=nd});return d}
+function conv(a,b){const r={};for(const x in a)for(const y in b){const t=+x+ +y;r[t]=(r[t]||0)+a[x]*b[y]}return r}
+function shiftDist(d,by){const r={};for(const k in d)r[+k+by]=d[k];return r}
+function pSuccess(pool,bonus,tierDice){const P=distOf(pool),D=distOf(tierDice),mx=sum(pool),mn=pool.length;let ok=0;
+  for(const r in P)for(const c in D){const rv=+r;if(rv===mx||(rv!==mn&&rv+bonus>=+c))ok+=P[r]*D[c]}return ok}document.addEventListener('input',e=>{if(e.target.classList&&e.target.classList.contains('die'))dv(e.target)});
+function download(name,obj){const b=new Blob([JSON.stringify(obj,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}
+function readFile(input,cb){const f=input.files[0];if(!f)return;const r=new FileReader();r.onload=()=>cb(r.result);r.readAsText(f);input.value=''}
+function modal(html){$('modalBody').innerHTML=html;$('modal').classList.add('show')}
+function closeModal(){$('modal').classList.remove('show')}
+$('modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal()});
+
+/* ======================= TERMINOLOGI GENRE ======================= */
+const TERM_RE=/\b(Stack Bayangan|Stack|Nyawa|nyawa|Ramuan|ramuan|Tumbang|tumbang|Pahlawan|pahlawan|Bos|bos)\b/g;
+const TERM_T=/\b(Stack Bayangan|Stack|Nyawa|nyawa|Ramuan|ramuan|Tumbang|tumbang|Pahlawan|pahlawan|Bos|bos)\b/;
+const TERM_KEY={'Stack Bayangan':'stack','Stack':'stack','Nyawa':'nyawa','nyawa':'nyawa','Ramuan':'ramuan','ramuan':'ramuan','Tumbang':'tumbang','tumbang':'tumbang','Pahlawan':'pahlawan','pahlawan':'pahlawan','Bos':'bos','bos':'bos'};
+function termFor(word){if(!R.genre)return word;const v=(G().istilah||{})[TERM_KEY[word]];if(!v||v.includes(word))return word;
+  return word[0]===word[0].toLowerCase()?v.toLowerCase():v}
+const ORIG=new WeakMap();
+function applyTerms(root){if(!R.genre)return;const tw=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode(n){const p=n.parentElement;if(!p)return 2;
+    if(p.closest('.noterm,script,style,textarea'))return 2;return (ORIG.has(n)||TERM_T.test(n.nodeValue))?1:2}});
+  const nodes=[];while(tw.nextNode())nodes.push(tw.currentNode);
+  nodes.forEach(n=>{const base=ORIG.has(n)?ORIG.get(n):n.nodeValue;TERM_RE.lastIndex=0;const nv=base.replace(TERM_RE,m=>termFor(m));
+    if(nv!==base&&!ORIG.has(n))ORIG.set(n,base);if(n.nodeValue!==nv)n.nodeValue=nv})}
+let termBusy=false;
+const termObs=new MutationObserver(()=>{if(termBusy)return;termBusy=true;termObs.disconnect();try{applyTerms(document.body)}finally{termObs.observe(document.body,{childList:true,subtree:true,characterData:true});termBusy=false}});
+function T(k){return (R.genre&&G().istilah&&G().istilah[k])||({nyawa:'Nyawa',ramuan:'Ramuan',stack:'Stack Bayangan',tumbang:'Tumbang',pahlawan:'Pahlawan',bos:'Bos'})[k]}
+
+/* ======================= GENRE PICKER ======================= */
+function renderGenres(){
+  $('genreList').innerHTML=GENRE_ORDER.map((g,i)=>{const d=GD(g),w=R.ws[g];const nh=w?w.heroes.length:0,st=w&&w.story?(w.story.judul||'cerita dimuat'):'';
+    return `<button class="gcard" data-genre="${g}"><span class="gn">${i+1}</span><span><span class="gt">${esc(d.nama)}</span><div class="gd">${esc(d.desc)}</div></span>
+    <span style="display:flex;align-items:center"><span class="gs">${nh?nh+' tokoh':''}${st?`<br>${esc(st)}`:''}${w&&w.sesi&&!w.sesi.ended?'<br>sesi berjalan':''}</span><span class="arrow">›</span></span></button>`}).join('');
+  $('genreList').querySelectorAll('[data-genre]').forEach(b=>b.onclick=()=>pickGenre(b.dataset.genre));
+}
+function pickGenre(g){R.genre=g;W=ws(g);save();updateChrome();renderHeroes();renderSys();applyTerms(document.body);showTab(W.sesi&&!W.sesi.ended&&W.story?'play':'heroes')}
+function updateChrome(){const on=!!R.genre;$('mainNav').style.display=on?'':'none';$('genreBadge').style.display=on?'':'none';$('changeGenre').style.display=on?'':'none';
+  if(on)$('genreBadge').textContent='Genre: '+G().nama;$('exportAll').style.display=on?'':'none'}
+$('changeGenre').onclick=()=>{renderGenres();showTab('genre')};
+document.addEventListener('keydown',e=>{if(!$('p-genre').classList.contains('active'))return;if(['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName))return;const n=parseInt(e.key,10);if(n>=1&&n<=GENRE_ORDER.length)pickGenre(GENRE_ORDER[n-1])});
+
+/* tabs */
+function showTab(p){if(p!=='genre'&&!R.genre)p='genre';if(p==='genre')renderGenres();if(p==='heroes')renderHeroes();document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.p===p));document.querySelectorAll('.page').forEach(x=>x.classList.toggle('active',x.id==='p-'+p));if(p==='prompt')renderSys();if(p==='play')renderPlay()}
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>showTab(t.dataset.p));
+
+/* ======================= 1. HEROES ======================= */
+const SK_TYPES=[['bonus','+X ke satu lemparan pahlawan ini'],['bonus_tim','+X ke Serangan Bos tim'],['auto_kritis','Lemparan berikutnya otomatis Kritis'],['perisai','Batalkan luka tim pada satu hasil'],['pulih_semua','Pulihkan X Nyawa semua pahlawan'],['lempar_ulang','Ulangi satu lemparan'],['catat','Hanya dicatat (efek dibacakan GM)']];
+const SP_TYPES=[['tumbal','Tumbal-Selamatkan: rekan pulih 2 Nyawa'],['putar','Putar Waktu: ulangi satu lemparan / batalkan efek buruk'],['lain','Lainnya (dicatat)']];
+const newHero=()=>({uid:uid(),pw:'',sifat:null,build:null,gf:{},dadu:'',id:'',nama:'',kelas:'',senjata:'',bonus:'',nyawa:3,dasar:'',sk:{nama:'',efek:'',tipe:'bonus',nilai:''},sp:{nama:'',biaya:1,efek:'',pola:'putar'},kep:''});
+function slug(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'').slice(0,20)}
+function heroWarn(h){const w=[];if(!h.nama)w.push('nama');(G().build||[]).forEach(b=>{if(b.nama&&!String((h.gf||{})[b.id]||'').trim())w.push(b.nama.toLowerCase())});if(h.bonus===''||isNaN(parseFloat(h.bonus))||!h.sifat)w.push('lempar build (bonus & sifat)');if(!POOLS[h.dadu])w.push('dadu kelas');if(!h.sk.nama)w.push('nama Skill Khusus');if(!h.sp.nama)w.push('nama Skill Pengorbanan');return w}
+function renderHeroes(){if(!W)return;renderRules();renderBuildStatus();
+  if(!W.heroes.length){$('heroList').innerHTML='<div class="hint">Belum ada pahlawan. Klik <b>+ Tambah pahlawan</b>.</div>';return}
+  setTimeout(loadThumbs,0);
+  $('heroList').innerHTML=W.heroes.map((h,i)=>{const w=heroWarn(h);return `<details class="hcard" ${h._open?'open':''} data-i="${i}">
+  <summary><span>${esc(h.nama||'Pahlawan tanpa nama')} <span class="small">${esc(h.kelas)}${h.bonus!==''?` · bonus +${esc(h.bonus)}`:''}</span></span>
+  <span class="small" style="color:${w.length?'var(--wax)':'var(--moss)'}">${w.length?'Belum lengkap: '+w.join(', '):'Lengkap'}</span></summary>
+  <div class="grid3" style="margin-top:10px">
+    ${fld(i,'nama','Nama')}${fld(i,'id','ID (otomatis dari nama, huruf kecil)')}${fld(i,'kelas','Kelas / peran')}
+    ${fld(i,'senjata','Senjata + ciri khas')}${fld(i,'nyawa','Nyawa maksimum','number')}<div></div>
+  </div>
+  <div class="field" style="margin-top:8px"><label>Dadu kelas (dilempar pemain setiap cek)</label><select data-i="${i}" data-f="dadu"><option value="">— pilih dadu kelas —</option>${Object.keys(POOLS).map(k=>`<option value="${k}" ${h.dadu===k?'selected':''}>${dStr(POOLS[k])} · hasil ${POOLS[k].length}–${sum(POOLS[k])} · ${POOL_DESC[k]}</option>`).join('')}</select></div>
+  <div class="buildbox"><div class="bx"><span class="small">Bonus dadu dasar (d4 + 1)</span><b>${h.bonus!==''&&h.build?`+${esc(h.bonus)}`:'—'}</b>${h.build?`<span class="small">d4 = ${h.build.d4}</span>`:''}</div>
+    <div class="bx"><span class="small">Sifat baik (d20)</span><b>${h.sifat?esc(h.sifat.baik):'—'}</b>${h.sifat?`<span class="small">d20 = ${h.sifat.db}</span>`:''}</div>
+    <div class="bx"><span class="small">Sifat buruk (d20)</span><b>${h.sifat?esc(h.sifat.buruk):'—'}</b>${h.sifat?`<span class="small">d20 = ${h.sifat.dr}</span>`:''}</div>
+    <button class="btn alt" data-rollbuild="${i}" type="button">${h.build?'Lempar ulang build':'Lempar build'}</button></div>
+  <div class="field" style="margin-top:8px"><label>Kemampuan dasar (dipakai tanpa batas)</label><input data-i="${i}" data-f="dasar" value="${esc(h.dasar)}"></div>
+  ${(G().build||[]).filter(b=>b.nama).length?`<div class="sec"><b class="t">Build khusus genre ${esc(G().nama)}</b><div class="grid2" style="margin-top:6px">${(G().build||[]).filter(b=>b.nama).map(b=>`<div class="field"><label>${esc(b.nama)}${b.ket?` <span class="small">(${esc(b.ket)})</span>`:''}</label><input data-i="${i}" data-f="gf.${esc(b.id)}" value="${esc((h.gf||{})[b.id]||'')}"></div>`).join('')}</div></div>`:''}
+  <div class="sec"><b class="t">Skill Khusus — 3x per cerita</b>
+    <div class="grid3" style="margin-top:6px">
+      ${fld(i,'sk.nama','Nama skill')}
+      <div class="field"><label>Efek mekanis</label><select data-i="${i}" data-f="sk.tipe">${SK_TYPES.map(([v,l])=>`<option value="${v}" ${h.sk.tipe===v?'selected':''}>${l}</option>`).join('')}</select></div>
+      ${['bonus','bonus_tim','pulih_semua'].includes(h.sk.tipe)?fld(i,'sk.nilai','Nilai X','number'):'<div></div>'}
+    </div>
+    <div class="field" style="margin-top:6px"><label>Efek (kalimat untuk cerita)</label><input data-i="${i}" data-f="sk.efek" value="${esc(h.sk.efek)}"></div>
+  </div>
+  <div class="sec"><b class="t">Skill Pengorbanan — dibayar dengan Nyawa</b>
+    <div class="grid3" style="margin-top:6px">
+      ${fld(i,'sp.nama','Nama skill')}
+      <div class="field"><label>Pola</label><select data-i="${i}" data-f="sp.pola">${SP_TYPES.map(([v,l])=>`<option value="${v}" ${h.sp.pola===v?'selected':''}>${l}</option>`).join('')}</select></div>
+      ${fld(i,'sp.biaya','Biaya (Nyawa diri sendiri)','number')}
+    </div>
+    <div class="field" style="margin-top:6px"><label>Efek (kalimat untuk cerita)</label><input data-i="${i}" data-f="sp.efek" value="${esc(h.sp.efek)}"></div>
+  </div>
+  <div class="field sec"><label>Catatan kepribadian (bahan narasi AI)</label><textarea rows="2" data-i="${i}" data-f="kep">${esc(h.kep)}</textarea></div>
+  <div class="sec"><b class="t">Kartu karakter</b>
+    <div class="photo-row" style="margin-top:6px">
+      <div><img class="thumb" data-thumb="${esc(h.uid)}" alt="" style="display:none"><div class="thumb empty" data-thumbempty="${esc(h.uid)}">Belum ada foto</div></div>
+      <div style="flex:1;min-width:220px">
+        <div class="actions" style="margin-top:0"><label class="dbtn" style="cursor:pointer">Pilih foto<input type="file" accept="image/*" data-photo="${i}" hidden></label><button class="dbtn red" data-photodel="${i}" type="button">Hapus foto</button></div>
+        <div class="field" style="margin-top:8px"><label>Password kartu (dibuat pemain sendiri)</label><input data-i="${i}" data-f="pw" value="${esc(h.pw||'')}" autocomplete="off"></div>
+        <div class="actions"><button class="btn" data-card="${i}" type="button">Unduh kartu (PNG)</button><button class="btn alt" data-link="${i}" type="button">Salin link + pesan WA</button></div>
+      </div>
+    </div>
+  </div>
+  <div class="actions"><button class="dbtn red" data-del="${i}">Hapus pahlawan ini</button></div>
+  </details>`}).join('');
+}
+function loadThumbs(){W.heroes.forEach(h=>{IDB.get(photoKey(h)).then(v=>{const im=document.querySelector(`[data-thumb="${h.uid}"]`),em=document.querySelector(`[data-thumbempty="${h.uid}"]`);if(!im)return;if(v){im.src=v;im.style.display='';em.style.display='none'}else{im.style.display='none';em.style.display=''}})})}
+function fld(i,f,label,type='text'){const v=f.split('.').reduce((o,k)=>o[k],W.heroes[i]);return `<div class="field"><label>${label}</label><input type="${type}" data-i="${i}" data-f="${f}" value="${esc(v)}"></div>`}
+$('heroList').addEventListener('input',e=>{const t=e.target;if(t.dataset.f===undefined)return;const h=W.heroes[+t.dataset.i];h.gf=h.gf||{};const p=t.dataset.f.split('.');
+  let o=h;for(let k=0;k<p.length-1;k++)o=o[p[k]];o[p[p.length-1]]=t.value;
+  if(t.dataset.f==='nama'&&(!h._idManual)){h.id=slug(t.value);const idIn=document.querySelector(`[data-i="${t.dataset.i}"][data-f="id"]`);if(idIn)idIn.value=h.id}
+  if(t.dataset.f==='id'){h._idManual=true;h.id=slug(t.value)}
+  save();renderBuildStatus();const smry=t.closest('details').querySelector('summary');const w=heroWarn(h);
+  smry.innerHTML=`<span>${esc(h.nama||'Pahlawan tanpa nama')} <span class="small">${esc(h.kelas)}${POOLS[h.dadu]?` · ${dStr(POOLS[h.dadu])}`:''}${h.bonus!==''?` +${esc(h.bonus)}`:''}</span></span><span class="small" style="color:${w.length?'var(--wax)':'var(--moss)'}">${w.length?'Belum lengkap: '+w.join(', '):'Lengkap'}</span>`});
+$('heroList').addEventListener('change',e=>{if(e.target.dataset.photo!==undefined){const h=W.heroes[+e.target.dataset.photo];const file=e.target.files[0];if(file)resizePhoto(file).then(d=>IDB.set(photoKey(h),d)).then(loadThumbs).catch(err=>alert('Foto gagal dimuat: '+err.message));e.target.value='';return}
+  if(e.target.dataset.f==='dadu'){const h=W.heroes[+e.target.dataset.i];h.dadu=e.target.value;save();W.heroes.forEach(x=>x._open=false);h._open=true;renderHeroes();return}if(e.target.dataset.f==='sk.tipe'){W.heroes.forEach(x=>x._open=false);W.heroes[+e.target.dataset.i]._open=true;save();renderHeroes()}});
+$('heroList').addEventListener('toggle',e=>{const d=e.target;if(d.dataset&&d.dataset.i!==undefined){W.heroes[+d.dataset.i]._open=d.open;save()}},true);
+$('heroList').addEventListener('click',e=>{const rb=e.target.closest('[data-rollbuild]');if(rb){const h=W.heroes[+rb.dataset.rollbuild];if(h.build&&!confirm(`Lempar ulang build ${h.nama||''}? Bonus dan sifat lama akan diganti.`))return;rollBuild(h);W.heroes.forEach(x=>x._open=false);h._open=true;save();renderHeroes();return}
+  const cb=e.target.closest('[data-card]');if(cb){downloadCard(W.heroes[+cb.dataset.card]);return}
+  const lb=e.target.closest('[data-link]');if(lb){shareLink(W.heroes[+lb.dataset.link]);return}
+  const pd=e.target.closest('[data-photodel]');if(pd){const h=W.heroes[+pd.dataset.photodel];IDB.del(photoKey(h)).then(loadThumbs);return}
+  const b=e.target.closest('[data-del]');if(!b)return;const h=W.heroes[+b.dataset.del];if(confirm(`Hapus ${h.nama||'pahlawan ini'}?`)){W.heroes.splice(+b.dataset.del,1);save();renderHeroes()}});
+$('addHero').onclick=()=>{W.heroes.forEach(x=>x._open=false);const h=newHero();h._open=true;W.heroes.push(h);save();renderHeroes()};
+
+const CORE_BUILD=['Nama (dan ID otomatis)','Kelas / peran','Senjata atau alat utama + ciri khasnya','Dadu kelas: pilih satu dari d20, d12 + d8, d8 + d6 + d4, atau d10 + d6 + d4','Bonus dadu dasar: DILEMPAR SISTEM (d4 + 1, hasil +2 sampai +5), selalu ditambahkan ke setiap lemparan','Sifat baik dan sifat buruk: DILEMPAR SISTEM (d20 dari tabel genre)','Nyawa maksimum (standar 3)','Kemampuan dasar, dipakai tanpa batas','Skill Khusus: nama, efek cerita, dan efek mekanis. Dipakai 3x per cerita','Skill Pengorbanan: nama, pola, dan biaya Nyawa. Efeknya harus sepadan dengan biayanya','Catatan kepribadian untuk bahan narasi','Password kartu (dibuat pemain sendiri) dan foto (opsional) untuk kartu karakter'];
+function renderRules(){const g=G(),isC=R.genre==='custom';
+  const terms=TERM_LABELS.map(([k,l])=>`<tr><td>${l}</td><td><b>${esc(g.istilah[k])}</b></td></tr>`).join('');
+  if(!isC){$('genreRules').innerHTML=`<div><h2>Aturan Genre: ${esc(g.nama)}</h2><p><i>${esc(g.desc)}</i></p>
+    <div class="grid2"><div><h3>Yang harus dibuild setiap pemain</h3><ol class="rules">${CORE_BUILD.map(x=>`<li>${esc(x)}</li>`).join('')}${g.build.map(b=>`<li><b>${esc(b.nama)}</b>${b.ket?` — ${esc(b.ket)}`:''}</li>`).join('')}</ol></div>
+    <div><h3>Istilah di genre ini</h3><table class="grid termtbl noterm">${terms}</table>
+    <h3>Nada cerita</h3><p class="small">${esc(g.nada)}</p><h3>Aturan khusus genre</h3><p class="small">${esc(g.aturan)}</p>${evInfo(g)}${traitInfo()}</div></div></div>`;return}
+  $('genreRules').innerHTML=`<div><h2>Aturan Genre Custom</h2><p class="small">Atur genre buatanmu. Perubahan tersimpan otomatis dan langsung dipakai di prompt dan di meja permainan.</p>
+   <div class="grid2"><div class="field"><label>Nama genre</label><input data-c="nama" value="${esc(g.nama)}"></div><div class="field"><label>Deskripsi singkat</label><input data-c="desc" value="${esc(g.desc)}"></div></div>
+   <div class="field" style="margin-top:8px"><label>Nada cerita</label><textarea rows="2" data-c="nada">${esc(g.nada)}</textarea></div>
+   <div class="field" style="margin-top:8px"><label>Aturan khusus genre</label><textarea rows="2" data-c="aturan">${esc(g.aturan)}</textarea></div>
+   <h3>Istilah</h3><div class="grid3 noterm">${TERM_LABELS.map(([k,l])=>`<div class="field"><label>${l} disebut</label><input data-ci="${k}" value="${esc(g.istilah[k])}"></div>`).join('')}</div>
+   <h3>Kejadian acak d100 (persen)</h3><div class="row noterm"><div class="field"><label>Buruk %</label><input type="number" data-ck="buruk" value="${esc(g.kejadian.buruk)}" style="width:90px"></div><div class="field"><label>Tenang %</label><input type="number" data-ck="tenang" value="${esc(g.kejadian.tenang)}" style="width:90px"></div><div class="field"><label>Baik % (otomatis)</label><input disabled value="${100-num(g.kejadian.buruk)-num(g.kejadian.tenang)}" style="width:90px"></div></div>${evInfo(g)}
+   <p class="small">Genre Custom memakai tabel sifat umum.</p>${traitInfo()}
+   <h3>Build khusus genre (wajib diisi setiap pemain)</h3>
+   ${g.build.map((b,i)=>`<div class="row" style="margin-bottom:6px"><input class="s" data-cb="${i}" data-k="nama" value="${esc(b.nama)}" placeholder="nama kolom, mis. Kekuatan gaib" style="flex:1"><input class="s" data-cb="${i}" data-k="ket" value="${esc(b.ket||'')}" placeholder="keterangan (opsional)" style="flex:1"><button class="dbtn red" data-cbdel="${i}">Hapus</button></div>`).join('')||'<p class="small">Belum ada kolom tambahan.</p>'}
+   <div class="actions"><button class="dbtn" id="cbAdd">+ Kolom build</button></div>
+   <h3>Yang harus dibuild setiap pemain</h3><ol class="rules small">${CORE_BUILD.map(x=>`<li>${esc(x)}</li>`).join('')}${g.build.filter(b=>b.nama).map(b=>`<li><b>${esc(b.nama)}</b>${b.ket?` — ${esc(b.ket)}`:''}</li>`).join('')}</ol></div>`;
+  $('cbAdd').onclick=()=>{g.build.push({id:'c'+Date.now().toString(36),nama:'',ket:''});save();renderHeroes()};
+}
+$('genreRules').addEventListener('input',e=>{if(R.genre!=='custom')return;const t=e.target,g=R.custom;
+  if(t.dataset.c){g[t.dataset.c]=t.value;if(t.dataset.c==='nama')updateChrome()}
+  if(t.dataset.ci){g.istilah[t.dataset.ci]=t.value}
+  if(t.dataset.cb!==undefined){g.build[+t.dataset.cb][t.dataset.k]=t.value}
+  if(t.dataset.ck){g.kejadian[t.dataset.ck]=num(t.value,0);g.kejadian.baik=100-num(g.kejadian.buruk)-num(g.kejadian.tenang)}save()});
+$('genreRules').addEventListener('change',e=>{if(R.genre==='custom'&&(e.target.dataset.cb!==undefined||e.target.dataset.ci||e.target.dataset.ck)){setTimeout(()=>{renderHeroes();applyTerms(document.body)},180)}});
+$('genreRules').addEventListener('click',e=>{const b=e.target.closest('[data-cbdel]');if(!b)return;R.custom.build.splice(+b.dataset.cbdel,1);save();renderHeroes()});
+function traitInfo(){const t=traitTable(R.genre);return `<details class="gm"><summary>Tabel sifat d20 genre ini</summary><div class="scroll"><table class="grid noterm" style="font-size:13px"><tr><th>d20</th><th>Sifat baik</th><th>Sifat buruk</th></tr>${t.baik.map((b,i)=>`<tr><td>${i+1}</td><td>${esc(b)}</td><td>${esc(t.buruk[i])}</td></tr>`).join('')}</table></div></details>`}
+function evInfo(g){const bs=bands(g.kejadian);const k=g.kejadian||{};return `<h3>Kejadian acak d100</h3><p class="small">${num(k.buruk)}% buruk · ${num(k.tenang)}% tenang · ${100-num(k.buruk)-num(k.tenang)}% baik. Dilempar saat GM mau.</p>
+  <table class="grid noterm" style="font-size:13px">${bs.map(b=>`<tr><td>${pad2(b.a)}${b.z!==b.a?'–'+pad2(b.z):''}</td><td>${EV_TYPES[b.j]}</td></tr>`).join('')}</table>`}
+function renderBuildStatus(){const n=W.heroes.length,ok=W.heroes.filter(h=>!heroWarn(h).length).length;
+  $('buildStatus').innerHTML=n?`<div class="${ok===n?'ok':'hint'}"><b>Status build:</b> ${ok} dari ${n} pahlawan sudah lengkap sesuai aturan genre ${esc(G().nama)}.${ok<n?' Buka kartu yang bertanda "Belum lengkap".':' Siap membuat cerita di tab 2.'}</div>`:''}
+
+/* ======================= BUILD DADU ======================= */
+function rollBuild(h){const d4=1+Math.floor(Math.random()*4),db=1+Math.floor(Math.random()*20),dr=1+Math.floor(Math.random()*20);const t=traitTable(R.genre);
+  h.bonus=String(d4+1);h.build={d4,at:new Date().toISOString()};h.sifat={baik:t.baik[db-1],buruk:t.buruk[dr-1],db,dr}}
+
+/* ======================= FORMULIR WA ======================= */
+const FORM_HEAD='FORMULIR KARAKTER';
+function waForm(){const g=G();const L=[];const pk=Object.keys(POOLS);
+  L.push(`*${FORM_HEAD} — ${g.nama.toUpperCase()}*`);L.push('_Isi setelah tanda titik dua (:), lalu kirim balik ke Pencerita. Jangan ubah tulisan sebelum titik dua._');L.push('');
+  L.push('Nama: ');L.push('Kelas / Peran: ');L.push('Senjata & ciri khas: ');
+  L.push('Dadu kelas (pilih angka 1-4): ');pk.forEach((k,i)=>L.push(`   ${i+1} = ${dStr(POOLS[k])} (${POOL_DESC[k]})`));
+  L.push('Kemampuan dasar: ');
+  (g.build||[]).filter(b=>b.nama).forEach(b=>L.push(`${b.nama}${b.ket?` (${b.ket})`:''}: `));
+  L.push('');L.push('*Skill Khusus (dipakai 3x per cerita)*');L.push('Skill Khusus - nama: ');L.push('Skill Khusus - efek: ');
+  L.push('Skill Khusus - jenis efek (pilih angka 1-7): ');SK_TYPES.forEach(([v,l],i)=>L.push(`   ${i+1} = ${l}`));
+  L.push('Skill Khusus - nilai X (hanya untuk jenis 1, 2, 5): ');
+  L.push('');L.push(`*Skill Pengorbanan (bayar 1 ${T('nyawa')})*`);L.push('Skill Pengorbanan - nama: ');
+  L.push('Skill Pengorbanan - pola (pilih angka 1-3): ');SP_TYPES.forEach(([v,l],i)=>L.push(`   ${i+1} = ${l.replace(/:/g,' -')}`));
+  L.push('Skill Pengorbanan - efek: ');
+  L.push('');L.push('Kepribadian: ');L.push('Password kartu (minimal 4 huruf/angka): ');
+  L.push('');L.push('_Bonus dadu (d4 + 1) dan sifat (d20) akan dilempar oleh Pencerita. Tidak perlu diisi._');
+  return L.join('\n').replace(/Nyawa/g,T('nyawa'))}
+const normL=s=>String(s).toLowerCase().replace(/\([^)]*\)/g,'').replace(/[^a-z0-9]/g,'');
+function formKeys(){const m=[['nama','nama'],['kelasperan','kelas'],['senjatacirikhas','senjata'],['senjata','senjata'],['dadukelas','dadu'],['kemampuandasar','dasar'],
+  ['skillkhususnama','sk.nama'],['skillkhususefek','sk.efek'],['skillkhususjenisefek','sk.tipe'],['skillkhususnilaix','sk.nilai'],
+  ['skillpengorbanannama','sp.nama'],['skillpengorbananpola','sp.pola'],['skillpengorbananefek','sp.efek'],['kepribadian','kep'],['passwordkartu','pw'],['password','pw']];
+  (G().build||[]).filter(b=>b.nama).forEach(b=>m.push([normL(b.nama),'gf.'+b.id]));return m}
+function parseForms(text){const clean=text.replace(/\r/g,'').replace(/[*_~`]/g,'');
+  const parts=clean.split(new RegExp(FORM_HEAD,'i')).slice(1);const blocks=parts.length?parts:[clean];const keys=formKeys();
+  return blocks.map(b=>{const out={};let last=null;
+    b.split('\n').forEach(line=>{if(!line.trim()){last=null;return}if(/^\s*\d+\s*=/.test(line))return;const ci=line.indexOf(':');
+      if(ci>0){const lab=normL(line.slice(0,ci));const val=line.slice(ci+1).trim();
+        let k=keys.find(([n])=>lab===n)||keys.find(([n])=>n.length>3&&lab.startsWith(n));
+        if(k){out[k[1]]=val;last=k[1];return}}
+      const t=line.trim();if(last&&t&&!/^[-—]/.test(t)&&ci<0&&out[last]!==undefined){out[last]=(out[last]?out[last]+' ':'')+t}});
+    return out}).filter(o=>o.nama)}
+function applyForm(o){const warn=[];const id=slug(o.nama);let h=W.heroes.find(x=>x.id===id);const isNew=!h;if(!h){h=newHero();W.heroes.push(h)}
+  const set=(path,v)=>{if(v===undefined)return;const p=path.split('.');let t=h;for(let i=0;i<p.length-1;i++){t[p[i]]=t[p[i]]||{};t=t[p[i]]}t[p[p.length-1]]=v};
+  ['nama','kelas','senjata','dasar','sk.nama','sk.efek','sp.nama','sp.efek','kep','pw'].forEach(k=>set(k,o[k]));
+  Object.keys(o).filter(k=>k.startsWith('gf.')).forEach(k=>set(k,o[k]));
+  h.id=slug(h.nama);h._idManual=false;
+  if(o.dadu!==undefined){const pk=Object.keys(POOLS);const n=parseInt(o.dadu,10);let d=null;if(n>=1&&n<=pk.length)d=pk[n-1];else{const t=o.dadu.toLowerCase().replace(/\s+/g,'');d=pk.find(k=>k===t)||null}
+    if(d)h.dadu=d;else warn.push(`dadu kelas "${o.dadu}" tidak dikenali`)}
+  if(o['sk.tipe']!==undefined){const n=parseInt(o['sk.tipe'],10);if(n>=1&&n<=SK_TYPES.length)h.sk.tipe=SK_TYPES[n-1][0];else if(o['sk.tipe'])warn.push('jenis efek Skill Khusus tidak dikenali')}
+  if(o['sk.nilai']!==undefined&&o['sk.nilai']!=='')h.sk.nilai=String(parseInt(o['sk.nilai'],10)||'');
+  if(o['sp.pola']!==undefined){const n=parseInt(o['sp.pola'],10);if(n>=1&&n<=SP_TYPES.length)h.sp.pola=SP_TYPES[n-1][0];else if(o['sp.pola'])warn.push('pola Skill Pengorbanan tidak dikenali')}
+  if(h.pw&&h.pw.length<4)warn.push('password kurang dari 4 karakter');
+  if(!h.pw)warn.push('password kosong');
+  return{h,isNew,warn}}
+$('copyForm').onclick=async()=>{const t=waForm();let ok=false;try{await navigator.clipboard.writeText(t);ok=true}catch(e){}
+  if(ok)$('formMsg').textContent='Tersalin! Tempel di WhatsApp.';else modal(`<h2>Formulir WA</h2><p class="small">Salin manual: klik kotak, Ctrl+A lalu Ctrl+C.</p><div class="field"><textarea rows="16" readonly>${esc(t)}</textarea></div><div class="actions"><button class="btn" onclick="closeModal()">Tutup</button></div>`)};
+$('waParse').onclick=()=>{const t=$('waIn').value;if(!t.trim())return alert('Tempel balasan formulir dulu.');const forms=parseForms(t);
+  if(!forms.length){$('waMsg').innerHTML='<div class="warn">Tidak menemukan formulir yang berisi nama. Pastikan baris "Nama:" terisi.</div>';return}
+  const upd=forms.map(o=>slug(o.nama)).filter(id=>W.heroes.find(h=>h.id===id));
+  if(upd.length&&!confirm(`Sudah ada: ${upd.join(', ')}. Data mereka akan diperbarui dari formulir. Lanjut?`))return;
+  const res=forms.map(applyForm);const roll=$('waRoll').checked;
+  res.forEach(r=>{if(roll&&!r.h.build)rollBuild(r.h)});W.heroes.forEach(x=>x._open=false);save();renderHeroes();
+  $('waMsg').innerHTML=`<div class="ok">${res.length} formulir terbaca: ${res.map(r=>`<b>${esc(r.h.nama)}</b> (${r.isNew?'baru':'diperbarui'}${r.h.build?`, bonus +${esc(r.h.bonus)}, ${esc(r.h.sifat.baik)} / ${esc(r.h.sifat.buruk)}`:''})`).join(', ')}</div>`+
+   (res.some(r=>r.warn.length||heroWarn(r.h).length)?`<div class="warn">${res.filter(r=>r.warn.length||heroWarn(r.h).length).map(r=>`<b>${esc(r.h.nama)}:</b> ${esc([...r.warn,...heroWarn(r.h).map(x=>x+' belum ada')].join(', '))}`).join('<br>')}</div>`:'');
+  $('waIn').value=''};
+function siteBase(){let u=(R.siteUrl||'').trim();if(!u&&/^https?:/.test(location.protocol))u=location.origin+location.pathname;if(!u)return '';if(!/^https?:\/\//.test(u))u='https://'+u;return u.replace(/#.*$/,'')}
+$('siteUrl').addEventListener('input',e=>{R.siteUrl=e.target.value;save();siteHintR()});
+function siteHintR(){const b=siteBase();$('siteHint').innerHTML=b?`Link kartu akan memakai alamat: <b>${esc(b)}</b>`:'Isi alamat situs Vercel-mu setelah deploy. Tanpa alamat ini, link kartu tidak bisa dibuat saat file dibuka dari komputer.'}
+
+/* ======================= FOTO (IndexedDB) ======================= */
+const IDB={db:null,open(){return new Promise((res,rej)=>{if(this.db)return res(this.db);const r=indexedDB.open('meja-pencerita',1);r.onupgradeneeded=()=>r.result.createObjectStore('foto');r.onsuccess=()=>{this.db=r.result;res(this.db)};r.onerror=()=>rej(r.error)})},
+  async tx(mode,fn){try{const db=await this.open();return await new Promise((res)=>{const st=db.transaction('foto',mode).objectStore('foto');const q=fn(st);q.onsuccess=()=>res(q.result);q.onerror=()=>res(null)})}catch(e){return null}},
+  get(k){return this.tx('readonly',s=>s.get(k))},set(k,v){return this.tx('readwrite',s=>s.put(v,k))},del(k){return this.tx('readwrite',s=>s.delete(k))},
+  async all(){const ks=await this.tx('readonly',s=>s.getAllKeys())||[];const vs=await this.tx('readonly',s=>s.getAll())||[];const o={};ks.forEach((k,i)=>o[k]=vs[i]);return o}};
+const photoKey=h=>`${R.genre}|${h.uid}`;
+function loadImg(src){return new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=()=>rej(new Error('gambar tidak bisa dibaca'));i.src=src})}
+async function resizePhoto(file){const url=URL.createObjectURL(file);try{const img=await loadImg(url);const mx=1400,sc=Math.min(1,mx/Math.max(img.width,img.height));
+  const c=document.createElement('canvas');c.width=Math.round(img.width*sc);c.height=Math.round(img.height*sc);c.getContext('2d').drawImage(img,0,0,c.width,c.height);return c.toDataURL('image/jpeg',.85)}finally{URL.revokeObjectURL(url)}}
+
+/* ======================= KARTU (1080 × 1920) ======================= */
+function cardData(h){const g=G();return {v:1,g:R.genre,gn:g.nama,acc:ACCENT[R.genre]||'#d9a441',tn:T('nyawa'),tp:T('pahlawan'),
+  nama:h.nama,kelas:h.kelas,senjata:h.senjata,dadu:POOLS[h.dadu]?dStr(POOLS[h.dadu]):'',bonus:h.bonus,nyawa:num(h.nyawa,3),dasar:h.dasar,
+  sk:{n:h.sk.nama,e:h.sk.efek},sp:{n:h.sp.nama,b:num(h.sp.biaya,1),e:h.sp.efek},sf:h.sifat?[h.sifat.baik,h.sifat.buruk]:null,
+  gf:(g.build||[]).filter(b=>b.nama).map(b=>[b.nama,(h.gf||{})[b.id]||'']).filter(x=>String(x[1]).trim()),kep:h.kep}}
+function wrapText(x,text,maxW){const out=[];String(text||'').split('\n').forEach(par=>{const words=par.split(/\s+/).filter(Boolean);let line='';
+  words.forEach(w=>{const t=line?line+' '+w:w;if(x.measureText(t).width>maxW&&line){out.push(line);line=w}else line=t});if(line)out.push(line)});return out}
+function heart(x,cx,cy,r,fill){x.save();x.beginPath();x.moveTo(cx,cy+r*.9);x.bezierCurveTo(cx-r*1.6,cy-r*.1,cx-r*.9,cy-r*1.3,cx,cy-r*.45);x.bezierCurveTo(cx+r*.9,cy-r*1.3,cx+r*1.6,cy-r*.1,cx,cy+r*.9);x.closePath();x.fillStyle=fill;x.fill();x.restore()}
+function rrect(x,X,Y,w,h,r){x.beginPath();x.moveTo(X+r,Y);x.arcTo(X+w,Y,X+w,Y+h,r);x.arcTo(X+w,Y+h,X,Y+h,r);x.arcTo(X,Y+h,X,Y,r);x.arcTo(X,Y,X+w,Y,r);x.closePath()}
+async function drawCard(cd,photo){const CW2=1080,CH=1920,PH=980,M=56,acc=cd.acc||'#d9a441';const c=document.createElement('canvas');c.width=CW2;c.height=CH;const x=c.getContext('2d');
+  const SERIF='Georgia, "Times New Roman", serif',SANS='"Segoe UI", Arial, sans-serif';
+  x.fillStyle='#14100c';x.fillRect(0,0,CW2,CH);
+  if(photo){try{const img=await loadImg(photo);const sc=Math.max(CW2/img.width,PH/img.height);const w=img.width*sc,h=img.height*sc;x.save();x.beginPath();x.rect(0,0,CW2,PH);x.clip();x.drawImage(img,(CW2-w)/2,Math.min(0,(PH-h)*.3),w,h);x.restore()}catch(e){photo=null}}
+  if(!photo){const g=x.createRadialGradient(CW2/2,PH*.45,40,CW2/2,PH*.45,760);g.addColorStop(0,acc+'55');g.addColorStop(1,'#14100c');x.fillStyle=g;x.fillRect(0,0,CW2,PH);
+    x.fillStyle=acc+'aa';x.font=`bold 420px ${SERIF}`;x.textAlign='center';x.textBaseline='middle';x.fillText((cd.nama||'?').trim().charAt(0).toUpperCase(),CW2/2,PH*.43);x.textAlign='left';x.textBaseline='alphabetic'}
+  const gr=x.createLinearGradient(0,PH-560,0,PH+10);gr.addColorStop(0,'rgba(20,16,12,0)');gr.addColorStop(.7,'rgba(20,16,12,.85)');gr.addColorStop(1,'rgba(20,16,12,1)');x.fillStyle=gr;x.fillRect(0,PH-560,CW2,570);
+  const tg=x.createLinearGradient(0,0,0,220);tg.addColorStop(0,'rgba(0,0,0,.55)');tg.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=tg;x.fillRect(0,0,CW2,220);
+  x.font=`bold 30px ${SANS}`;const gl=(cd.gn||'').toUpperCase();const gw=x.measureText(gl).width+44;rrect(x,M,M,gw,58,29);x.fillStyle=acc;x.fill();x.fillStyle='#14100c';x.fillText(gl,M+22,M+40);
+  x.font=`600 26px ${SANS}`;x.fillStyle='rgba(255,255,255,.85)';x.textAlign='right';x.fillText('KARTU KARAKTER',CW2-M,M+38);x.textAlign='left';
+  let fs=104;x.font=`bold ${fs}px ${SERIF}`;while(x.measureText(cd.nama||'').width>CW2-2*M&&fs>56){fs-=4;x.font=`bold ${fs}px ${SERIF}`}
+  x.fillStyle='#fff';x.shadowColor='rgba(0,0,0,.6)';x.shadowBlur=18;x.fillText(cd.nama||'',M,PH-120);x.shadowBlur=0;
+  x.font=`italic 42px ${SERIF}`;x.fillStyle=acc;x.fillText(cd.kelas||'',M,PH-58);
+  // stat boxes
+  const bw=(CW2-2*M-2*22)/3,by=PH+10,bh=132;
+  const boxes=[['DADU KELAS',cd.dadu||'—'],['BONUS',cd.bonus!==''&&cd.bonus!=null?'+'+cd.bonus:'—'],[String(cd.tn||'Nyawa').toUpperCase(),null]];
+  boxes.forEach(([l,v],i)=>{const bx=M+i*(bw+22);rrect(x,bx,by,bw,bh,18);x.fillStyle='rgba(255,255,255,.06)';x.fill();x.strokeStyle=acc+'88';x.lineWidth=2;x.stroke();
+    x.fillStyle='rgba(255,255,255,.6)';x.font=`bold 22px ${SANS}`;x.fillText(l,bx+22,by+42);
+    if(v!==null){let f2=52;x.font=`bold ${f2}px ${SANS}`;while(x.measureText(v).width>bw-44&&f2>28){f2-=2;x.font=`bold ${f2}px ${SANS}`}x.fillStyle='#fff';x.fillText(v,bx+22,by+102)}
+    else{const n=clamp(cd.nyawa||3,1,8),r=n>5?16:22,gap=r*2.7;for(let k=0;k<n;k++)heart(x,bx+22+r+k*gap,by+88,r,'#d8433a')}});
+  // sections
+  const secs=[];const add=(t,b)=>{if(b&&String(b).trim())secs.push([t,String(b).trim()])};
+  add('SENJATA',cd.senjata);add('KEMAMPUAN DASAR',cd.dasar);
+  add('SKILL KHUSUS · 3X PER CERITA',[cd.sk.n,cd.sk.e].filter(Boolean).join(' — '));
+  add(`SKILL PENGORBANAN · BAYAR ${cd.sp.b} ${String(cd.tn||'Nyawa').toUpperCase()}`,[cd.sp.n,cd.sp.e].filter(Boolean).join(' — '));
+  if(cd.sf)add('SIFAT',`Baik: ${cd.sf[0]}\nBuruk: ${cd.sf[1]}`);
+  if(cd.gf&&cd.gf.length)add('LATAR',cd.gf.map(([a,b])=>`${a}: ${b}`).join('\n'));
+  add('KEPRIBADIAN',cd.kep);
+  const top=by+bh+50,bottom=CH-100,maxW=CW2-2*M;
+  const layout=f=>{let h=0;const L=[];x.font=`${f}px ${SERIF}`;secs.forEach(([t,b])=>{const lines=wrapText(x,b,maxW);L.push([t,lines]);h+=f*.9+lines.length*f*1.28+f*.6});return{h,L}};
+  let f=36,lay=layout(f);while(lay.h>bottom-top&&f>18){f-=1;lay=layout(f)}
+  let y=top;lay.L.forEach(([t,lines])=>{x.fillStyle=acc;x.font=`bold ${Math.round(f*.72)}px ${SANS}`;x.fillText(t,M,y);y+=f*.9;
+    x.fillStyle='#efe6d6';x.font=`${f}px ${SERIF}`;lines.forEach(l=>{if(y<bottom+f){x.fillText(l,M,y+f*.3)}y+=f*1.28});y+=f*.6});
+  x.strokeStyle=acc+'66';x.lineWidth=2;x.beginPath();x.moveTo(M,CH-78);x.lineTo(CW2-M,CH-78);x.stroke();
+  x.font=`600 24px ${SANS}`;x.fillStyle='rgba(255,255,255,.55)';x.fillText('MEJA PENCERITA',M,CH-40);x.textAlign='right';x.fillText(`${cd.tp||'Pahlawan'} · ${cd.gn||''}`,CW2-M,CH-40);x.textAlign='left';
+  return c}
+function dlCanvas(c,name){const a=document.createElement('a');a.href=c.toDataURL('image/png');a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>a.remove(),300)}
+async function downloadCard(h){if(!h.nama)return alert('Isi nama dulu.');const photo=await IDB.get(photoKey(h));const c=await drawCard(cardData(h),photo);dlCanvas(c,`kartu-${slug(h.nama)||'karakter'}.png`)}
+
+/* ======================= LINK BERPASSWORD ======================= */
+const b64u=u8=>{let s='';for(let i=0;i<u8.length;i+=0x8000)s+=String.fromCharCode.apply(null,u8.subarray(i,i+0x8000));return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')};
+const unb64u=str=>{const s=atob(str.replace(/-/g,'+').replace(/_/g,'/'));const u=new Uint8Array(s.length);for(let i=0;i<s.length;i++)u[i]=s.charCodeAt(i);return u};
+async function deriveKey(pw,salt){const km=await crypto.subtle.importKey('raw',new TextEncoder().encode(pw),'PBKDF2',false,['deriveKey']);return crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:150000,hash:'SHA-256'},km,{name:'AES-GCM',length:256},false,['encrypt','decrypt'])}
+async function zip(u8){if(!window.CompressionStream)return[0,u8];return[1,new Uint8Array(await new Response(new Blob([u8]).stream().pipeThrough(new CompressionStream('deflate-raw'))).arrayBuffer())]}
+async function unzip(u8){return new Uint8Array(await new Response(new Blob([u8]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).arrayBuffer())}
+async function sealCard(obj,pw){const[cf,body]=await zip(new TextEncoder().encode(JSON.stringify(obj)));const salt=crypto.getRandomValues(new Uint8Array(16)),iv=crypto.getRandomValues(new Uint8Array(12));
+  const ct=new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv},await deriveKey(pw,salt),body));const out=new Uint8Array(29+ct.length);out[0]=cf;out.set(salt,1);out.set(iv,17);out.set(ct,29);return b64u(out)}
+async function openCard(str,pw){const d=unb64u(str);const pt=new Uint8Array(await crypto.subtle.decrypt({name:'AES-GCM',iv:d.slice(17,29)},await deriveKey(pw,d.slice(1,17)),d.slice(29)));return JSON.parse(new TextDecoder().decode(d[0]?await unzip(pt):pt))}
+async function shareLink(h){if(!h.nama)return alert('Isi nama dulu.');if(!h.pw||h.pw.length<4)return alert('Password kartu belum diisi (minimal 4 karakter).');
+  const base=siteBase();if(!base)return alert('Isi dulu "Alamat situs untuk link kartu" di panel Formulir WhatsApp (alamat Vercel-mu).');
+  if(!window.crypto||!crypto.subtle)return alert('Browser ini tidak mendukung penguncian link. Coba buka lewat alamat https (Vercel).');
+  const link=`${base}#k=${await sealCard(cardData(h),h.pw)}`;
+  const msg=`Halo *${h.nama}*! 🎲\nIni kartu karaktermu untuk petualangan *${G().nama}*:\n\n${link}\n\nBuka link di atas, lalu masukkan *password yang kamu buat sendiri* di formulir. Di sana kamu juga bisa menambahkan foto dan mengunduh kartumu.`;
+  let ok=false;try{await navigator.clipboard.writeText(msg);ok=true}catch(e){}
+  modal(`<h2>Link kartu ${esc(h.nama)}</h2><p class="small">${ok?'Pesan sudah tersalin. Tempel di chat WA pemain.':'Salin pesan di bawah secara manual.'} Password tidak ikut dikirim.</p>
+   <div class="field"><textarea rows="8" readonly>${esc(msg)}</textarea></div><div class="actions"><a class="dbtn" href="${esc(link)}" target="_blank" rel="noopener">Coba buka link</a><button class="btn" onclick="closeModal()">Tutup</button></div>`)}
+
+/* ======================= VIEWER (halaman pemain) ======================= */
+let VCD=null,VPH=null;
+async function viewerRender(){const c=await drawCard(VCD,VPH);$('vImg').src=c.toDataURL('image/png');$('vImg')._c=c}
+function viewerText(cd){const row=(a,b)=>b?`<tr><td><b>${esc(a)}</b></td><td>${esc(b)}</td></tr>`:'';
+  return `<h2>${esc(cd.nama)}</h2><p class="small">${esc(cd.kelas||'')} · ${esc(cd.gn||'')}</p><div class="scroll"><table class="grid">${row('Dadu kelas',cd.dadu)}${row('Bonus',cd.bonus?'+'+cd.bonus:'')}${row(cd.tn||'Nyawa',String(cd.nyawa))}${row('Senjata',cd.senjata)}${row('Kemampuan dasar',cd.dasar)}
+   ${row('Skill Khusus (3x per cerita)',[cd.sk.n,cd.sk.e].filter(Boolean).join(' — '))}${row(`Skill Pengorbanan (bayar ${cd.sp.b} ${cd.tn||'Nyawa'})`,[cd.sp.n,cd.sp.e].filter(Boolean).join(' — '))}
+   ${cd.sf?row('Sifat baik',cd.sf[0])+row('Sifat buruk',cd.sf[1]):''}${(cd.gf||[]).map(([a,b])=>row(a,b)).join('')}${row('Kepribadian',cd.kep)}</table></div>`}
+function startViewer(){document.body.classList.add('viewer-mode');const data=location.hash.slice(3);
+  const go=async()=>{const pw=$('vPw').value;if(!pw)return;$('vMsg').innerHTML='<p class="small">Membuka...</p>';
+    try{VCD=await openCard(data,pw);$('vLock').style.display='none';$('vCard').style.display='';document.title=`Kartu ${VCD.nama}`;await viewerRender();$('vText').innerHTML=viewerText(VCD)}
+    catch(e){$('vMsg').innerHTML='<div class="warn">Password salah, atau link tidak lengkap. Pastikan link disalin utuh.</div>'}};
+  $('vOpen').onclick=go;$('vPw').addEventListener('keydown',e=>{if(e.key==='Enter')go()});
+  $('vPhoto').onchange=async e=>{const f=e.target.files[0];if(!f)return;VPH=await resizePhoto(f);await viewerRender()};
+  $('vDl').onclick=()=>{if($('vImg')._c)dlCanvas($('vImg')._c,`kartu-${slug(VCD.nama)||'karakter'}.png`)};
+  if(!window.crypto||!crypto.subtle){$('vMsg').innerHTML='<div class="warn">Browser ini tidak bisa membuka kartu terkunci. Coba Chrome terbaru.</div>'}
+}
+
+/* ======================= 2. SYSTEM + PROMPT ======================= */
+function renderSys(){if(!W)return;const s=W.sys;s.bos=Object.assign({nama:'',tingkat:'',tambahan:''},s.bos||{});
+  $('sJudul').value=s.judul;$('sAdegan').value=s.adegan;$('sRamuan').value=s.ramuan;$('sSbMax').value=s.sbMax;$('sSbBos').value=s.sbBos;
+  $('sPlot').value=s.plot;$('sBosNama').value=s.bos.nama;$('sBosTier').value=s.bos.tingkat||'';$('sBosAdd').value=s.bos.tambahan;
+  $('endList').innerHTML=s.ending.map((t,i)=>`<div class="row" style="margin-bottom:6px"><input class="s" data-en="${i}" data-k="nama" value="${esc(t.nama)}" style="flex:1" aria-label="Nama ending"><span class="small">Stack ≤</span><input class="s" type="number" data-en="${i}" data-k="maks" value="${esc(t.maks)}" style="width:80px" aria-label="Batas stack"><button class="dbtn red" data-endel="${i}">Hapus</button></div>`).join('');
+  const valid=W.heroes.filter(h=>h.id);
+  $('ikutList').innerHTML=valid.length?valid.map(h=>`<label class="chk"><input type="checkbox" data-ikut="${esc(h.id)}" ${s.ikut.includes(h.id)?'checked':''}> ${esc(h.nama)}</label>`).join(''):'<span class="small">Belum ada pahlawan. Isi dulu di tab 1.</span>';
+  $('tierTbl').innerHTML='<tr><th>Tingkat</th><th>Dadu GM</th><th>Hasil</th><th>Rata-rata</th></tr>'+TIERS.map(t=>`<tr><td><b>${t.n}</b></td><td>${dStr(t.d)}</td><td>${t.d.length}–${sum(t.d)}</td><td>${(sum(t.d)+t.d.length)/2}</td></tr>`).join('')+
+    BOSS_TIERS.map(t=>`<tr><td><b>${t.n}</b></td><td>${dStr(t.d)} <i>untuk setiap pahlawan</i></td><td colspan="2">rata-rata ${(sum(t.d)+t.d.length)/2} per pahlawan</td></tr>`).join('');
+  renderChance();
+}
+function syncSys(){const s=W.sys;s.judul=$('sJudul').value;s.adegan=$('sAdegan').value;s.ramuan=num($('sRamuan').value,0);s.sbMax=num($('sSbMax').value,10);s.sbBos=num($('sSbBos').value,2);
+  s.plot=$('sPlot').value;s.bos={nama:$('sBosNama').value,tingkat:$('sBosTier').value,tambahan:$('sBosAdd').value};save();renderChance()}
+['sJudul','sAdegan','sRamuan','sSbMax','sSbBos','sPlot','sBosNama','sBosAdd'].forEach(id=>$(id).addEventListener('input',syncSys));
+$('sBosTier').addEventListener('change',syncSys);
+$('p-prompt').addEventListener('input',e=>{const t=e.target;
+  if(t.dataset.en!==undefined){W.sys.ending[+t.dataset.en][t.dataset.k]=t.dataset.k==='maks'?num(t.value):t.value;save()}});
+$('p-prompt').addEventListener('change',e=>{const t=e.target;if(t.dataset.ikut!==undefined){const id=t.dataset.ikut;W.sys.ikut=W.sys.ikut.filter(x=>x!==id);if(t.checked)W.sys.ikut.push(id);save();renderChance()}});
+$('p-prompt').addEventListener('click',e=>{const t=e.target;
+  if(t.dataset.endel!==undefined){W.sys.ending.splice(+t.dataset.endel,1);save();renderSys()}});
+$('addEnd').onclick=()=>{W.sys.ending.push({nama:'',maks:''});save();renderSys()};
+
+function renderChance(){const s=W.sys;const hs=W.heroes.filter(h=>s.ikut.includes(h.id)&&h.bonus!==''&&POOLS[h.dadu]);
+  const avg=hs.length?hs.reduce((a,h)=>a+num(h.bonus),0)/hs.length:0;
+  const col=p=>`<td style="color:${p<.25||p>.9?'var(--wax)':'var(--moss)'};font-weight:700">${Math.round(p*100)}%</td>`;
+  const pools=Object.keys(POOLS);
+  $('chanceTbl').innerHTML=`<tr><th>Tingkat (bonus +${avg.toFixed(1)})</th>${pools.map(p=>`<th>${dStr(POOLS[p])}</th>`).join('')}</tr>`+
+    TIERS.map(t=>`<tr><td>${t.n}</td>${pools.map(p=>col(pSuccess(POOLS[p],Math.round(avg),t.d))).join('')}</tr>`).join('');
+  if(!hs.length){$('bossChanceTbl').innerHTML='<tr><td class="small">Pilih pahlawan yang ikut (dengan dadu kelas dan bonus terisi) untuk melihat peluang melawan bos.</td></tr>';return}
+  let team={0:1};hs.forEach(h=>{team=conv(team,shiftDist(distOf(POOLS[h.dadu]),num(h.bonus)))});
+  $('bossChanceTbl').innerHTML=`<tr><th>Tingkat bos (${hs.length} pahlawan, Stack 0)</th><th>Menang</th><th>Menang atau Menang Tipis</th></tr>`+BOSS_TIERS.map(t=>{let boss={0:1};for(let i=0;i<hs.length;i++)boss=conv(boss,distOf(t.d));
+    let w=0,wt=0;for(const a in team)for(const b in boss){const p=team[a]*boss[b];if(+a>=+b)w+=p;if(+a>=+b-6)wt+=p}
+    return `<tr><td>${t.n} <span class="small">(${dStr(t.d)} ×${hs.length})</span></td>${col(w)}${col(wt)}</tr>`}).join('');
+}
+
+function heroTable(hs){
+  const gb=(G().build||[]).filter(b=>b.nama);
+  const rows=[[...['ID','Nama','Kelas/Peran','Senjata'],...gb.map(b=>b.nama),'Dadu Kelas','Bonus Dadu Dasar','Sifat Baik','Sifat Buruk','Nyawa Maks','Kemampuan Dasar','Skill Khusus — Nama','Skill Khusus — Efek','Skill Khusus — Batas Pakai','Skill Pengorbanan — Nama','Skill Pengorbanan — Biaya','Skill Pengorbanan — Efek','Catatan Kepribadian']];
+  hs.forEach(h=>{const skt=SK_TYPES.find(x=>x[0]===h.sk.tipe);const spt=SP_TYPES.find(x=>x[0]===h.sp.pola);
+    rows.push([h.id,h.nama,h.kelas,h.senjata,...gb.map(b=>(h.gf||{})[b.id]||''),POOLS[h.dadu]?dStr(POOLS[h.dadu]):'d20','+'+h.bonus,h.sifat?h.sifat.baik:'',h.sifat?h.sifat.buruk:'',h.nyawa,h.dasar,h.sk.nama,`${h.sk.efek}${skt?` [mekanik: ${skt[1].replace('X',h.sk.nilai||'X')}]`:''}`,'3x per cerita',h.sp.nama,`${h.sp.biaya||1} Nyawa (diri sendiri)`,`${h.sp.efek}${spt?` [pola: ${spt[1]}]`:''}`,h.kep])});
+  const c=v=>String(v??'').replace(/\|/g,'/').replace(/\n/g,' ');
+  return rows.map((r,i)=>'| '+r.map(c).join(' | ')+' |'+(i===0?'\n|'+r.map(()=>'---').join('|')+'|':'')).join('\n');
+}
+const FORMAT_ADEGAN=`### Adegan N — [Judul Adegan]
+
+**Narasi:** (2-5 paragraf, jangan spoiler opsi ke pemain)
+
+**Quest terdeteksi:** Ya/Tidak
+  - Jika Ya: [nama quest] — [tujuan singkat] — [reward jika selesai]
+
+**Jenis Tantangan:** Solo / Kelompok / Serangan Bos / Duel / Pilihan-tanpa-dadu
+
+**Parameter Dadu (jika ada tantangan):**
+  - Pemain: Dadu Kelas + bonus karakter (+ bonus item/dukungan bila relevan)
+  - Tingkat Kesulitan: [Sangat Mudah / Mudah / Sedang / Sulit / Sangat Sulit / Mustahil] — GM melempar dadu tingkat itu
+  - Untuk bos: [Bos Lemah / Bos Kuat / Raja Bos] (+ nilai tambahan bila ada)
+  - Kritis: semua dadu pemain angka maksimal. Gagal Total: semua dadu pemain angka 1.
+
+**Opsi Pilihan:**
+  - A. [aksi] (tingkat) → jika berhasil: [efek] / jika gagal: [efek]
+  - B. [aksi] → ...
+  - C. [aksi] → ...
+  - (opsional) D. Gunakan Skill Khusus [nama] milik [karakter] → efek otomatis, KURANGI 1 dari sisa pakai (3x)
+  - (opsional) E. Gunakan Skill Pengorbanan [nama] milik [karakter] → bayar [biaya], efek: [...]
+
+**Kejadian Acak (d100):** tabel kejadian dengan rentang yang ditentukan, isi sesuai adegan & genre
+
+**Reward jika sukses:** item / Ramuan / info / bonus adegan berikut
+
+**Akibat jika gagal:** −Nyawa dan/atau +Stack Bayangan (tabel gap bos: menang=0 luka, menang tipis=−1 Nyawa semua yang ikut, kalah=−1 Nyawa + Stack Bayangan +1)
+
+**Percabangan:** hasil di adegan ini menentukan Adegan N+1 mana yang dibuka (boleh linear)
+
+**Catatan GM (opsional):** dialog kunci, atau syarat tersembunyi`;
+
+const JSON_SPEC=`{
+  "judul": "Judul cerita",
+  "adegan": [
+    {
+      "no": 1,
+      "judul": "Judul adegan",
+      "narasi": "Paragraf 1\\n\\nParagraf 2",
+      "quest": { "ada": true, "nama": "Nama quest", "tujuan": "Tujuan singkat", "reward": "Reward" },
+      "catatan_gm": "Dialog kunci / syarat tersembunyi",
+      "kejadian": [
+        { "dari": 1, "sampai": 10, "jenis": "bencana", "teks": "Narasi kejadian", "efek": { "nyawa_acak": -1 } }
+      ],
+      "opsi": [
+        {
+          "kode": "A",
+          "aksi": "Deskripsi aksi",
+          "jenis": "solo | kelompok | bos | duel | tanpa_dadu | skill_khusus | pengorbanan",
+          "pelaku": ["id_pahlawan"],
+          "tingkat": "Sedang",
+          "bos": { "nama": "Nama bos", "tingkat": "Bos Kuat", "tambahan": 0 },
+          "lawan": { "nama": "Nama lawan duel", "tingkat": "Sulit", "bonus": 0 },
+          "berhasil": "Narasi jika berhasil",
+          "gagal": "Narasi jika gagal",
+          "efek_berhasil": { "stack": 0, "ramuan": 0, "nyawa_semua": 0, "item": "", "quest_selesai": "" },
+          "efek_gagal": { "stack": 1, "nyawa": "gagal | semua | pelaku | tidak" },
+          "lanjut_berhasil": 2,
+          "lanjut_gagal": 2
+        }
+      ]
+    }
+  ],
+  "ending": [
+    { "nama": "Nama ending", "stack_maks": 3, "epilog": "Satu paragraf epilog" }
+  ]
+}`;
+
+$('makePrompt').onclick=()=>{syncSys();const s=W.sys;const msg=[];
+  const hs=W.heroes.filter(h=>s.ikut.includes(h.id));
+  if(!hs.length)msg.push('Pilih minimal satu pahlawan yang ikut.');
+  hs.forEach(h=>{const w=heroWarn(h);if(w.length)msg.push(`${h.nama||h.id}: ${w.join(', ')} belum diisi.`)});
+  if(!s.plot.trim())msg.push('Plot kasar belum diisi.');
+  if(!s.ending.filter(e=>e.nama).length)msg.push('Ambang ending kosong.');
+  if(msg.length){$('promptMsg').innerHTML=`<div class="warn"><b>Lengkapi dulu:</b><br>${msg.map(esc).join('<br>')}</div>`;$('promptBox').style.display='none';return}
+  $('promptMsg').innerHTML='';
+  const gg=G();const bs=bands(gg.kejadian);
+  const avgHero=hs.reduce((a,h)=>a+(sum(POOLS[h.dadu])+POOLS[h.dadu].length)/2+num(h.bonus),0)/hs.length;
+  const bosTier=tierOf(s.bos.tingkat,BOSS_TIERS);
+  const sistem=[['Judul Cerita & Bab',s.judul||'(bebas, tentukan sendiri)'],['Sistem Dadu','Dadu D&D polyhedral (d4, d6, d8, d10, d10 persen, d12, d20). Pemain memakai Dadu Kelas, GM memakai Dadu Kesulitan.'],
+    ['Jumlah Adegan Target',s.adegan||'(bebas)'],['Ramuan Awal',s.ramuan],
+    ['Stack Bayangan — Awal/Maks',`0–${s.sbMax}, bos +${s.sbBos} per stack`],['Ambang Ending',s.ending.filter(e=>e.nama).map(e=>`Stack ≤${e.maks}: ${e.nama}`).join(', ')],
+    ['Jumlah Pahlawan Ikut',`${hs.length} orang (${hs.map(h=>h.id).join(', ')})`],['Plot Kasar',s.plot.replace(/\n/g,' ')],
+    ['Bos/Tantangan Puncak',s.bos.nama||bosTier?`${s.bos.nama||'(nama bebas)'}${bosTier?`, tingkat ${bosTier.n}`:''}${s.bos.tambahan!==''&&s.bos.tambahan!==undefined?`, nilai tambahan ${s.bos.tambahan}`:''}`:'(bebas, rancang sendiri)']];
+  const sysTbl='| Field | Isi |\n|---|---|\n'+sistem.map(([a,b])=>`| ${a} | ${String(b).replace(/\|/g,'/')} |`).join('\n');
+  const p=`Kamu adalah perancang skenario untuk sistem tabletop bernama "Meja Pencerita".
+Tugasmu: menulis SATU cerita lengkap, dipecah per Adegan bernomor, mengikuti
+skema mekanik yang KETAT di bawah ini. Ini akan dibacakan langsung oleh Game
+Master ke pemain dan angkanya akan diinput ke kalkulator dadu, jadi keseimbangan
+angka jauh lebih penting daripada keindahan prosa. Tulis dalam Bahasa Indonesia.
+
+=== GENRE ===
+Genre: ${gg.nama}${gg.desc?' — '+gg.desc:''}
+Nada & gaya narasi: ${gg.nada||'(bebas, sesuaikan dengan plot)'}
+Aturan khusus genre: ${gg.aturan||'(tidak ada)'}
+Istilah WAJIB dipakai di seluruh narasi dan Markdown:
+${TERM_LABELS.map(([k,l])=>`- ${l} disebut "${gg.istilah[k]}"`).join('\n')}
+Catatan: di blok JSON, nama field tetap memakai nama baku ("stack", "ramuan", "nyawa", "bos"), hanya isinya yang memakai istilah genre.
+Kolom build khusus genre serta Sifat Baik dan Sifat Buruk di tabel karakter WAJIB dipakai sebagai bahan cerita (asal-usul, motivasi, konflik pribadi, dialog).
+
+=== DATA KARAKTER (jangan diubah statistiknya) ===
+${heroTable(hs)}
+
+=== DATA SISTEM & PLOT KASAR ===
+${sysTbl}
+
+=== SISTEM DADU (D&D POLYHEDRAL) ===
+- Pemain melempar DADU KELAS masing-masing (kolom "Dadu Kelas") lalu menambah bonus dasarnya.
+  Rata-rata nilai pemain di kelompok ini sekitar ${avgHero.toFixed(1)}.
+- Setiap tantangan diberi TINGKAT. GM melempar Dadu Kesulitan tingkat itu. Pemain
+  BERHASIL bila nilainya sama atau lebih besar dari hasil GM. Pakem tingkat:
+${TIERS.map(t=>`  - ${t.n}: ${dStr(t.d)} (hasil ${t.d.length}-${sum(t.d)}, rata-rata ${(sum(t.d)+t.d.length)/2})`).join('\n')}
+- Kritis: semua dadu pemain menunjukkan angka maksimal → otomatis sukses luar biasa, Stack Bayangan −1.
+  Gagal Total: semua dadu pemain angka 1 → otomatis gagal terburuk, Stack Bayangan +1.
+- Kelompok: GM melempar Dadu Kesulitan SATU kali, setiap pemain dibandingkan dengan angka itu.
+  Kelompok berhasil bila separuh atau lebih lulus.
+- Duel: 3 ronde. Tiap ronde pahlawan (dadu kelas + bonus) melawan Dadu Kesulitan lawan
+  (+ bonus lawan). Nilai sama dimenangkan lawan. Menang 2 ronde = menang duel.
+- Serangan Bos: seluruh pahlawan yang ikut melempar dan dijumlahkan. Bos melempar SATU SET
+  dadu tingkat bos UNTUK SETIAP pahlawan yang ikut, ditambah nilai tambahan (opsional)
+  dan Stack×${s.sbBos}. Tingkat bos:
+${BOSS_TIERS.map(t=>`  - ${t.n}: ${dStr(t.d)} per pahlawan (rata-rata ${(sum(t.d)+t.d.length)/2} per pahlawan)`).join('\n')}
+  Bos Lemah = tim diunggulkan, Bos Kuat = seimbang, Raja Bos = sangat berat (untuk puncak cerita).
+  Hasil: tim ≥ bos menang; kurang 1–6 menang tipis (semua yang ikut −1 Nyawa);
+  kurang 7+ gagal (semua −1 Nyawa, Stack +1, serang lagi).
+- Kejadian Acak d100 (GM melempar d10 persen + d10 bila ia mau): SETIAP adegan WAJIB punya
+  tabel kejadian dengan rentang PERSIS berikut (sebaran genre ${gg.nama}):
+${bs.map(b=>`  - ${pad2(b.a)}${b.z!==b.a?'-'+pad2(b.z):''}: ${EV_TYPES[b.j]} (jenis "${b.j}")`).join('\n')}
+  Isi teks kejadian sesuai adegan dan genre. Efek yang boleh dipakai di JSON:
+  "nyawa_acak" (−1 = satu pahlawan acak kehilangan 1 Nyawa, +1 = pulih), "nyawa_semua",
+  "stack", "ramuan", "tingkat" (+1 = tantangan berikutnya naik satu tingkat, −1 = turun),
+  "item" (nama barang). Kejadian "tenang" boleh tanpa efek tetapi sebaiknya berisi detail
+  kecil yang berguna. Bencana = efek berat, Keajaiban = hadiah besar.
+
+=== ATURAN KESEIMBANGAN WAJIB ===
+1. Kemampuan Dasar (dadu kelas + bonus tetap) boleh dipakai tanpa batas di setiap
+   lemparan — ini "tulang punggung" sistem.
+2. Skill Khusus tiap karakter HANYA boleh disarankan/dipakai maksimal 3 kali TOTAL
+   selama seluruh cerita (bukan per adegan). Di setiap Adegan yang menyertakan opsi
+   Skill Khusus, sebutkan catatan "(sisa pakai: dilacak GM)".
+3. Skill Pengorbanan SELALU harus punya biaya eksplisit (default: 1 Nyawa milik
+   pemakai sendiri) dan efek sepadan. Dua pola baku: (a) korban 1 Nyawa diri sendiri →
+   pulihkan 2 Nyawa rekan / cegah rekan Tumbang, (b) korban 1 Nyawa diri sendiri →
+   ulangi 1 lemparan dadu atau batalkan 1 efek buruk sebelumnya ("putar waktu").
+4. Pilih tingkat sehingga peluang sukses wajar: Sedang untuk tantangan biasa, Mudah
+   untuk pilihan hati-hati, Sulit untuk pilihan berisiko, Sangat Sulit dan Mustahil
+   hanya untuk pilihan yang dinyatakan jelas sangat berisiko.
+5. Stack Bayangan naik saat tim gagal / Gagal Total, turun saat Kritis. Bos mendapat
+   bonus +${s.sbBos} per poin Stack Bayangan. Jangan biarkan melebihi ${s.sbMax}.
+6. Setiap Adegan HARUS mengikuti format baku berikut, tanpa kecuali:
+
+${FORMAT_ADEGAN}
+
+7. Sebar Quest secara masuk akal: minimal 1 Quest utama sepanjang cerita dan boleh ada
+   Quest sampingan opsional di 1-2 Adegan.
+8. Opsi pilihan (A, B, C, ...) di tiap Adegan harus benar-benar berbeda pendekatan
+   (agresif / hati-hati / sosial / kreatif), bukan variasi kata dari aksi yang sama.
+9. Akhiri dengan Ending sesuai Ambang Ending di data sistem, masing-masing 1 paragraf epilog.
+10. Gunakan HANYA ID pahlawan dari tabel karakter di atas untuk kolom "pelaku".
+
+=== FORMAT OUTPUT ===
+Tulis sebagai Markdown, urut per Adegan sesuai skema di atas. Setelah itu, tambahkan
+bagian "RINGKASAN MEKANIK" berupa tabel: nomor adegan | jenis tantangan | tingkat | reward.
+
+PALING AKHIR (WAJIB): tulis ulang seluruh data mekanik cerita sebagai SATU blok kode
+\`\`\`json yang valid (tanpa komentar, tanpa koma berlebih), mengikuti struktur persis
+seperti contoh berikut. Blok ini dibaca otomatis oleh program, jadi harus lengkap
+untuk SEMUA adegan, SEMUA opsi, dan SEMUA baris tabel kejadian:
+
+\`\`\`json
+${JSON_SPEC}
+\`\`\`
+
+Aturan isi JSON:
+- "jenis": solo = satu pelaku melawan "tingkat"; kelompok = semua pahlawan melawan
+  "tingkat"; bos = isi "bos" (tingkat: "Bos Lemah" / "Bos Kuat" / "Raja Bos"); duel = isi
+  "pelaku" (1 orang) dan "lawan" (tingkat + bonus); tanpa_dadu = pilihan cerita tanpa
+  lemparan (pakai "efek_berhasil"); skill_khusus / pengorbanan = isi "pelaku".
+- "tingkat" memakai nama persis dari pakem: ${TIERS.map(t=>'"'+t.n+'"').join(', ')}.
+- Hapus field yang tidak relevan untuk jenis itu, atau isi null.
+- "efek_gagal.nyawa": "gagal" = hanya yang gagal −1 Nyawa (kelompok), "semua" = semua −1,
+  "pelaku" = pelaku −1, "tidak" = tanpa luka. Untuk bos cukup {"stack":0,"nyawa":"tidak"}.
+- "kejadian": satu baris untuk SETIAP rentang di atas, "jenis" memakai nama baku
+  (bencana / buruk / tenang / baik / sangat_baik / keajaiban).
+- "lanjut_berhasil" / "lanjut_gagal" = nomor adegan berikutnya; untuk adegan terakhir isi 0.
+- "quest_selesai": isi NAMA quest yang selesai, atau "" jika tidak.
+- "narasi" boleh berisi \\n\\n untuk pemisah paragraf.`;
+  $('promptOut').value=p;$('promptBox').style.display='';$('copyMsg').textContent='';$('promptBox').scrollIntoView({behavior:'smooth'});
+};
+$('copyPrompt').onclick=async()=>{const t=$('promptOut');let ok=false;
+  try{await navigator.clipboard.writeText(t.value);ok=true}catch(e){t.removeAttribute('readonly');t.select();try{ok=document.execCommand('copy')}catch(e2){}t.setAttribute('readonly','')}
+  $('copyMsg').textContent=ok?'Tersalin! Tempel ke AI.':'Gagal menyalin otomatis. Klik di kotak, tekan Ctrl+A lalu Ctrl+C.'};
+
+/* ======================= 3. LOAD STORY ======================= */
+function extractJSON(text){
+  const fences=[...text.matchAll(/```(?:json)?\s*([\s\S]*?)```/gi)].map(m=>m[1]);
+  const cands=fences.reverse();const a=text.indexOf('{'),b=text.lastIndexOf('}');if(a>=0&&b>a)cands.push(text.slice(a,b+1));
+  let lastErr='';
+  for(const c of cands){if(!/"adegan"/.test(c))continue;try{return{data:JSON.parse(c)}}catch(e){lastErr=e.message;
+      try{return{data:JSON.parse(c.replace(/,\s*([}\]])/g,'$1'))}}catch(e2){}}}
+  return{err:lastErr?'Blok JSON ditemukan tetapi rusak: '+lastErr:'Tidak menemukan blok JSON berisi "adegan". Pastikan jawaban AI disalin sampai paling bawah.'};
+}
+const JENIS=['solo','kelompok','bos','duel','tanpa_dadu','skill_khusus','pengorbanan'];
+function normalizeStory(d){const warn=[];const ids=W.heroes.map(h=>h.id);
+  if(!Array.isArray(d.adegan)||!d.adegan.length)throw new Error('Tidak ada adegan di dalam data.');
+  d.adegan.forEach((a,i)=>{a.no=num(a.no,i+1);a.judul=a.judul||`Adegan ${a.no}`;a.narasi=a.narasi||'';a.opsi=Array.isArray(a.opsi)?a.opsi:[];
+    if(!a.opsi.length)warn.push(`Adegan ${a.no} tidak punya opsi.`);
+    a.opsi.forEach((o,j)=>{o.kode=o.kode||String.fromCharCode(65+j);let jn=String(o.jenis||'').toLowerCase().replace(/[\s-]+/g,'_');
+      if(jn.includes('bos'))jn='bos';else if(jn.includes('kelompok'))jn='kelompok';else if(jn.includes('duel'))jn='duel';else if(jn.includes('pengorbanan'))jn='pengorbanan';else if(jn.includes('skill'))jn='skill_khusus';else if(jn.includes('tanpa'))jn='tanpa_dadu';else if(jn.includes('solo'))jn='solo';
+      if(!JENIS.includes(jn)){warn.push(`Adegan ${a.no} opsi ${o.kode}: jenis "${o.jenis}" tidak dikenal, dianggap tanpa dadu.`);jn='tanpa_dadu'}
+      o.jenis=jn;o.pelaku=(Array.isArray(o.pelaku)?o.pelaku:(o.pelaku?[o.pelaku]:[])).map(x=>slug(x));
+      o.pelaku.forEach(p=>{if(!ids.includes(p))warn.push(`Adegan ${a.no} opsi ${o.kode}: pelaku "${p}" tidak ada di data pahlawan.`)});
+      if(jn==='solo'||jn==='kelompok'){let t=findTier(o.tingkat);if(!t&&o.tk!=null){t=tkToTier(o.tk);if(t)warn.push(`Adegan ${a.no} opsi ${o.kode}: memakai TK angka, diubah ke tingkat ${tierOf(t).n}.`)}
+        if(!t){t='sedang';warn.push(`Adegan ${a.no} opsi ${o.kode}: tingkat kosong, dipakai Sedang (bisa diganti saat bermain).`)}o.tingkat=t}
+      if(jn==='bos'){o.bos=o.bos||{};let t=findTier(o.bos.tingkat,BOSS_TIERS);if(!t){t='bos_kuat';warn.push(`Adegan ${a.no} opsi ${o.kode}: tingkat bos kosong, dipakai Bos Kuat.`)}o.bos.tingkat=t;o.bos.tambahan=num(o.bos.tambahan,0)}
+      if(jn==='duel'){o.lawan=o.lawan||{};let t=findTier(o.lawan.tingkat);if(!t){t='sulit';warn.push(`Adegan ${a.no} opsi ${o.kode}: tingkat lawan duel kosong, dipakai Sulit.`)}o.lawan.tingkat=t;o.lawan.bonus=num(o.lawan.bonus,0)}
+      o.efek_berhasil=o.efek_berhasil||{};o.efek_gagal=o.efek_gagal||{};});
+  });
+  d.adegan.forEach(a=>{const ks=Array.isArray(a.kejadian)?a.kejadian:[];a.kejadian=ks.map(k=>({dari:num(k.dari,0),sampai:num(k.sampai,0),jenis:(findEv(k.jenis)||'tenang'),teks:k.teks||'',efek:k.efek||{}})).filter(k=>k.sampai>=k.dari&&k.dari>0);
+    if(!a.kejadian.length)warn.push(`Adegan ${a.no}: tidak ada tabel kejadian acak, dipakai tabel umum genre.`)});
+  d.adegan.sort((x,y)=>x.no-y.no);
+  d.ending=Array.isArray(d.ending)?d.ending.filter(e=>e&&e.nama):[];
+  if(!d.ending.length)warn.push('Tidak ada ending di data. Ending dari Data Sistem akan dipakai tanpa epilog.');
+  return warn;
+}
+function findEv(j){const s=String(j||'').toLowerCase().replace(/[\s-]+/g,'_');if(EV_TYPES[s])return s;return ['sangat_baik','keajaiban','bencana','buruk','tenang','baik'].find(k=>s.includes(k))||null}
+function loadStoryText(text){
+  const r=extractJSON(text);if(r.err){$('parseMsg').innerHTML=`<div class="warn">${esc(r.err)}</div>`;$('storyPreview').style.display='none';return}
+  let warn;try{warn=normalizeStory(r.data)}catch(e){$('parseMsg').innerHTML=`<div class="warn">${esc(e.message)}</div>`;return}
+  W.draft=r.data;save();
+  const d=r.data;const tot=d.adegan.reduce((a,x)=>a+x.opsi.length,0);
+  $('parseMsg').innerHTML=`<div class="ok">Berhasil dibaca: <b>${d.adegan.length} adegan</b>, ${tot} opsi, ${d.ending.length} ending.</div>`+(warn.length?`<div class="warn"><b>Perlu diperhatikan (${warn.length}):</b><br>${warn.map(esc).join('<br>')}</div>`:'');
+  $('storyPreview').style.display='';
+  $('storyPreview').innerHTML=`<h2>${esc(d.judul||W.sys.judul||'Cerita tanpa judul')}</h2>
+   <div class="scroll"><table class="grid"><tr><th>Adegan</th><th>Judul</th><th>Opsi</th><th>Quest</th></tr>
+   ${d.adegan.map(a=>`<tr><td>${a.no}</td><td>${esc(a.judul)}</td><td>${a.opsi.map(o=>`${esc(o.kode)}<span class="tagk t-${o.jenis}">${lbl(o.jenis)}</span>`).join(' ')}</td><td>${a.quest&&a.quest.ada?esc(a.quest.nama):'—'}</td></tr>`).join('')}</table></div>
+   <div class="actions"><button class="btn green" id="startSesi">Mulai sesi baru dengan cerita ini</button><button class="dbtn" id="saveStoryFile">Simpan cerita ke file</button></div>
+   <p class="small">Mulai sesi baru akan mengatur ulang Nyawa, jatah skill, Stack Bayangan, ramuan, dan catatan.</p>`;
+  $('startSesi').onclick=()=>startSesi(d);
+  $('saveStoryFile').onclick=()=>download(slug(d.judul||'cerita')+'.json',d);
+}
+$('parseStory').onclick=()=>{const t=$('storyIn').value;if(!t.trim())return alert('Tempel jawaban AI dulu.');loadStoryText(t)};
+$('storyFile').onchange=e=>readFile(e.target,t=>{$('storyIn').value=t;loadStoryText(t)});
+function lbl(j){return{solo:'Solo',kelompok:'Kelompok',bos:'Serangan Bos',duel:'Duel',tanpa_dadu:'Tanpa dadu',skill_khusus:'Skill Khusus',pengorbanan:'Pengorbanan'}[j]||j}
+
+/* ======================= 4. PLAY ======================= */
+function startSesi(d){
+  const ikut=W.sys.ikut.filter(id=>W.heroes.find(h=>h.id===id));
+  const used=new Set();d.adegan.forEach(a=>a.opsi.forEach(o=>o.pelaku.forEach(p=>used.add(p))));
+  let party=ikut.length?ikut:W.heroes.map(h=>h.id).filter(id=>used.has(id));
+  if(!party.length)party=W.heroes.map(h=>h.id);
+  if(!party.length)return alert('Belum ada data pahlawan. Isi di tab 1 dulu.');
+  if(W.sesi&&!confirm('Mulai sesi baru? Sesi yang sedang berjalan akan diganti.'))return;
+  W.story=JSON.parse(JSON.stringify(d));
+  W.sesi={party,shift:0,hati:{},skill:{},pending:{},sb:0,ramuan:num(W.sys.ramuan,0),items:[],quests:{},cur:0,log:[],done:{},ended:false};
+  party.forEach(id=>{const h=H(id);W.sesi.hati[id]=num(h.nyawa,3);W.sesi.skill[id]=3});
+  d.adegan.forEach(a=>{if(a.quest&&a.quest.ada&&a.quest.nama)W.sesi.quests[a.quest.nama]={selesai:false,reward:a.quest.reward||'',tujuan:a.quest.tujuan||''}});
+  log(`Sesi baru: ${d.judul||W.sys.judul||'cerita'}`);save();showTab('play');
+}
+const H=id=>W.heroes.find(h=>h.id===id)||{id,nama:id,bonus:0,nyawa:3,sk:{},sp:{}};
+const party=()=>W.sesi.party;
+const maxH=id=>num(H(id).nyawa,3);
+const down=id=>W.sesi.hati[id]<=0;
+const bonusOf=id=>num(H(id).bonus,0);
+function log(t){if(!W.sesi)return;const d=new Date();W.sesi.log.unshift(`${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}  ${t}`);W.sesi.log=W.sesi.log.slice(0,200);save()}
+function hurt(id,n,why){const o=W.sesi.hati[id];W.sesi.hati[id]=clamp(o-n,0,maxH(id));if(o!==W.sesi.hati[id])log(`${H(id).nama} ${n>0?'−':'+'}${Math.abs(n)} Nyawa (${why})${W.sesi.hati[id]===0?' — Tumbang!':''}`)}
+function addSB(n,why){const o=W.sesi.sb;W.sesi.sb=clamp(o+n,0,num(W.sys.sbMax,10));if(o!==W.sesi.sb)log(`Stack Bayangan ${o} → ${W.sesi.sb} (${why})`)}
+const poolOf=id=>POOLS[H(id).dadu]||[20];
+const heroCrit=(id,t)=>t===sum(poolOf(id));
+const heroFum=(id,t)=>t===poolOf(id).length;
+function endings(){const e=(W.story.ending&&W.story.ending.length)?W.story.ending.map(x=>({nama:x.nama,maks:num(x.stack_maks,99),epilog:x.epilog||''})):W.sys.ending.map(x=>({nama:x.nama,maks:num(x.maks,99),epilog:''}));return e.sort((a,b)=>a.maks-b.maks)}
+function curEnding(){const e=endings();return e.find(x=>W.sesi.sb<=x.maks)||e[e.length-1]}
+function useShield(){const id=party().find(p=>W.sesi.pending[p]&&W.sesi.pending[p].perisai);if(id){delete W.sesi.pending[id].perisai;log(`Perisai ${H(id).sk.nama||''} milik ${H(id).nama} membatalkan luka`);return true}return false}
+
+function renderPlay(){
+  if(!W||!W.story||!W.sesi){$('playEmpty').style.display='';$('playWrap').style.display='none';return}
+  $('playEmpty').style.display='none';$('playWrap').style.display='';
+  $('pTitle').textContent=W.story.judul||W.sys.judul||'Cerita';
+  renderSide();renderScene();
+}
+function renderSide(){const s=W.sesi;
+  $('party').innerHTML=party().map(id=>{const h=H(id),mx=maxH(id),pd=s.pending[id]||{};
+    return `<div class="hero ${down(id)?'down':''}"><div class="top"><div><b>${esc(h.nama)}</b> <span class="small">${dStr(poolOf(id))} +${bonusOf(id)}</span>${down(id)?'<span class="badge">Tumbang</span>':''}${pd.bonus?`<span class="badge skill">Skill +${pd.bonus}</span>`:''}${pd.bonus_tim?`<span class="badge skill">Tim +${pd.bonus_tim}</span>`:''}${pd.kritis?'<span class="badge skill">Auto Kritis</span>':''}${pd.perisai?'<span class="badge shield">Perisai</span>':''}</div>
+      <div>${Array.from({length:mx},(_,i)=>`<button class="heart ${i+1>s.hati[id]?'off':''}" data-h="${esc(id)}" data-i="${i+1}" aria-label="${esc(h.nama)} nyawa ${i+1}">♥</button>`).join('')}</div></div>
+      <div class="hbtns"><button class="dbtn" data-sk="${esc(id)}" ${s.skill[id]<=0||down(id)?'disabled':''} title="${esc(h.sk.efek||'')}">⚡ ${esc(h.sk.nama||'Skill Khusus')} <span class="dots">${[0,1,2].map(i=>`<span class="dot ${i>=s.skill[id]?'used':''}"></span>`).join('')}</span></button>
+      <button class="dbtn red" data-sp="${esc(id)}" ${s.hati[id]<num(h.sp.biaya,1)?'disabled':''} title="${esc(h.sp.efek||'')}">♥ ${esc(h.sp.nama||'Pengorbanan')}</button></div></div>`}).join('');
+  $('sbNum').textContent=s.sb;$('sbNum').classList.toggle('zero',s.sb===0);
+  $('shiftInfo').innerHTML=s.shift?`<div class="${s.shift>0?'warn':'ok'}" style="margin:8px 0 0">Tantangan berikutnya <b>${s.shift>0?'naik':'turun'} ${Math.abs(s.shift)} tingkat</b> (akibat kejadian acak). <button class="dbtn" id="clrShift" style="padding:1px 8px">Batalkan</button></div>`:'';
+  if($('clrShift'))$('clrShift').onclick=()=>{s.shift=0;log('Perubahan tingkat dibatalkan');save();renderSide();refreshRoller()};
+  const e=curEnding();$('sbInfo').innerHTML=`Bos +${s.sb*num(W.sys.sbBos,2)}<br>Arah: <b>${esc(e?e.nama:'-')}</b>`;
+  $('ramNum').textContent=s.ramuan;
+  $('potTarget').innerHTML=party().map(id=>`<option value="${esc(id)}">${esc(H(id).nama)} (${s.hati[id]}/${maxH(id)})</option>`).join('');
+  const qs=Object.entries(s.quests);
+  $('questList').innerHTML=qs.length?qs.map(([n,q])=>`<label class="chk" style="align-items:flex-start"><input type="checkbox" data-q="${esc(n)}" ${q.selesai?'checked':''}><span><b>${esc(n)}</b>${q.tujuan?`<br>${esc(q.tujuan)}`:''}${q.reward?`<br><i>Reward: ${esc(q.reward)}</i>`:''}</span></label>`).join(''):'Belum ada quest.';
+  $('itemList').innerHTML=s.items.length?s.items.map((it,i)=>`<div class="row" style="margin:2px 0;justify-content:space-between"><span>${esc(it)}</span><button class="dbtn red" data-rmitem="${i}" style="padding:1px 7px">×</button></div>`).join(''):'Belum ada barang.';
+  $('log').innerHTML=s.log.length?s.log.map(l=>`<div>${esc(l)}</div>`).join(''):'<div class="small">Belum ada catatan.</div>';
+}
+$('playWrap').addEventListener('click',e=>{const t=e.target.closest('button');if(!t||!W.sesi)return;const s=W.sesi;
+  if(t.dataset.h){const id=t.dataset.h,i=+t.dataset.i;s.hati[id]=s.hati[id]===i?i-1:i;log(`${H(id).nama} diatur ke ${s.hati[id]} Nyawa`);save();renderSide()}
+  if(t.dataset.ram){s.ramuan=Math.max(0,s.ramuan+ +t.dataset.ram);save();renderSide()}
+  if(t.dataset.rmitem!==undefined){log('Barang dilepas: '+s.items[+t.dataset.rmitem]);s.items.splice(+t.dataset.rmitem,1);save();renderSide()}
+  if(t.dataset.sk)useSkill(t.dataset.sk);
+  if(t.dataset.sp)useSacrifice(t.dataset.sp);
+});
+$('playWrap').addEventListener('change',e=>{const t=e.target;if(t.dataset.q){W.sesi.quests[t.dataset.q].selesai=t.checked;log(`Quest "${t.dataset.q}" ${t.checked?'SELESAI':'dibuka lagi'}`);save();renderSide()}});
+$('sbPlus').onclick=()=>{addSB(1,'diatur manual');save();renderSide()};$('sbMinus').onclick=()=>{addSB(-1,'diatur manual');save();renderSide()};
+$('usePot').onclick=()=>{const id=$('potTarget').value,s=W.sesi;if(s.ramuan<1)return alert('Ramuan habis.');if(s.hati[id]>=maxH(id))return alert(H(id).nama+' masih penuh.');s.ramuan--;hurt(id,-1,'minum ramuan');save();renderSide()};
+$('addItem').onclick=()=>{const v=$('itemIn').value.trim();if(!v)return;W.sesi.items.push(v);log('Didapat: '+v);$('itemIn').value='';save();renderSide()};
+
+function useSkill(id){const h=H(id),s=W.sesi;if(s.skill[id]<=0)return;const t=h.sk.tipe||'catat',x=num(h.sk.nilai,0);
+  const desc={bonus:`+${x} ke lemparan berikutnya milik ${h.nama}`,bonus_tim:`tim +${x} di Serangan Bos berikutnya`,auto_kritis:'lemparan berikutnya milik '+h.nama+' otomatis Kritis',perisai:'luka tim pada hasil berikutnya dibatalkan',pulih_semua:`semua pahlawan pulih ${x} Nyawa sekarang`,lempar_ulang:'ganti angka dadu yang ingin diulang, lalu hitung lagi sebelum Terapkan',catat:h.sk.efek||'bacakan efeknya'}[t];
+  modal(`<h2>⚡ ${esc(h.sk.nama||'Skill Khusus')}</h2><p><b>${esc(h.nama)}</b> memakai skill khusus. Sisa setelah ini: <b>${s.skill[id]-1}</b> dari 3.</p>
+   ${h.sk.efek?`<div class="read"><p>${esc(h.sk.efek)}</p></div>`:''}<p class="small">Efek sistem: ${esc(desc)}.</p>
+   <div class="actions"><button class="btn" id="mOk">Pakai</button><button class="dbtn" id="mNo">Batal</button></div>`);
+  $('mNo').onclick=closeModal;
+  $('mOk').onclick=()=>{s.skill[id]--;s.pending[id]=s.pending[id]||{};
+    if(t==='bonus')s.pending[id].bonus=(s.pending[id].bonus||0)+x;
+    if(t==='bonus_tim')s.pending[id].bonus_tim=(s.pending[id].bonus_tim||0)+x;
+    if(t==='auto_kritis')s.pending[id].kritis=true;
+    if(t==='perisai')s.pending[id].perisai=true;
+    if(t==='pulih_semua')party().forEach(p=>hurt(p,-x,h.sk.nama||'skill'));
+    log(`${h.nama} memakai ${h.sk.nama||'Skill Khusus'} (sisa ${s.skill[id]}/3)`);save();closeModal();renderSide();refreshRoller()};
+}
+function useSacrifice(id){const h=H(id),s=W.sesi,cost=num(h.sp.biaya,1),pola=h.sp.pola||'lain';
+  if(s.hati[id]<cost)return alert(`${h.nama} tidak punya cukup Nyawa (${cost}).`);
+  const others=party().filter(p=>p!==id);
+  modal(`<h2>♥ ${esc(h.sp.nama||'Skill Pengorbanan')}</h2><p><b>${esc(h.nama)}</b> mengorbankan <b>${cost} Nyawa</b>.</p>
+   ${h.sp.efek?`<div class="read"><p>${esc(h.sp.efek)}</p></div>`:''}
+   ${pola==='tumbal'?`<div class="field"><label for="mTarget">Rekan yang diselamatkan (pulih 2 Nyawa)</label><select id="mTarget">${others.map(p=>`<option value="${esc(p)}">${esc(H(p).nama)} (${s.hati[p]}/${maxH(p)})</option>`).join('')}</select></div>`:''}
+   ${pola==='putar'?'<p class="small">Setelah menekan Korbankan: ganti angka dadu yang ingin diulang di kalkulator, lalu hitung lagi. Atau pulihkan efek buruk sebelumnya secara manual.</p>':''}
+   ${cost>=s.hati[id]?'<div class="warn">Pahlawan ini akan Tumbang setelah berkorban.</div>':''}
+   <div class="actions"><button class="btn" id="mOk">Korbankan</button><button class="dbtn" id="mNo">Batal</button></div>`);
+  $('mNo').onclick=closeModal;
+  $('mOk').onclick=()=>{hurt(id,cost,h.sp.nama||'pengorbanan');
+    if(pola==='tumbal'&&$('mTarget')){const tg=$('mTarget').value;hurt(tg,-2,`diselamatkan ${h.nama}`)}
+    log(`${h.nama} memakai ${h.sp.nama||'Skill Pengorbanan'}`);save();closeModal();renderSide()};
+}
+
+/* ---------- scene ---------- */
+function scn(){return W.story.adegan[W.sesi.cur]}
+function renderScene(){
+  const s=W.sesi;
+  if(s.ended){renderEnding();return}
+  const a=scn();
+  $('scnSel').innerHTML=W.story.adegan.map((x,i)=>`<option value="${i}" ${i===s.cur?'selected':''}>Adegan ${x.no} — ${esc(x.judul)}${s.done[x.no]?' ✓':''}</option>`).join('');
+  $('prevScn').disabled=s.cur===0;$('nextScn').disabled=s.cur>=W.story.adegan.length-1;
+  const paras=String(a.narasi).split(/\n\s*\n/).map(p=>`<p>${esc(p).replace(/\n/g,'<br>')}</p>`).join('');
+  $('scene').innerHTML=`<h2 style="margin-top:6px">Adegan ${a.no} — ${esc(a.judul)}</h2>
+    <div class="read">${paras||'<p>(tidak ada narasi)</p>'}</div>
+    ${a.quest&&a.quest.ada?`<div class="quest"><b>Quest: ${esc(a.quest.nama)}</b>${a.quest.tujuan?` — ${esc(a.quest.tujuan)}`:''}${a.quest.reward?`<br><i>Reward: ${esc(a.quest.reward)}</i>`:''}</div>`:''}
+    ${a.catatan_gm?`<details class="gm"><summary>Catatan GM (jangan dibacakan)</summary><p>${esc(a.catatan_gm)}</p></details>`:''}
+    ${eventPanel(a)}
+    <h3>Pilihan pemain</h3>
+    ${a.opsi.map((o,j)=>`<div class="opt" id="opt${j}"><h4>${esc(o.kode)}. ${esc(o.aksi||'')}<span class="tagk t-${o.jenis}">${lbl(o.jenis)}</span></h4>
+      <div class="small">${optMeta(o)}</div>
+      ${o.berhasil?`<div class="res"><b style="color:var(--moss)">Berhasil:</b> ${esc(o.berhasil)}</div>`:''}
+      ${o.gagal?`<div class="res"><b style="color:var(--blood)">Gagal:</b> ${esc(o.gagal)}</div>`:''}
+      <div class="actions"><button class="btn alt" data-play="${j}">Mainkan opsi ini</button></div></div>`).join('')}
+    <div id="roller"></div>`;
+  $('scene').querySelectorAll('[data-play]').forEach(b=>b.onclick=()=>openRoller(+b.dataset.play));
+  bindEvent(a);
+}
+function optMeta(o){const p=o.pelaku.map(x=>H(x).nama).join(', ');const tn=k=>{const t=tierOf(k);return t?`${t.n} (${dStr(t.d)})`:'?'};
+  if(o.jenis==='solo')return `${esc(p||'pilih pelaku')} · ${tn(o.tingkat)}`;
+  if(o.jenis==='kelompok')return `Semua pahlawan · ${tn(o.tingkat)}`;
+  if(o.jenis==='bos'&&o.bos){const t=tierOf(o.bos.tingkat,BOSS_TIERS);return `${esc(o.bos.nama||'Bos')}: ${t?t.n+' ('+dStr(t.d)+' per pahlawan)':'?'}${num(o.bos.tambahan)?' + '+num(o.bos.tambahan):''} (+${num(W.sys.sbBos,2)} per stack)`}
+  if(o.jenis==='duel')return `${esc(p||'pilih juara')} melawan ${esc(o.lawan&&o.lawan.nama||'lawan')} · ${tn(o.lawan&&o.lawan.tingkat)}${num(o.lawan&&o.lawan.bonus)?' + '+num(o.lawan.bonus):''}, 3 ronde`;
+  if(o.jenis==='skill_khusus')return `Skill Khusus milik ${esc(p||'?')} (memakai 1 dari 3 jatah)`;
+  if(o.jenis==='pengorbanan')return `Skill Pengorbanan milik ${esc(p||'?')} (bayar Nyawa)`;
+  return 'Tanpa lemparan dadu';}
+/* ---------- kejadian acak ---------- */
+function eventRows(a){const bs=bands(G().kejadian);const own=(a.kejadian||[]).slice().sort((x,y)=>x.dari-y.dari);
+  if(own.length)return own;return bs.map(b=>({dari:b.a,sampai:b.z,jenis:b.j,teks:EV_TEXT[b.j],efek:EV_DEFAULT[b.j],umum:true}))}
+function findEvent(a,v){const rows=eventRows(a);let r=rows.find(x=>v>=x.dari&&v<=x.sampai);
+  if(!r){const b=bands(G().kejadian).find(x=>v>=x.a&&v<=x.z)||{j:'tenang'};r={dari:v,sampai:v,jenis:b.j,teks:EV_TEXT[b.j],efek:EV_DEFAULT[b.j],umum:true}}return r}
+function evEfekText(ef){ef=ef||{};const t=[];const n=k=>num(ef[k]);
+  if(n('nyawa_acak'))t.push(`satu pahlawan acak ${n('nyawa_acak')>0?'+':''}${n('nyawa_acak')} Nyawa`);
+  if(n('nyawa_semua'))t.push(`semua ${n('nyawa_semua')>0?'+':''}${n('nyawa_semua')} Nyawa`);
+  if(n('stack'))t.push(`Stack ${n('stack')>0?'+':''}${n('stack')}`);
+  if(n('ramuan'))t.push(`Ramuan ${n('ramuan')>0?'+':''}${n('ramuan')}`);
+  if(n('tingkat'))t.push(`tantangan berikutnya ${n('tingkat')>0?'naik':'turun'} ${Math.abs(n('tingkat'))} tingkat`);
+  if(ef.item)t.push(`dapat: ${ef.item}`);return t.join(' · ')||'tanpa efek'}
+function eventPanel(a){const rows=eventRows(a);
+  return `<div class="event"><div class="row" style="justify-content:space-between;margin:0"><div><b>Kejadian Acak (d100)</b><div class="small">Lempar d10 persen + d10 hanya jika GM mau. 00 + 0 = 100.</div></div>
+   <div class="row" style="margin:0"><span style="display:flex;gap:4px"><input class="die" id="evDie" type="number" data-min="1" data-max="100" data-dice="d100" aria-label="Hasil d100"><button class="dbtn" data-acak="1" type="button">Acak</button></span><button class="btn alt" id="evCheck">Cek kejadian</button></div></div>
+   <div id="evOut"></div>
+   <details class="gm"><summary>Lihat tabel kejadian adegan ini${rows[0]&&rows[0].umum?' (tabel umum genre)':''}</summary>
+   <div class="scroll"><table class="grid" style="font-size:13.5px"><tr><th>d100</th><th>Jenis</th><th>Kejadian</th><th>Efek</th></tr>${rows.map(r=>`<tr><td>${pad2(r.dari)}${r.sampai!==r.dari?'–'+pad2(r.sampai):''}</td><td>${EV_TYPES[r.jenis]}</td><td>${esc(r.teks)}</td><td class="small">${esc(evEfekText(r.efek))}</td></tr>`).join('')}</table></div></details></div>`}
+function bindEvent(a){$('evCheck').onclick=()=>{const v=dv($('evDie'));if(!v)return alert('Isi hasil d100 (1–100).');const r=findEvent(a,v);
+  $('evOut').innerHTML=`<div class="verdict"><div class="vhead ev-${r.jenis}">${v}: ${EV_TYPES[r.jenis]}<small>Kejadian acak Adegan ${a.no}</small></div><div class="vbody"><div class="read"><p>${esc(r.teks)}</p></div><p><b>Efek:</b> ${esc(evEfekText(r.efek))}</p><div class="actions"><button class="btn" id="evApply">Terapkan efek</button></div></div></div>`;
+  $('evApply').onclick=e=>{applyEvent(r.efek||{},`kejadian ${v}`);log(`Kejadian acak ${v} (${EV_TYPES[r.jenis]}): ${r.teks.slice(0,60)}`);e.target.disabled=true;save();renderSide();refreshRoller()}}}
+function applyEvent(ef,why){const s=W.sesi;const n=k=>num(ef[k]);
+  if(n('nyawa_acak')){const pool=party().filter(p=>n('nyawa_acak')<0?!down(p):S_hati(p)<maxH(p));const pick=pool[Math.floor(Math.random()*pool.length)];if(pick)hurt(pick,-n('nyawa_acak'),why)}
+  if(n('nyawa_semua'))party().forEach(p=>{if(n('nyawa_semua')>0||!down(p))hurt(p,-n('nyawa_semua'),why)});
+  if(n('stack'))addSB(n('stack'),why);
+  if(n('ramuan')){s.ramuan=Math.max(0,s.ramuan+n('ramuan'));log(`Ramuan ${n('ramuan')>0?'+':''}${n('ramuan')} (${why})`)}
+  if(n('tingkat')){s.shift=clamp((s.shift||0)+n('tingkat'),-3,3);log(`Tantangan berikutnya ${n('tingkat')>0?'naik':'turun'} ${Math.abs(n('tingkat'))} tingkat (${why})`)}
+  if(ef.item){s.items.push(ef.item);log('Didapat: '+ef.item)}}
+const S_hati=p=>W.sesi.hati[p];
+$('scnSel').onchange=()=>{W.sesi.cur=+$('scnSel').value;save();renderScene()};
+$('prevScn').onclick=()=>{W.sesi.cur=Math.max(0,W.sesi.cur-1);save();renderScene()};
+$('nextScn').onclick=()=>{W.sesi.cur=Math.min(W.story.adegan.length-1,W.sesi.cur+1);save();renderScene()};
+$('toEnding').onclick=()=>{if(confirm('Tuju ending sekarang?')){W.sesi.ended=true;log('Menuju ending');save();renderScene()}};
+function goNext(n){const s=W.sesi;const a=scn();s.done[a.no]=true;
+  if(!n||n<=0){const idx=s.cur+1;if(n===0||idx>=W.story.adegan.length){s.ended=true;log('Cerita selesai');save();renderScene();window.scrollTo({top:0,behavior:'smooth'});return}s.cur=idx}
+  else{const idx=W.story.adegan.findIndex(x=>x.no===n);if(idx<0){s.ended=true}else s.cur=idx}
+  log(`Lanjut ke ${s.ended?'Ending':'Adegan '+W.story.adegan[s.cur].no}`);save();renderScene();window.scrollTo({top:0,behavior:'smooth'})}
+function nextLabel(n){if(n===0)return 'Menuju Ending';if(!n){const idx=W.sesi.cur+1;return idx>=W.story.adegan.length?'Menuju Ending':`Lanjut ke Adegan ${W.story.adegan[idx].no}`}return `Lanjut ke Adegan ${n}`}
+function renderEnding(){const e=curEnding(),s=W.sesi;
+  $('scnSel').innerHTML=`<option>Ending</option>`;$('prevScn').disabled=false;$('nextScn').disabled=true;
+  $('prevScn').onclick=()=>{s.ended=false;save();renderScene();$('prevScn').onclick=()=>{s.cur=Math.max(0,s.cur-1);save();renderScene()}};
+  const qs=Object.entries(s.quests);
+  $('scene').innerHTML=`<h2 style="margin-top:6px">${esc(e?e.nama:'Ending')}</h2>
+   <p class="small">Stack Bayangan akhir: <b>${s.sb}</b></p>
+   <div class="read">${e&&e.epilog?String(e.epilog).split(/\n\s*\n/).map(p=>`<p>${esc(p)}</p>`).join(''):'<p>(Tidak ada epilog di data cerita. Ceritakan sendiri akhir kisah ini.)</p>'}</div>
+   <h3>Ringkasan</h3>
+   <div class="scroll"><table class="grid"><tr><th>Pahlawan</th><th>Nyawa</th><th>Skill Khusus tersisa</th></tr>${party().map(id=>`<tr><td>${esc(H(id).nama)}</td><td>${s.hati[id]}/${maxH(id)}</td><td>${s.skill[id]}/3</td></tr>`).join('')}</table></div>
+   <p>Quest selesai: ${qs.filter(([,q])=>q.selesai).length} dari ${qs.length}. Barang: ${s.items.length?s.items.map(esc).join(', '):'-'}.</p>
+   <h3>Semua ending</h3><ul>${endings().map(x=>`<li><b>${esc(x.nama)}</b> (Stack ≤ ${x.maks})</li>`).join('')}</ul>`;
+}
+
+/* ---------- roller ---------- */
+let RC=null;
+function heroOpts(def){return party().map(p=>`<option value="${esc(p)}" ${p===def?'selected':''}>${esc(H(p).nama)} (${dStr(poolOf(p))} +${bonusOf(p)})${down(p)?' — Tumbang':''}</option>`).join('')}
+function tierSel(id,list,cur){return `<select class="s" id="${id}">${list.map(t=>`<option value="${t.k}" ${t.k===cur?'selected':''}>${t.n} (${dStr(t.d)})</option>`).join('')}</select>`}
+function effTier(k,list){const sh=W.sesi.shift||0;return sh?shiftTier(k,sh,list):k}
+function openRoller(j){const a=scn(),o=a.opsi[j];RC={o,j};
+  document.querySelectorAll('.opt').forEach((el,k)=>el.classList.toggle('chosen',k===j));
+  log(`Adegan ${a.no}: memilih ${o.kode}. ${o.aksi||''}`);save();renderSide();
+  const r=$('roller');const alive=party().filter(p=>!down(p));
+  const def=o.pelaku.find(p=>party().includes(p))||alive[0]||party()[0];
+  const sh=W.sesi.shift||0;const shNote=sh?`<div class="${sh>0?'warn':'ok'}" style="margin:6px 0">Kejadian acak: tingkat ${sh>0?'naik':'turun'} ${Math.abs(sh)} (sudah diterapkan di pilihan tingkat).</div>`:'';
+  let h=`<div class="roller"><h3 style="margin-top:0">${esc(o.kode)}. ${esc(o.aksi||'')} <span class="tagk t-${o.jenis}">${lbl(o.jenis)}</span></h3>`;
+  if(o.jenis==='solo'){const tk=effTier(o.tingkat,TIERS),t=tierOf(tk);
+    h+=`${shNote}<div class="row"><div class="field"><label>Pelaku</label><select class="s" id="rHero">${heroOpts(def)}</select></div><div class="field"><label>Tingkat kesulitan</label>${tierSel('rTier',TIERS,tk)}</div></div>
+     <div class="row"><div class="field"><label>Dadu pemain <span class="dlabel" id="rPoolLbl"></span></label>${dieInput('pd',poolOf(def),'id="rDie"')}</div>
+     <div class="field"><label>Dadu GM <span class="dlabel" id="rTierLbl">${dStr(t.d)}</span></label>${dieInput('cd',t.d,'id="rCh"')}</div>
+     <div class="field"><label>Bonus tambahan</label><input class="s" type="number" id="rMod" value="0" style="width:80px"></div></div>
+     <div id="rPend" class="small"></div><div class="actions"><button class="btn" id="rCalc">Hitung</button></div>`;
+  } else if(o.jenis==='kelompok'){const tk=effTier(o.tingkat,TIERS),t=tierOf(tk);
+    h+=`${shNote}<div class="row"><div class="field"><label>Tingkat kesulitan</label>${tierSel('rTier',TIERS,tk)}</div>
+      <div class="field"><label>Dadu GM (sekali untuk semua) <span class="dlabel" id="rTierLbl">${dStr(t.d)}</span></label>${dieInput('cd',t.d,'id="rCh"')}</div></div>
+     ${heroTableRows(true)}
+     <div class="row" style="margin-top:8px"><div class="field"><label>Bonus tambahan tiap pahlawan</label><input class="s" type="number" id="rMod" value="0" style="width:80px"></div></div>
+     <div id="rPend" class="small"></div><div class="actions"><button class="btn" id="rCalc">Hitung</button><button class="dbtn" id="rAll">Acak semua</button></div>`;
+  } else if(o.jenis==='bos'){const b=o.bos||{};const tk=effTier(b.tingkat||'bos_kuat',BOSS_TIERS);
+    h+=`${shNote}<div class="row"><div class="field"><label>Bos</label><b>${esc(b.nama||'Bos')}</b></div><div class="field"><label>Tingkat bos</label>${tierSel('rTier',BOSS_TIERS,tk)}</div>
+      <div class="field"><label>Nilai tambahan bos</label><input class="s" type="number" id="rBase" value="${esc(num(b.tambahan,0))}" style="width:90px"></div></div>
+     <div class="field"><label>Dadu bos (GM melempar satu set per pahlawan yang ikut, ketik TOTAL per jenis dadu)</label><div class="row" id="rBossDice" style="margin:0"></div></div>
+     ${heroTableRows(false)}
+     <div class="row" style="margin-top:8px"><div class="field"><label>Bonus tim tambahan</label><input class="s" type="number" id="rMod" value="0" style="width:80px"></div></div>
+     <div id="rPend" class="small"></div><div class="actions"><button class="btn" id="rCalc">Hitung</button><button class="dbtn" id="rAll">Acak semua</button></div>`;
+  } else if(o.jenis==='duel'){const L=o.lawan||{};const tk=effTier(L.tingkat||'sulit',TIERS),t=tierOf(tk);
+    h+=`${shNote}<div class="row"><div class="field"><label>Juara</label><select class="s" id="rHero">${heroOpts(def)}</select></div><div class="field"><label>Lawan</label><b>${esc(L.nama||'Lawan')}</b></div>
+      <div class="field"><label>Tingkat lawan</label>${tierSel('rTier',TIERS,tk)}</div><div class="field"><label>Bonus lawan</label><input class="s" type="number" id="rLB" value="${esc(num(L.bonus,0))}" style="width:80px"></div></div>
+     <div class="scroll"><table class="grid" id="rTbl"><tr><th>Ronde</th><th>Dadu juara <span class="dlabel" id="rPoolLbl"></span></th><th>Dadu lawan <span class="dlabel" id="rTierLbl">${dStr(t.d)}</span></th><th>Nilai</th><th>Pemenang</th></tr>
+     ${[1,2,3].map(n=>`<tr><td><b>${n}</b></td><td>${dieInput('dp',poolOf(def))}</td><td>${dieInput('dk',t.d)}</td><td class="dvv">–</td><td class="dw"></td></tr>`).join('')}</table></div>
+     <div id="rPend" class="small"></div><div class="actions"><button class="btn" id="rCalc">Hitung</button><button class="dbtn" id="rAll">Acak semua</button></div>`;
+  } else {const p=o.pelaku.map(x=>H(x));
+    h+=`<p>${o.jenis==='skill_khusus'?`Opsi ini memakai <b>Skill Khusus</b> ${esc(p.map(x=>x.nama+' ('+(x.sk.nama||'')+')').join(', '))}. Jatahnya berkurang 1.`:o.jenis==='pengorbanan'?`Opsi ini memakai <b>Skill Pengorbanan</b> ${esc(p.map(x=>x.nama+' ('+(x.sp.nama||'')+')').join(', '))}. Nyawa pemakai berkurang sesuai biaya.`:'Pilihan ini tidak memakai dadu.'}</p>
+     <div class="actions"><button class="btn" id="rCalc">Jalankan pilihan ini</button></div>`;}
+  h+=`<div id="rOut"></div></div>`;r.innerHTML=h;
+  if($('rHero'))$('rHero').onchange=()=>{const id=$('rHero').value;r.querySelectorAll('#rDie,.dp').forEach(inp=>setDice(inp,poolOf(id)));updLabels();refreshRoller();previewRows()};
+  if($('rTier'))$('rTier').onchange=()=>{const list=o.jenis==='bos'?BOSS_TIERS:TIERS;const t=tierOf($('rTier').value,list);if(o.jenis==='bos')renderBossDice();else r.querySelectorAll('#rCh,.dk').forEach(inp=>setDice(inp,t.d));updLabels();previewRows()};
+  if($('rAll'))$('rAll').onclick=()=>{r.querySelectorAll('input.die').forEach(inp=>{const tr=inp.closest('tr[data-id]');if(tr&&!tr.querySelector('.in').checked)return;inp.value=inp.dataset.dice==='d100'?rollD100():rollArr(inp.dataset.dice.split(',').map(Number));dv(inp)});previewRows()};
+  r.addEventListener('input',previewRows);
+  r.addEventListener('change',e=>{if(e.target.classList.contains('in')&&o.jenis==='bos')renderBossDice();previewRows();refreshRoller()});
+  if(o.jenis==='bos')renderBossDice();
+  $('rCalc').onclick=calc;updLabels();refreshRoller();previewRows();r.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function heroTableRows(withRes){return `<div class="scroll"><table class="grid" id="rTbl"><tr><th>Ikut</th><th>Pahlawan</th><th>Dadu kelas</th><th>Bonus</th><th>Hasil dadu</th><th style="text-align:right">Nilai</th>${withRes?'<th>Hasil</th>':''}</tr>
+  ${party().map(p=>`<tr data-id="${esc(p)}"><td><input type="checkbox" class="in" ${down(p)?'disabled':'checked'} aria-label="${esc(H(p).nama)} ikut"></td><td><b>${esc(H(p).nama)}</b><div class="small pb"></div></td><td class="dlabel">${dStr(poolOf(p))}</td><td>+${bonusOf(p)}</td>
+  <td>${dieInput('d',poolOf(p),`aria-label="Dadu ${esc(H(p).nama)}"`)}</td><td class="tot v">–</td>${withRes?'<td class="rs"></td>':''}</tr>`).join('')}</table></div>`}
+function renderBossDice(){const t=tierOf($('rTier').value,BOSS_TIERS);const n=document.querySelectorAll('#rTbl tr[data-id] .in:checked').length||1;
+  const old={};document.querySelectorAll('#rBossDice input.die').forEach(i=>old[i.dataset.sides]=i.value);
+  $('rBossDice').innerHTML=t.d.map(x=>`<div class="field"><label class="dlabel">Total ${n} buah d${x} (${n}–${n*x})</label><span style="display:flex;gap:4px"><input class="die bd" type="number" data-sides="${x}" data-min="${n}" data-max="${n*x}" data-dice="${Array(n).fill(x).join(',')}" value="${old[x]||''}"><button class="dbtn" data-acak="1" type="button">Acak</button></span></div>`).join('');
+  document.querySelectorAll('#rBossDice input.die').forEach(dv)}
+function updLabels(){if($('rHero')&&$('rPoolLbl')){const p=poolOf($('rHero').value);$('rPoolLbl').textContent=`${dStr(p)} (${p.length}–${sum(p)})`}
+  if($('rTier')&&$('rTierLbl')){const t=tierOf($('rTier').value);if(t)$('rTierLbl').textContent=`${dStr(t.d)} (${t.d.length}–${sum(t.d)})`}}
+function refreshRoller(){if(!RC||!$('rPend'))return;const o=RC.o,s=W.sesi;const t=[];
+  if(o.jenis==='solo'||o.jenis==='duel'){const id=$('rHero').value,pd=s.pending[id]||{};if(pd.bonus)t.push(`Skill aktif ${H(id).nama}: +${pd.bonus}`);if(pd.kritis)t.push(`${H(id).nama}: otomatis Kritis`)}
+  else party().forEach(p=>{const pd=s.pending[p]||{};if(pd.bonus)t.push(`${H(p).nama} +${pd.bonus}`);if(pd.kritis)t.push(`${H(p).nama} otomatis Kritis`);if(o.jenis==='bos'&&pd.bonus_tim)t.push(`Tim +${pd.bonus_tim} (${H(p).nama})`)});
+  if(party().some(p=>(s.pending[p]||{}).perisai))t.push('Perisai aktif: luka tim berikutnya dibatalkan');
+  if(o.jenis==='bos')t.push(`Stack ${s.sb} → bos +${s.sb*num(W.sys.sbBos,2)}`);
+  $('rPend').innerHTML=t.length?'<b>Otomatis dihitung:</b> '+t.map(esc).join(' · '):'';}
+function heroVal(id,d){const pd=W.sesi.pending[id]||{};return d+bonusOf(id)+(pd.bonus||0)}
+function isCrit(id,d){return heroCrit(id,d)||!!(W.sesi.pending[id]||{}).kritis}
+function isFum(id,d){return heroFum(id,d)&&!isCrit(id,d)}
+function previewRows(){if(!RC)return;const o=RC.o;const ch=$('rCh')?dv($('rCh')):null;const mod=$('rMod')?num($('rMod').value):0;
+  document.querySelectorAll('#rTbl tr[data-id]').forEach(tr=>{const on=tr.querySelector('.in').checked;tr.classList.toggle('off',!on);const id=tr.dataset.id;const d=dv(tr.querySelector('input.die'));
+    const v=on&&d?heroVal(id,d)+(o.jenis==='kelompok'?mod:0):null;tr.querySelector('.v').textContent=v??'–';const pd=W.sesi.pending[id]||{};
+    tr.querySelector('.pb').textContent=[pd.bonus?`skill +${pd.bonus}`:'',d&&isCrit(id,d)?'KRITIS':'',d&&isFum(id,d)?'GAGAL TOTAL':''].filter(Boolean).join(' · ');
+    const rs=tr.querySelector('.rs');if(rs){if(!v||!ch)rs.textContent='';else{const ok=isCrit(id,d)||(!isFum(id,d)&&v>=ch);rs.innerHTML=ok?'<b style="color:var(--moss)">Lulus</b>':'<b style="color:var(--blood)">Gagal</b>'}}})}
+
+function verdict(cls,title,sub,body,actions){$('rOut').innerHTML=`<div class="verdict"><div class="vhead ${cls}">${title}<small>${sub}</small></div><div class="vbody">${body}<div class="actions">${actions}</div></div></div>`}
+function efekText(ef,ok){const t=[];if(!ef)return '';
+  if(ok){if(num(ef.stack))t.push(`Stack ${num(ef.stack)>0?'+':''}${num(ef.stack)}`);if(num(ef.ramuan))t.push(`Ramuan +${num(ef.ramuan)}`);if(num(ef.nyawa_semua))t.push(`Semua ${num(ef.nyawa_semua)>0?'+':''}${num(ef.nyawa_semua)} Nyawa`);if(ef.item)t.push(`Barang: ${ef.item}`);if(ef.quest_selesai)t.push('Quest selesai'+(typeof ef.quest_selesai==='string'?': '+ef.quest_selesai:''))}
+  else{if(num(ef.stack))t.push(`Stack +${num(ef.stack)}`);const n=ef.nyawa;if(n==='gagal')t.push('Yang gagal −1 Nyawa');if(n==='semua')t.push('Semua −1 Nyawa');if(n==='pelaku')t.push('Pelaku −1 Nyawa')}
+  return t.join(' · ')}
+function applySuccess(ef){if(!ef)return;const s=W.sesi,a=scn();
+  if(num(ef.stack))addSB(num(ef.stack),'hasil pilihan');if(num(ef.ramuan)){s.ramuan+=num(ef.ramuan);log(`Ramuan +${num(ef.ramuan)}`)}
+  if(num(ef.nyawa_semua))party().forEach(p=>hurt(p,-num(ef.nyawa_semua),'hasil pilihan'));
+  if(ef.item){s.items.push(ef.item);log('Didapat: '+ef.item)}
+  if(ef.quest_selesai){let qn=null;if(typeof ef.quest_selesai==='string'&&s.quests[ef.quest_selesai])qn=ef.quest_selesai;
+    else if(a.quest&&a.quest.nama&&s.quests[a.quest.nama]&&!s.quests[a.quest.nama].selesai)qn=a.quest.nama;
+    else qn=Object.keys(s.quests).reverse().find(k=>!s.quests[k].selesai)||null;
+    if(qn){s.quests[qn].selesai=true;log(`Quest "${qn}" SELESAI`)}}}
+function applyFail(ef,ids){if(!ef)return;if(num(ef.stack))addSB(num(ef.stack),'akibat gagal');const n=ef.nyawa;
+  if(n&&n!=='tidak'&&ids.length){if(useShield())return;ids.forEach(p=>hurt(p,1,'akibat gagal'))}}
+function clearPending(ids){ids.forEach(p=>{const pd=W.sesi.pending[p];if(pd){delete pd.bonus;delete pd.kritis}})}
+function useShift(){if(W.sesi.shift){log(`Perubahan tingkat dari kejadian acak terpakai (${W.sesi.shift>0?'+':''}${W.sesi.shift})`);W.sesi.shift=0}}
+function natLog(id,d){if(isCrit(id,d))addSB(-1,`Kritis ${H(id).nama}`);else if(isFum(id,d))addSB(1,`Gagal Total ${H(id).nama}`)}
+function nextButtons(ok){const o=RC.o;const n=ok?o.lanjut_berhasil:o.lanjut_gagal;
+  return `<button class="btn green" data-next="${n===undefined||n===null?'':n}">${nextLabel(n===undefined||n===null?undefined:num(n))}</button>`}
+function bindNext(){document.querySelectorAll('[data-next]').forEach(b=>b.onclick=()=>goNext(b.dataset.next===''?undefined:num(b.dataset.next)))}
+function afterApply(btn,ok,extra){btn.disabled=true;save();renderSide();btn.insertAdjacentHTML('afterend',(extra||'')+nextButtons(ok));bindNext()}
+
+function calc(){const o=RC.o,s=W.sesi,a=scn();
+  /* ---- SOLO ---- */
+  if(o.jenis==='solo'){const id=$('rHero').value,t=tierOf($('rTier').value),d=dv($('rDie')),c=dv($('rCh'));
+    if(!d)return alert('Isi hasil dadu pemain sesuai dadu kelasnya.');if(!c)return alert('Isi hasil Dadu GM.');
+    if(down(id)&&!confirm(H(id).nama+' sedang Tumbang. Tetap lempar?'))return;
+    const v=heroVal(id,d)+num($('rMod').value),cr=isCrit(id,d),fu=isFum(id,d),ok=cr||(!fu&&v>=c);
+    const ef=ok?o.efek_berhasil:o.efek_gagal;const et=efekText(ef,ok);
+    verdict(ok?'win':'lose',`${esc(H(id).nama)}: ${cr?'Sukses Luar Biasa!':fu?'Gagal Total!':ok?'Berhasil':'Gagal'}`,`Nilai ${v} melawan ${c} (${t.n}: ${dStr(t.d)})`,
+      `<div class="read"><p>${esc(ok?o.berhasil||'Berhasil.':o.gagal||'Gagal.')}</p></div>${et?`<p><b>Akibat:</b> ${esc(et)}</p>`:''}${cr?'<p class="small">Kritis: Stack −1.</p>':''}${fu?'<p class="small">Gagal Total: Stack +1.</p>':''}`,
+      `<button class="btn" id="rApply">Terapkan</button>`);
+    $('rApply').onclick=e=>{log(`${H(id).nama} ${t.n}: ${ok?'BERHASIL':'GAGAL'} (${v} vs ${c})`);natLog(id,d);
+      if(ok)applySuccess(ef);else applyFail(ef,ef&&['gagal','pelaku','semua'].includes(ef.nyawa)?(ef.nyawa==='semua'?party().filter(p=>!down(p)):[id]):[]);
+      clearPending([id]);useShift();afterApply(e.target,ok)};
+    return}
+  /* ---- KELOMPOK & BOS ---- */
+  if(o.jenis==='kelompok'||o.jenis==='bos'){const rows=[];let miss=[];
+    document.querySelectorAll('#rTbl tr[data-id]').forEach(tr=>{if(!tr.querySelector('.in').checked)return;const id=tr.dataset.id,d=dv(tr.querySelector('input.die'));if(!d)return miss.push(H(id).nama);rows.push({id,d,v:heroVal(id,d),cr:isCrit(id,d),fu:isFum(id,d)})});
+    if(miss.length)return alert('Dadu belum diisi atau di luar rentang: '+miss.join(', '));if(!rows.length)return alert('Belum ada yang ikut.');
+    const mod=num($('rMod').value);
+    if(o.jenis==='kelompok'){const t=tierOf($('rTier').value),c=dv($('rCh'));if(!c)return alert('Isi hasil Dadu GM.');
+      rows.forEach(r=>r.ok=r.cr||(!r.fu&&r.v+mod>=c));const pass=rows.filter(r=>r.ok).length,need=Math.ceil(rows.length/2),ok=pass>=need,fails=rows.filter(r=>!r.ok);
+      const ef=ok?o.efek_berhasil:o.efek_gagal;const et=efekText(ef,ok);
+      verdict(ok?'win':'lose',ok?'Kelompok Berhasil':'Kelompok Gagal',`${pass} dari ${rows.length} lulus melawan ${c} (${t.n}), butuh ${need}`,
+        `<div class="read"><p>${esc(ok?o.berhasil||'Berhasil.':o.gagal||'Gagal.')}</p></div>${fails.length?`<p>Yang gagal: <b>${esc(fails.map(f=>H(f.id).nama).join(', '))}</b></p>`:''}${et?`<p><b>Akibat:</b> ${esc(et)}</p>`:''}`,
+        `<button class="btn" id="rApply">Terapkan</button>`);
+      $('rApply').onclick=e=>{log(`Kelompok ${t.n}: ${ok?'BERHASIL':'GAGAL'} (${pass}/${rows.length}, GM ${c})`);rows.forEach(r=>natLog(r.id,r.d));
+        if(ok)applySuccess(ef);else{const n=ef&&ef.nyawa;applyFail(ef,n==='gagal'?fails.map(f=>f.id):n==='semua'?rows.map(r=>r.id):[])}
+        clearPending(rows.map(r=>r.id));useShift();afterApply(e.target,ok)};
+      return}
+    /* bos */
+    const t=tierOf($('rTier').value,BOSS_TIERS);const bdIn=[...document.querySelectorAll('#rBossDice input.die')];const bd=bdIn.map(dv);
+    if(bd.some(x=>!x))return alert('Isi total dadu bos per jenis (sesuai rentang yang tertulis).');
+    if(bdIn.length&&num(bdIn[0].dataset.min)!==rows.length)renderBossDice();
+    const base=num($('rBase').value,0);
+    const tb=party().reduce((a2,p)=>a2+((s.pending[p]||{}).bonus_tim||0),0);
+    const bossVal=sum(bd)+base+s.sb*num(W.sys.sbBos,2);
+    const teamVal=rows.reduce((x,r)=>x+r.v,0)+mod+tb;const gap=bossVal-teamVal;const bn=(o.bos&&o.bos.nama)||'Bos';
+    const cls=gap<=0?'win':gap<=6?'thin':'lose';
+    const TT={win:['Menang!',`Tim unggul ${-gap} poin.`,'Tidak ada yang terluka.'],thin:['Menang Tipis',`Tim kurang ${gap} poin, tapi tetap menang.`,'Semua pahlawan yang ikut −1 Nyawa.'],lose:['Serangan Gagal',`Tim kurang ${gap} poin.`,'Semua pahlawan yang ikut −1 Nyawa, Stack +1. Serang lagi.']}[cls];
+    const ok=cls!=='lose';const et=ok?efekText(o.efek_berhasil,true):'';
+    verdict(cls,TT[0],TT[1],`<div class="score"><div>Nilai Tim<b>${teamVal}</b></div><div>Nilai ${esc(bn)}<b>${bossVal}</b></div></div>
+      <div class="read"><p>${esc(ok?o.berhasil||`${bn} tumbang.`:o.gagal||`${bn} membalas dengan kejam. Kumpulkan tenaga, serang lagi!`)}</p></div>
+      <p><b>Akibat:</b> ${esc(TT[2])}${et?' · '+esc(et):''}</p><p class="small">${t.n}: ${t.d.map((x,k)=>`d${x}×${rows.length}=${bd[k]}`).join(', ')} + tambahan ${base} + stack ${s.sb*num(W.sys.sbBos,2)}. Tim: ${rows.map(r=>H(r.id).nama+' '+r.v).join(', ')}${mod||tb?` + bonus ${mod+tb}`:''}.</p>`,
+      `<button class="btn" id="rApply">Terapkan</button>`);
+    $('rApply').onclick=e=>{log(`${bn} (${t.n}): ${TT[0]} (Tim ${teamVal} vs ${bossVal})`);rows.forEach(r=>natLog(r.id,r.d));
+      if(cls!=='win'){if(!useShield())rows.forEach(r=>hurt(r.id,1,TT[0]))}
+      if(cls==='lose')addSB(1,'serangan bos gagal');if(ok)applySuccess(o.efek_berhasil);
+      party().forEach(p=>{if(s.pending[p])delete s.pending[p].bonus_tim});clearPending(rows.map(r=>r.id));useShift();
+      if(party().every(p=>down(p)))log('SEMUA PAHLAWAN TUMBANG');
+      if(ok)afterApply(e.target,true);else{e.target.disabled=true;save();renderSide();e.target.insertAdjacentHTML('afterend','<button class="btn alt" id="rRetry">Serang lagi (ronde baru)</button>'+(o.lanjut_gagal!==undefined&&o.lanjut_gagal!==null&&num(o.lanjut_gagal)!==a.no?nextButtons(false):''));bindNext();
+        $('rRetry').onclick=()=>{document.querySelectorAll('#roller input.die').forEach(i=>i.value='');$('rOut').innerHTML='';renderBossDice();previewRows();refreshRoller()}}};
+    return}
+  /* ---- DUEL ---- */
+  if(o.jenis==='duel'){const id=$('rHero').value,t=tierOf($('rTier').value),lb=num($('rLB').value,0);let w=0,l=0,miss=false;const rounds=[];
+    document.querySelectorAll('#rTbl tr').forEach((tr,k)=>{if(k===0)return;const cv=tr.querySelector('.dvv'),cw=tr.querySelector('.dw');
+      if(w>=2||l>=2){cv.textContent='tidak perlu';cw.textContent='';return}
+      const p=dv(tr.querySelector('.dp')),q=dv(tr.querySelector('.dk'));if(!p||!q){miss=true;cv.textContent='–';cw.textContent='';return}
+      const pv=heroVal(id,p),kv=q+lb,cr=heroCrit(id,p)||(k===1&&!!(s.pending[id]||{}).kritis),fu=heroFum(id,p)&&!cr,win=cr||(!fu&&pv>kv);win?w++:l++;rounds.push({p,cr,fu});
+      cv.textContent=`${pv} lawan ${kv}${cr?' (Kritis)':fu?' (Gagal Total)':''}`;
+      cw.innerHTML=win?`<b style="color:var(--moss)">${esc(H(id).nama)}</b>`:`<b style="color:var(--blood)">${esc(o.lawan&&o.lawan.nama||'Lawan')}</b>`});
+    if(miss)return alert('Isi dadu untuk ronde yang dibutuhkan (sesuai rentang).');
+    const ok=w>=2;const ef=ok?o.efek_berhasil:o.efek_gagal;const et=efekText(ef,ok);
+    verdict(ok?'win':'lose',ok?`${esc(H(id).nama)} memenangkan duel`:`${esc(o.lawan&&o.lawan.nama||'Lawan')} menang`,`Skor ${w} – ${l} (${t.n})`,
+      `<div class="read"><p>${esc(ok?o.berhasil||'Menang.':o.gagal||'Kalah.')}</p></div>${et?`<p><b>Akibat:</b> ${esc(et)}</p>`:''}`,`<button class="btn" id="rApply">Terapkan</button>`);
+    $('rApply').onclick=e=>{log(`Duel ${H(id).nama} vs ${o.lawan&&o.lawan.nama||'lawan'} (${t.n}): ${ok?'MENANG':'KALAH'} (${w}-${l})`);
+      rounds.forEach(r=>{if(r.cr)addSB(-1,`Kritis ${H(id).nama}`);else if(r.fu)addSB(1,`Gagal Total ${H(id).nama}`)});
+      if(ok)applySuccess(ef);else applyFail(ef,ef&&ef.nyawa&&ef.nyawa!=='tidak'?(ef.nyawa==='semua'?party().filter(p=>!down(p)):[id]):[]);
+      clearPending([id]);useShift();afterApply(e.target,ok)};
+    return}
+  /* ---- TANPA DADU / SKILL / PENGORBANAN ---- */
+  const et=efekText(o.efek_berhasil,true);
+  verdict('win','Pilihan dijalankan','',`<div class="read"><p>${esc(o.berhasil||o.aksi||'')}</p></div>${et?`<p><b>Akibat:</b> ${esc(et)}</p>`:''}`,`<button class="btn" id="rApply">Terapkan</button>`);
+  $('rApply').onclick=e=>{const ps=o.pelaku.filter(p=>party().includes(p));
+    if(o.jenis==='skill_khusus'){for(const p of ps){if(s.skill[p]<=0){alert(`${H(p).nama} sudah tidak punya jatah Skill Khusus.`);return}}ps.forEach(p=>{s.skill[p]--;log(`${H(p).nama} memakai ${H(p).sk.nama||'Skill Khusus'} (sisa ${s.skill[p]}/3)`)})}
+    if(o.jenis==='pengorbanan')ps.forEach(p=>{const c=num(H(p).sp.biaya,1);hurt(p,c,H(p).sp.nama||'pengorbanan')});
+    log(`Adegan ${a.no} opsi ${o.kode} dijalankan`);applySuccess(o.efek_berhasil);afterApply(e.target,true)};
+}
+
+/* ======================= EXPORT / IMPORT ======================= */
+$('exportAll').onclick=async()=>{const c=JSON.parse(JSON.stringify(R));Object.values(c.ws||{}).forEach(w=>delete w.draft);c.foto=await IDB.all();download('meja-pencerita-simpanan.json',c)};
+$('importAll').onchange=e=>readFile(e.target,t=>{try{const d=JSON.parse(t);
+  if(d.adegan&&!d.heroes&&!d.ws){if(!R.genre){alert('Pilih genre dulu, lalu buka file cerita ini di tab 3.');return}$('storyIn').value=t;showTab('load');loadStoryText(t);return}
+  if(d.ws){if(!confirm('Buka file simpanan ini? Semua data di semua genre akan diganti.'))return;const foto=d.foto||{};delete d.foto;Object.entries(foto).forEach(([k,v])=>IDB.set(k,v));R=d;R.custom=Object.assign(defCustom(),R.custom||{});W=R.genre?ws(R.genre):null;save();updateChrome();if(W){renderHeroes();renderSys()}showTab(R.genre?'heroes':'genre');alert('File berhasil dibuka.');return}
+  if(Array.isArray(d.heroes)){if(!R.genre){alert('Pilih genre dulu. File lama ini akan dimasukkan ke genre yang dipilih.');return}
+    if(!confirm(`File versi lama. Masukkan ke genre ${G().nama}? Data genre ini akan diganti.`))return;R.ws[R.genre]={heroes:d.heroes,sys:d.sys,story:d.story,sesi:d.sesi};W=ws(R.genre);save();renderHeroes();renderSys();alert('File berhasil dibuka.');return}
+  throw new Error('Format file tidak dikenali.')}catch(err){alert('Gagal membuka file: '+err.message)}});
+
+/* ======================= INIT ======================= */
+if(location.hash.startsWith('#k=')){startViewer()}else{
+$('siteUrl').value=R.siteUrl||'';siteHintR();
+updateChrome();
+if(R.genre){renderHeroes();renderSys();showTab('heroes')}else showTab('genre');
+applyTerms(document.body);termObs.observe(document.body,{childList:true,subtree:true,characterData:true});
+}
+</script>
+</body>
+</html>
