@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Portal Pemain — MasteryDnD</title>
+<meta name="description" content="Lihat kartu karakter, kondisi terkini, dan rekap cerita dari Game Master-mu.">
+<meta name="theme-color" content="#120a09">
+<link rel="icon" type="image/png" href="/img/favicon.png">
+<link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+</head>
+<body class="portal">
+<div class="shell shell-portal">
+  <header class="topbar">
+    <a class="brand" href="/portal" aria-label="Portal Pemain MasteryDnD"><img src="/img/logo-kecil.webp" alt="MasteryDnD by Zan" width="186" height="110"></a>
+    <p class="motto">Portal Pemain</p>
+    <div class="akun" id="akunBox"></div>
+  </header>
+  <main class="content portal-main" id="pMain"><div class="panel"><p>Memuat…</p></div></main>
+  <footer class="footbar"><span>Master your story</span> <nav class="legal-links"><a href="/privasi">Privasi</a> · <a href="/syarat">Syarat</a> · <a href="/atribusi">Atribusi</a></nav></footer>
+</div>
+<div class="modal" id="modal"><div class="panel" id="modalBody"></div></div>
+<div id="toast" role="status" aria-live="polite"></div>
+<script type="module" src="/src/portal/main.js"></script>
+</body>
+</html>

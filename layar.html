@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Layar Presentasi — MasteryDnD</title>
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" href="/img/favicon.png">
+</head>
+<body class="layar">
+  <div class="ly-bg" aria-hidden="true"></div>
+  <main class="ly-main" id="lyMain">
+    <div class="ly-kosong" id="lyKosong">
+      <img src="/img/logo.webp" alt="MasteryDnD by Zan">
+      <p>Layar siap. Buka adegan di Meja Pencerita untuk menampilkannya di sini.</p>
+      <button id="lyFull" type="button">Layar penuh</button>
+    </div>
+    <article class="ly-scene" id="lyScene" hidden></article>
+  </main>
+  <aside class="ly-hasil" id="lyHasil" hidden></aside>
+  <footer class="ly-party" id="lyParty"></footer>
+  <div class="ly-tirai" id="lyTirai" hidden><img src="/img/logo.webp" alt=""></div>
+  <script type="module" src="/src/layar/main.ts"></script>
+</body>
+</html>
