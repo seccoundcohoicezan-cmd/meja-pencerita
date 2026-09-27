@@ -113,6 +113,15 @@ body.viewer-mode header,body.viewer-mode nav,body.viewer-mode .page{display:none
 body.viewer-mode #viewer{display:block}
 #viewer .vimg{width:100%;max-width:440px;display:block;margin:0 auto;border-radius:10px;box-shadow:0 10px 40px rgba(0,0,0,.5)}
 #viewer h1{color:var(--gold);text-align:center;margin:0 0 6px}
+.latar{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:6px 0 10px}
+@media (max-width:760px){.latar{grid-template-columns:1fr 1fr}}
+.latar div{background:#2f231b;color:#f1e6cf;border-radius:4px;padding:8px 10px}
+.latar span{display:block;font-size:11.5px;letter-spacing:.5px;color:var(--gold);font-family:Arial,sans-serif;text-transform:uppercase}
+.fate{background:#1c1410;color:#f1e6cf;border-left:5px solid #7d1512;padding:10px 14px;margin:8px 0}
+.fate b{color:#ff9d8f}
+.badge.gugur{background:#111;color:#ff9d8f}
+.syn{background:#f5ecd6;border:1px solid #b39866;padding:12px 14px;margin:8px 0}
+.syn p{margin:0 0 8px}
 .modal{position:fixed;inset:0;background:rgba(20,12,8,.65);display:none;align-items:center;justify-content:center;z-index:50;padding:14px}
 .modal.show{display:flex}.modal .panel{max-width:460px;width:100%}
 </style>
@@ -187,6 +196,10 @@ body.viewer-mode #viewer{display:block}
     <div class="actions"><button class="dbtn" id="addEnd">+ Ending</button></div>
     <h3>Pahlawan yang ikut</h3>
     <div id="ikutList" class="row"></div>
+    <h3>Takdir gugur (opsional)</h3>
+    <p class="small">Centang pahlawan yang diharuskan mati oleh plot. Saat adegan kematiannya tiba, ia langsung Tumbang dan Gugur (tidak bisa dipulihkan).</p>
+    <div id="gugurList" class="row"></div>
+    <div class="field"><label for="sGugurNote">Kapan dan bagaimana ia gugur (opsional)</label><input id="sGugurNote" placeholder="contoh: mengorbankan diri menutup gerbang iblis di adegan menjelang akhir"></div>
     <h3>Plot kasar</h3>
     <div class="field"><textarea id="sPlot" rows="5" placeholder="3–6 kalimat garis besar. AI yang akan mengembangkannya menjadi adegan."></textarea></div>
     <h3>Bos / tantangan puncak (opsional)</h3>
@@ -302,7 +315,9 @@ body.viewer-mode #viewer{display:block}
     </ol>
     <h3>Langkah 4 — Bermain</h3>
     <ol>
-      <li>Bacakan kotak narasi. Tanya pemain memilih opsi A, B, C...</li>
+      <li>Buka <b>📜 Ringkasan cerita</b> di atas adegan kapan saja untuk melihat alur keseluruhan, twist, tokoh, dan takdir gugur. Khusus GM.</li>
+      <li>Baca kotak <b>Latar</b> (tempat, waktu, cuaca, suasana), lalu bacakan kotak narasi. Tanya pemain memilih opsi A, B, C...</li>
+      <li>Jika adegan punya <b>Takdir</b>, pahlawan yang disebut langsung gugur saat adegan dibuka: Nyawanya habis, tidak bisa dipulihkan, dan tidak ikut lemparan lagi. Salah klik? Klik hatinya untuk membatalkan.</li>
       <li>Klik <b>Mainkan opsi ini</b>. Sistem membuka kalkulator sesuai jenis tantangan: Solo, Kelompok, Serangan Bos, atau Duel.</li>
       <li>Ketik dadu tiap pemain (atau klik Acak), klik <b>Hitung</b>, bacakan hasilnya, lalu klik <b>Terapkan</b>. Nyawa, Stack, ramuan, dan barang berubah otomatis.</li>
       <li>Klik tombol <b>Lanjut ke Adegan ...</b> yang muncul. Setelah adegan terakhir, sistem menampilkan ending sesuai Stack Bayangan.</li>
@@ -769,6 +784,8 @@ function renderSys(){if(!W)return;const s=W.sys;s.bos=Object.assign({nama:'',tin
   $('sPlot').value=s.plot;$('sBosNama').value=s.bos.nama;$('sBosTier').value=s.bos.tingkat||'';$('sBosAdd').value=s.bos.tambahan;
   $('endList').innerHTML=s.ending.map((t,i)=>`<div class="row" style="margin-bottom:6px"><input class="s" data-en="${i}" data-k="nama" value="${esc(t.nama)}" style="flex:1" aria-label="Nama ending"><span class="small">Stack ≤</span><input class="s" type="number" data-en="${i}" data-k="maks" value="${esc(t.maks)}" style="width:80px" aria-label="Batas stack"><button class="dbtn red" data-endel="${i}">Hapus</button></div>`).join('');
   const valid=W.heroes.filter(h=>h.id);
+  W.sys.gugur=W.sys.gugur||[];$('sGugurNote').value=W.sys.gugurNote||'';
+  $('gugurList').innerHTML=valid.length?valid.map(h=>`<label class="chk"><input type="checkbox" data-gugur="${esc(h.id)}" ${W.sys.gugur.includes(h.id)?'checked':''}> ${esc(h.nama)}</label>`).join(''):'<span class="small">Belum ada pahlawan.</span>';
   $('ikutList').innerHTML=valid.length?valid.map(h=>`<label class="chk"><input type="checkbox" data-ikut="${esc(h.id)}" ${s.ikut.includes(h.id)?'checked':''}> ${esc(h.nama)}</label>`).join(''):'<span class="small">Belum ada pahlawan. Isi dulu di tab 1.</span>';
   $('tierTbl').innerHTML='<tr><th>Tingkat</th><th>Dadu GM</th><th>Hasil</th><th>Rata-rata</th></tr>'+TIERS.map(t=>`<tr><td><b>${t.n}</b></td><td>${dStr(t.d)}</td><td>${t.d.length}–${sum(t.d)}</td><td>${(sum(t.d)+t.d.length)/2}</td></tr>`).join('')+
     BOSS_TIERS.map(t=>`<tr><td><b>${t.n}</b></td><td>${dStr(t.d)} <i>untuk setiap pahlawan</i></td><td colspan="2">rata-rata ${(sum(t.d)+t.d.length)/2} per pahlawan</td></tr>`).join('');
@@ -780,7 +797,8 @@ function syncSys(){const s=W.sys;s.judul=$('sJudul').value;s.adegan=$('sAdegan')
 $('sBosTier').addEventListener('change',syncSys);
 $('p-prompt').addEventListener('input',e=>{const t=e.target;
   if(t.dataset.en!==undefined){W.sys.ending[+t.dataset.en][t.dataset.k]=t.dataset.k==='maks'?num(t.value):t.value;save()}});
-$('p-prompt').addEventListener('change',e=>{const t=e.target;if(t.dataset.ikut!==undefined){const id=t.dataset.ikut;W.sys.ikut=W.sys.ikut.filter(x=>x!==id);if(t.checked)W.sys.ikut.push(id);save();renderChance()}});
+$('sGugurNote').addEventListener('input',e=>{W.sys.gugurNote=e.target.value;save()});
+$('p-prompt').addEventListener('change',e=>{const t=e.target;if(t.dataset.gugur!==undefined){const id=t.dataset.gugur;W.sys.gugur=(W.sys.gugur||[]).filter(x=>x!==id);if(t.checked)W.sys.gugur.push(id);save();return}if(t.dataset.ikut!==undefined){const id=t.dataset.ikut;W.sys.ikut=W.sys.ikut.filter(x=>x!==id);if(t.checked)W.sys.ikut.push(id);save();renderChance()}});
 $('p-prompt').addEventListener('click',e=>{const t=e.target;
   if(t.dataset.endel!==undefined){W.sys.ending.splice(+t.dataset.endel,1);save();renderSys()}});
 $('addEnd').onclick=()=>{W.sys.ending.push({nama:'',maks:''});save();renderSys()};
@@ -808,7 +826,11 @@ function heroTable(hs){
 }
 const FORMAT_ADEGAN=`### Adegan N — [Judul Adegan]
 
-**Narasi:** (2-5 paragraf, jangan spoiler opsi ke pemain)
+**Latar (untuk GM):** Tempat: [lokasi spesifik] · Waktu: [dini hari / pagi / siang / sore / senja / malam / tengah malam] · Cuaca: [...] · Suasana: [nada emosi, suara, bau, cahaya]
+
+**Ringkas (untuk GM):** 1 kalimat apa yang terjadi di adegan ini
+
+**Narasi:** (2-5 paragraf, jangan spoiler opsi ke pemain, selaras dengan latar di atas)
 
 **Quest terdeteksi:** Ya/Tidak
   - Jika Ya: [nama quest] — [tujuan singkat] — [reward jika selesai]
@@ -836,14 +858,24 @@ const FORMAT_ADEGAN=`### Adegan N — [Judul Adegan]
 
 **Percabangan:** hasil di adegan ini menentukan Adegan N+1 mana yang dibuka (boleh linear)
 
+**Takdir (jika ada):** [nama pahlawan] gugur di adegan ini — bagaimana kematiannya diceritakan
+
 **Catatan GM (opsional):** dialog kunci, atau syarat tersembunyi`;
 
 const JSON_SPEC=`{
   "judul": "Judul cerita",
+  "ringkasan": {
+    "sinopsis": "2-4 paragraf alur keseluruhan dari awal sampai akhir, TERMASUK twist (khusus GM)",
+    "twist": "Rahasia besar cerita yang tidak boleh dibocorkan ke pemain",
+    "tokoh": [ { "nama": "Nama NPC", "peran": "sekutu / musuh / netral", "catatan": "sifat, motif, rahasia" } ]
+  },
   "adegan": [
     {
       "no": 1,
       "judul": "Judul adegan",
+      "ringkas": "1 kalimat apa yang terjadi di adegan ini",
+      "latar": { "tempat": "Lokasi spesifik", "waktu": "malam", "cuaca": "hujan rintik", "suasana": "tegang, sunyi, bau dupa" },
+      "mati": [],
       "narasi": "Paragraf 1\\n\\nParagraf 2",
       "quest": { "ada": true, "nama": "Nama quest", "tujuan": "Tujuan singkat", "reward": "Reward" },
       "catatan_gm": "Dialog kunci / syarat tersembunyi",
@@ -862,7 +894,7 @@ const JSON_SPEC=`{
           "berhasil": "Narasi jika berhasil",
           "gagal": "Narasi jika gagal",
           "efek_berhasil": { "stack": 0, "ramuan": 0, "nyawa_semua": 0, "item": "", "quest_selesai": "" },
-          "efek_gagal": { "stack": 1, "nyawa": "gagal | semua | pelaku | tidak" },
+          "efek_gagal": { "stack": 1, "nyawa": "gagal | semua | pelaku | tidak", "mati": [] },
           "lanjut_berhasil": 2,
           "lanjut_gagal": 2
         }
@@ -888,7 +920,7 @@ $('makePrompt').onclick=()=>{syncSys();const s=W.sys;const msg=[];
   const sistem=[['Judul Cerita & Bab',s.judul||'(bebas, tentukan sendiri)'],['Sistem Dadu','Dadu D&D polyhedral (d4, d6, d8, d10, d10 persen, d12, d20). Pemain memakai Dadu Kelas, GM memakai Dadu Kesulitan.'],
     ['Jumlah Adegan Target',s.adegan||'(bebas)'],['Ramuan Awal',s.ramuan],
     ['Stack Bayangan — Awal/Maks',`0–${s.sbMax}, bos +${s.sbBos} per stack`],['Ambang Ending',s.ending.filter(e=>e.nama).map(e=>`Stack ≤${e.maks}: ${e.nama}`).join(', ')],
-    ['Jumlah Pahlawan Ikut',`${hs.length} orang (${hs.map(h=>h.id).join(', ')})`],['Plot Kasar',s.plot.replace(/\n/g,' ')],
+    ['Jumlah Pahlawan Ikut',`${hs.length} orang (${hs.map(h=>h.id).join(', ')})`],['Takdir Gugur',(s.gugur||[]).filter(id=>hs.find(h=>h.id===id)).length?`${(s.gugur||[]).filter(id=>hs.find(h=>h.id===id)).join(', ')} WAJIB gugur (mati) dalam cerita${s.gugurNote?': '+s.gugurNote.replace(/\n/g,' '):''}`:'(tidak ada, kecuali plot kasar menyebutkan)'],['Plot Kasar',s.plot.replace(/\n/g,' ')],
     ['Bos/Tantangan Puncak',s.bos.nama||bosTier?`${s.bos.nama||'(nama bebas)'}${bosTier?`, tingkat ${bosTier.n}`:''}${s.bos.tambahan!==''&&s.bos.tambahan!==undefined?`, nilai tambahan ${s.bos.tambahan}`:''}`:'(bebas, rancang sendiri)']];
   const sysTbl='| Field | Isi |\n|---|---|\n'+sistem.map(([a,b])=>`| ${a} | ${String(b).replace(/\|/g,'/')} |`).join('\n');
   const p=`Kamu adalah perancang skenario untuk sistem tabletop bernama "Meja Pencerita".
@@ -965,9 +997,20 @@ ${FORMAT_ADEGAN}
    (agresif / hati-hati / sosial / kreatif), bukan variasi kata dari aksi yang sama.
 9. Akhiri dengan Ending sesuai Ambang Ending di data sistem, masing-masing 1 paragraf epilog.
 10. Gunakan HANYA ID pahlawan dari tabel karakter di atas untuk kolom "pelaku".
+11. LATAR: setiap adegan WAJIB punya latar lengkap (tempat, waktu, cuaca, suasana) untuk GM.
+    Waktu harus konsisten dan bergerak masuk akal antar adegan (misalnya sore → senja → malam).
+12. TAKDIR GUGUR: jika Data Sistem atau plot kasar mengharuskan seorang pahlawan mati, ia
+    LANGSUNG Tumbang dan Gugur permanen (tidak bisa dipulihkan dengan apa pun). Tulis ID-nya
+    di "mati" pada adegan tempat ia gugur (terjadi otomatis saat adegan dibuka), atau di
+    "efek_berhasil.mati" / "efek_gagal.mati" jika kematiannya bergantung pada pilihan. Ceritakan
+    kematiannya dengan emosional di narasi. Setelah gugur, jangan pakai dia lagi sebagai
+    "pelaku" dan jangan beri opsi yang membutuhkan dirinya. Tanpa takdir gugur, jangan membunuh
+    pahlawan secara otomatis.
 
 === FORMAT OUTPUT ===
-Tulis sebagai Markdown, urut per Adegan sesuai skema di atas. Setelah itu, tambahkan
+Awali dengan bagian "RINGKASAN CERITA (KHUSUS GM)": sinopsis keseluruhan dari awal sampai
+akhir termasuk twist, daftar tokoh penting (NPC), dan alur singkat per adegan beserta latarnya.
+Lalu tulis Markdown urut per Adegan sesuai skema di atas. Setelah itu, tambahkan
 bagian "RINGKASAN MEKANIK" berupa tabel: nomor adegan | jenis tantangan | tingkat | reward.
 
 PALING AKHIR (WAJIB): tulis ulang seluruh data mekanik cerita sebagai SATU blok kode
@@ -992,6 +1035,8 @@ Aturan isi JSON:
   (bencana / buruk / tenang / baik / sangat_baik / keajaiban).
 - "lanjut_berhasil" / "lanjut_gagal" = nomor adegan berikutnya; untuk adegan terakhir isi 0.
 - "quest_selesai": isi NAMA quest yang selesai, atau "" jika tidak.
+- "ringkasan", "ringkas", dan "latar" WAJIB diisi untuk seluruh cerita dan setiap adegan.
+- "mati": daftar ID pahlawan yang gugur. Kosongkan [] jika tidak ada.
 - "narasi" boleh berisi \\n\\n untuk pemisah paragraf.`;
   $('promptOut').value=p;$('promptBox').style.display='';$('copyMsg').textContent='';$('promptBox').scrollIntoView({behavior:'smooth'});
 };
@@ -1027,11 +1072,29 @@ function normalizeStory(d){const warn=[];const ids=W.heroes.map(h=>h.id);
   d.adegan.forEach(a=>{const ks=Array.isArray(a.kejadian)?a.kejadian:[];a.kejadian=ks.map(k=>({dari:num(k.dari,0),sampai:num(k.sampai,0),jenis:(findEv(k.jenis)||'tenang'),teks:k.teks||'',efek:k.efek||{}})).filter(k=>k.sampai>=k.dari&&k.dari>0);
     if(!a.kejadian.length)warn.push(`Adegan ${a.no}: tidak ada tabel kejadian acak, dipakai tabel umum genre.`)});
   d.adegan.sort((x,y)=>x.no-y.no);
+  const ids2=W.heroes.map(h=>h.id);const normMati=(v,where)=>{const arr=(Array.isArray(v)?v:(v?[v]:[])).map(x=>slug(x)).filter(Boolean);arr.forEach(p=>{if(!ids2.includes(p))warn.push(`${where}: pahlawan gugur "${p}" tidak ada di data pahlawan.`)});return arr};
+  d.adegan.forEach(a=>{a.mati=normMati(a.mati,`Adegan ${a.no}`);
+    if(typeof a.latar==='string')a.latar={tempat:a.latar};a.latar=a.latar&&typeof a.latar==='object'?a.latar:null;
+    if(!a.latar)warn.push(`Adegan ${a.no}: latar (tempat/waktu/suasana) kosong.`);
+    a.opsi.forEach(o=>{o.efek_berhasil.mati=normMati(o.efek_berhasil.mati,`Adegan ${a.no} opsi ${o.kode}`);o.efek_gagal.mati=normMati(o.efek_gagal.mati,`Adegan ${a.no} opsi ${o.kode}`)})});
+  if(typeof d.ringkasan==='string')d.ringkasan={sinopsis:d.ringkasan};
+  d.ringkasan=d.ringkasan&&typeof d.ringkasan==='object'?d.ringkasan:{};d.ringkasan.tokoh=Array.isArray(d.ringkasan.tokoh)?d.ringkasan.tokoh:[];
+  if(!d.ringkasan.sinopsis)warn.push('Ringkasan cerita (sinopsis) kosong. Minta AI menambahkan "ringkasan" di JSON.');
   d.ending=Array.isArray(d.ending)?d.ending.filter(e=>e&&e.nama):[];
   if(!d.ending.length)warn.push('Tidak ada ending di data. Ending dari Data Sistem akan dipakai tanpa epilog.');
   return warn;
 }
 function findEv(j){const s=String(j||'').toLowerCase().replace(/[\s-]+/g,'_');if(EV_TYPES[s])return s;return ['sangat_baik','keajaiban','bencana','buruk','tenang','baik'].find(k=>s.includes(k))||null}
+const WAKTU_ICON=w=>{const t=String(w||'').toLowerCase();return /tengah malam|dini/.test(t)?'🌑':/malam/.test(t)?'🌙':/senja|sore/.test(t)?'🌇':/pagi|fajar|subuh/.test(t)?'🌅':/siang/.test(t)?'☀️':'🕰️'};
+function latarBox(l){if(!l)return '<div class="small">(latar tidak tersedia)</div>';const c=(k,lab,ic='')=>`<div><span>${lab}</span>${ic}${esc(l[k]||'—')}</div>`;
+  return `<div class="latar">${c('tempat','Tempat')}${c('waktu','Waktu',WAKTU_ICON(l.waktu)+' ')}${c('cuaca','Cuaca')}${c('suasana','Suasana')}</div>`}
+function summaryHTML(d){const r=d.ringkasan||{};const heroName=id=>{const h=W.heroes.find(x=>x.id===id);return h?h.nama:id};
+  const deaths=[];d.adegan.forEach(a=>{a.mati.forEach(p=>deaths.push(`${heroName(p)} (Adegan ${a.no}, otomatis)`));a.opsi.forEach(o=>{[...o.efek_berhasil.mati.map(p=>[p,'berhasil']),...o.efek_gagal.mati.map(p=>[p,'gagal'])].forEach(([p,w])=>deaths.push(`${heroName(p)} (Adegan ${a.no} opsi ${o.kode} jika ${w})`))})});
+  return `<div class="syn">${r.sinopsis?String(r.sinopsis).split(/\n\s*\n/).map(p=>`<p>${esc(p)}</p>`).join(''):'<p class="small">(Sinopsis tidak ada di data cerita.)</p>'}
+   ${r.twist?`<p><b>Twist / rahasia:</b> ${esc(r.twist)}</p>`:''}${deaths.length?`<div class="fate">☠ <b>Takdir gugur:</b> ${esc(deaths.join(' · '))}</div>`:''}</div>
+   ${r.tokoh.length?`<h3>Tokoh penting</h3><div class="scroll"><table class="grid"><tr><th>Nama</th><th>Peran</th><th>Catatan</th></tr>${r.tokoh.map(t=>`<tr><td><b>${esc(t.nama||'')}</b></td><td>${esc(t.peran||'')}</td><td>${esc(t.catatan||'')}</td></tr>`).join('')}</table></div>`:''}
+   <h3>Alur per adegan</h3><div class="scroll"><table class="grid"><tr><th>Adegan</th><th>Tempat · Waktu</th><th>Suasana</th><th>Yang terjadi</th><th>Tantangan</th></tr>
+   ${d.adegan.map(a=>`<tr><td><b>${a.no}. ${esc(a.judul)}</b></td><td>${a.latar?`${esc(a.latar.tempat||'')}<br>${WAKTU_ICON(a.latar.waktu)} ${esc(a.latar.waktu||'')}${a.latar.cuaca?' · '+esc(a.latar.cuaca):''}`:'—'}</td><td class="small">${a.latar?esc(a.latar.suasana||''):''}</td><td>${esc(a.ringkas||'')}${a.mati.length?`<br><b style="color:var(--wax)">☠ ${esc(a.mati.map(heroName).join(', '))} gugur</b>`:''}</td><td>${a.opsi.map(o=>`${esc(o.kode)}<span class="tagk t-${o.jenis}">${lbl(o.jenis)}</span>`).join(' ')}</td></tr>`).join('')}</table></div>`}
 function loadStoryText(text){
   const r=extractJSON(text);if(r.err){$('parseMsg').innerHTML=`<div class="warn">${esc(r.err)}</div>`;$('storyPreview').style.display='none';return}
   let warn;try{warn=normalizeStory(r.data)}catch(e){$('parseMsg').innerHTML=`<div class="warn">${esc(e.message)}</div>`;return}
@@ -1040,8 +1103,8 @@ function loadStoryText(text){
   $('parseMsg').innerHTML=`<div class="ok">Berhasil dibaca: <b>${d.adegan.length} adegan</b>, ${tot} opsi, ${d.ending.length} ending.</div>`+(warn.length?`<div class="warn"><b>Perlu diperhatikan (${warn.length}):</b><br>${warn.map(esc).join('<br>')}</div>`:'');
   $('storyPreview').style.display='';
   $('storyPreview').innerHTML=`<h2>${esc(d.judul||W.sys.judul||'Cerita tanpa judul')}</h2>
-   <div class="scroll"><table class="grid"><tr><th>Adegan</th><th>Judul</th><th>Opsi</th><th>Quest</th></tr>
-   ${d.adegan.map(a=>`<tr><td>${a.no}</td><td>${esc(a.judul)}</td><td>${a.opsi.map(o=>`${esc(o.kode)}<span class="tagk t-${o.jenis}">${lbl(o.jenis)}</span>`).join(' ')}</td><td>${a.quest&&a.quest.ada?esc(a.quest.nama):'—'}</td></tr>`).join('')}</table></div>
+   <p class="small">Ringkasan cerita keseluruhan — <b>khusus GM</b>, jangan dibacakan ke pemain.</p>
+   ${summaryHTML(d)}
    <div class="actions"><button class="btn green" id="startSesi">Mulai sesi baru dengan cerita ini</button><button class="dbtn" id="saveStoryFile">Simpan cerita ke file</button></div>
    <p class="small">Mulai sesi baru akan mengatur ulang Nyawa, jatah skill, Stack Bayangan, ramuan, dan catatan.</p>`;
   $('startSesi').onclick=()=>startSesi(d);
@@ -1069,9 +1132,11 @@ const H=id=>W.heroes.find(h=>h.id===id)||{id,nama:id,bonus:0,nyawa:3,sk:{},sp:{}
 const party=()=>W.sesi.party;
 const maxH=id=>num(H(id).nyawa,3);
 const down=id=>W.sesi.hati[id]<=0;
+const dead=id=>!!(W.sesi.gugur&&W.sesi.gugur[id]);
+function kill(id,why){const s=W.sesi;s.gugur=s.gugur||{};if(s.gugur[id]||!s.party.includes(id))return false;s.hati[id]=0;s.gugur[id]={why,at:scn()?scn().no:null};Object.keys(s.pending[id]||{}).forEach(k=>delete s.pending[id][k]);log(`☠ ${H(id).nama} GUGUR (${why})`);return true}
 const bonusOf=id=>num(H(id).bonus,0);
 function log(t){if(!W.sesi)return;const d=new Date();W.sesi.log.unshift(`${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}  ${t}`);W.sesi.log=W.sesi.log.slice(0,200);save()}
-function hurt(id,n,why){const o=W.sesi.hati[id];W.sesi.hati[id]=clamp(o-n,0,maxH(id));if(o!==W.sesi.hati[id])log(`${H(id).nama} ${n>0?'−':'+'}${Math.abs(n)} Nyawa (${why})${W.sesi.hati[id]===0?' — Tumbang!':''}`)}
+function hurt(id,n,why){if(dead(id))return;const o=W.sesi.hati[id];W.sesi.hati[id]=clamp(o-n,0,maxH(id));if(o!==W.sesi.hati[id])log(`${H(id).nama} ${n>0?'−':'+'}${Math.abs(n)} Nyawa (${why})${W.sesi.hati[id]===0?' — Tumbang!':''}`)}
 function addSB(n,why){const o=W.sesi.sb;W.sesi.sb=clamp(o+n,0,num(W.sys.sbMax,10));if(o!==W.sesi.sb)log(`Stack Bayangan ${o} → ${W.sesi.sb} (${why})`)}
 const poolOf=id=>POOLS[H(id).dadu]||[20];
 const heroCrit=(id,t)=>t===sum(poolOf(id));
@@ -1088,10 +1153,10 @@ function renderPlay(){
 }
 function renderSide(){const s=W.sesi;
   $('party').innerHTML=party().map(id=>{const h=H(id),mx=maxH(id),pd=s.pending[id]||{};
-    return `<div class="hero ${down(id)?'down':''}"><div class="top"><div><b>${esc(h.nama)}</b> <span class="small">${dStr(poolOf(id))} +${bonusOf(id)}</span>${down(id)?'<span class="badge">Tumbang</span>':''}${pd.bonus?`<span class="badge skill">Skill +${pd.bonus}</span>`:''}${pd.bonus_tim?`<span class="badge skill">Tim +${pd.bonus_tim}</span>`:''}${pd.kritis?'<span class="badge skill">Auto Kritis</span>':''}${pd.perisai?'<span class="badge shield">Perisai</span>':''}</div>
+    return `<div class="hero ${down(id)?'down':''}"><div class="top"><div><b>${esc(h.nama)}</b> <span class="small">${dStr(poolOf(id))} +${bonusOf(id)}</span>${dead(id)?'<span class="badge gugur">☠ Gugur</span>':down(id)?'<span class="badge">Tumbang</span>':''}${pd.bonus?`<span class="badge skill">Skill +${pd.bonus}</span>`:''}${pd.bonus_tim?`<span class="badge skill">Tim +${pd.bonus_tim}</span>`:''}${pd.kritis?'<span class="badge skill">Auto Kritis</span>':''}${pd.perisai?'<span class="badge shield">Perisai</span>':''}</div>
       <div>${Array.from({length:mx},(_,i)=>`<button class="heart ${i+1>s.hati[id]?'off':''}" data-h="${esc(id)}" data-i="${i+1}" aria-label="${esc(h.nama)} nyawa ${i+1}">♥</button>`).join('')}</div></div>
       <div class="hbtns"><button class="dbtn" data-sk="${esc(id)}" ${s.skill[id]<=0||down(id)?'disabled':''} title="${esc(h.sk.efek||'')}">⚡ ${esc(h.sk.nama||'Skill Khusus')} <span class="dots">${[0,1,2].map(i=>`<span class="dot ${i>=s.skill[id]?'used':''}"></span>`).join('')}</span></button>
-      <button class="dbtn red" data-sp="${esc(id)}" ${s.hati[id]<num(h.sp.biaya,1)?'disabled':''} title="${esc(h.sp.efek||'')}">♥ ${esc(h.sp.nama||'Pengorbanan')}</button></div></div>`}).join('');
+      <button class="dbtn red" data-sp="${esc(id)}" ${s.hati[id]<num(h.sp.biaya,1)||dead(id)?'disabled':''} title="${esc(h.sp.efek||'')}">♥ ${esc(h.sp.nama||'Pengorbanan')}</button></div></div>`}).join('');
   $('sbNum').textContent=s.sb;$('sbNum').classList.toggle('zero',s.sb===0);
   $('shiftInfo').innerHTML=s.shift?`<div class="${s.shift>0?'warn':'ok'}" style="margin:8px 0 0">Tantangan berikutnya <b>${s.shift>0?'naik':'turun'} ${Math.abs(s.shift)} tingkat</b> (akibat kejadian acak). <button class="dbtn" id="clrShift" style="padding:1px 8px">Batalkan</button></div>`:'';
   if($('clrShift'))$('clrShift').onclick=()=>{s.shift=0;log('Perubahan tingkat dibatalkan');save();renderSide();refreshRoller()};
@@ -1104,7 +1169,7 @@ function renderSide(){const s=W.sesi;
   $('log').innerHTML=s.log.length?s.log.map(l=>`<div>${esc(l)}</div>`).join(''):'<div class="small">Belum ada catatan.</div>';
 }
 $('playWrap').addEventListener('click',e=>{const t=e.target.closest('button');if(!t||!W.sesi)return;const s=W.sesi;
-  if(t.dataset.h){const id=t.dataset.h,i=+t.dataset.i;s.hati[id]=s.hati[id]===i?i-1:i;log(`${H(id).nama} diatur ke ${s.hati[id]} Nyawa`);save();renderSide()}
+  if(t.dataset.h){const id=t.dataset.h,i=+t.dataset.i;if(dead(id)){if(!confirm(`${H(id).nama} sudah gugur karena plot. Batalkan status gugur?`))return;delete s.gugur[id];log(`Status gugur ${H(id).nama} dibatalkan GM`)}s.hati[id]=s.hati[id]===i?i-1:i;log(`${H(id).nama} diatur ke ${s.hati[id]} Nyawa`);save();renderSide()}
   if(t.dataset.ram){s.ramuan=Math.max(0,s.ramuan+ +t.dataset.ram);save();renderSide()}
   if(t.dataset.rmitem!==undefined){log('Barang dilepas: '+s.items[+t.dataset.rmitem]);s.items.splice(+t.dataset.rmitem,1);save();renderSide()}
   if(t.dataset.sk)useSkill(t.dataset.sk);
@@ -1153,7 +1218,13 @@ function renderScene(){
   $('scnSel').innerHTML=W.story.adegan.map((x,i)=>`<option value="${i}" ${i===s.cur?'selected':''}>Adegan ${x.no} — ${esc(x.judul)}${s.done[x.no]?' ✓':''}</option>`).join('');
   $('prevScn').disabled=s.cur===0;$('nextScn').disabled=s.cur>=W.story.adegan.length-1;
   const paras=String(a.narasi).split(/\n\s*\n/).map(p=>`<p>${esc(p).replace(/\n/g,'<br>')}</p>`).join('');
-  $('scene').innerHTML=`<h2 style="margin-top:6px">Adegan ${a.no} — ${esc(a.judul)}</h2>
+  s.matiDone=s.matiDone||{};let fateMsg='';
+  if(a.mati&&a.mati.length){const done=s.matiDone[a.no];
+    fateMsg=`<div class="fate">☠ <b>Takdir:</b> ${esc(a.mati.map(p=>H(p).nama).join(', '))} gugur di adegan ini. ${done?'Nyawanya sudah habis dan tidak bisa dipulihkan.':'Takdir berlaku otomatis saat kelompok tiba di adegan ini lewat tombol Lanjut.'} Bacakan kematiannya dari narasi di bawah.${done?'':' <button class="dbtn" id="applyFate" style="margin-left:6px">Terapkan takdir sekarang</button>'}</div>`}
+  $('scene').innerHTML=`<details class="gm"><summary>📜 Ringkasan cerita keseluruhan (khusus GM)</summary>${summaryHTML(W.story)}</details>
+    <h2 style="margin-top:6px">Adegan ${a.no} — ${esc(a.judul)}</h2>
+    <p class="small"><b>Latar untuk GM</b> — hayati sebelum membacakan narasi.${a.ringkas?` <i>${esc(a.ringkas)}</i>`:''}</p>
+    ${latarBox(a.latar)}${fateMsg}
     <div class="read">${paras||'<p>(tidak ada narasi)</p>'}</div>
     ${a.quest&&a.quest.ada?`<div class="quest"><b>Quest: ${esc(a.quest.nama)}</b>${a.quest.tujuan?` — ${esc(a.quest.tujuan)}`:''}${a.quest.reward?`<br><i>Reward: ${esc(a.quest.reward)}</i>`:''}</div>`:''}
     ${a.catatan_gm?`<details class="gm"><summary>Catatan GM (jangan dibacakan)</summary><p>${esc(a.catatan_gm)}</p></details>`:''}
@@ -1166,6 +1237,7 @@ function renderScene(){
       <div class="actions"><button class="btn alt" data-play="${j}">Mainkan opsi ini</button></div></div>`).join('')}
     <div id="roller"></div>`;
   $('scene').querySelectorAll('[data-play]').forEach(b=>b.onclick=()=>openRoller(+b.dataset.play));
+  if($('applyFate'))$('applyFate').onclick=()=>{applyFate(a);save();renderSide();renderScene()};
   bindEvent(a);
 }
 function optMeta(o){const p=o.pelaku.map(x=>H(x).nama).join(', ');const tn=k=>{const t=tierOf(k);return t?`${t.n} (${dStr(t.d)})`:'?'};
@@ -1209,10 +1281,11 @@ $('scnSel').onchange=()=>{W.sesi.cur=+$('scnSel').value;save();renderScene()};
 $('prevScn').onclick=()=>{W.sesi.cur=Math.max(0,W.sesi.cur-1);save();renderScene()};
 $('nextScn').onclick=()=>{W.sesi.cur=Math.min(W.story.adegan.length-1,W.sesi.cur+1);save();renderScene()};
 $('toEnding').onclick=()=>{if(confirm('Tuju ending sekarang?')){W.sesi.ended=true;log('Menuju ending');save();renderScene()}};
+function applyFate(a){const s=W.sesi;s.matiDone=s.matiDone||{};if(!a||!a.mati||!a.mati.length||s.matiDone[a.no])return;s.matiDone[a.no]=true;a.mati.forEach(p=>kill(p,`takdir Adegan ${a.no}`))}
 function goNext(n){const s=W.sesi;const a=scn();s.done[a.no]=true;
   if(!n||n<=0){const idx=s.cur+1;if(n===0||idx>=W.story.adegan.length){s.ended=true;log('Cerita selesai');save();renderScene();window.scrollTo({top:0,behavior:'smooth'});return}s.cur=idx}
   else{const idx=W.story.adegan.findIndex(x=>x.no===n);if(idx<0){s.ended=true}else s.cur=idx}
-  log(`Lanjut ke ${s.ended?'Ending':'Adegan '+W.story.adegan[s.cur].no}`);save();renderScene();window.scrollTo({top:0,behavior:'smooth'})}
+  log(`Lanjut ke ${s.ended?'Ending':'Adegan '+W.story.adegan[s.cur].no}`);if(!s.ended)applyFate(W.story.adegan[s.cur]);save();renderSide();renderScene();window.scrollTo({top:0,behavior:'smooth'})}
 function nextLabel(n){if(n===0)return 'Menuju Ending';if(!n){const idx=W.sesi.cur+1;return idx>=W.story.adegan.length?'Menuju Ending':`Lanjut ke Adegan ${W.story.adegan[idx].no}`}return `Lanjut ke Adegan ${n}`}
 function renderEnding(){const e=curEnding(),s=W.sesi;
   $('scnSel').innerHTML=`<option>Ending</option>`;$('prevScn').disabled=false;$('nextScn').disabled=true;
@@ -1222,7 +1295,7 @@ function renderEnding(){const e=curEnding(),s=W.sesi;
    <p class="small">Stack Bayangan akhir: <b>${s.sb}</b></p>
    <div class="read">${e&&e.epilog?String(e.epilog).split(/\n\s*\n/).map(p=>`<p>${esc(p)}</p>`).join(''):'<p>(Tidak ada epilog di data cerita. Ceritakan sendiri akhir kisah ini.)</p>'}</div>
    <h3>Ringkasan</h3>
-   <div class="scroll"><table class="grid"><tr><th>Pahlawan</th><th>Nyawa</th><th>Skill Khusus tersisa</th></tr>${party().map(id=>`<tr><td>${esc(H(id).nama)}</td><td>${s.hati[id]}/${maxH(id)}</td><td>${s.skill[id]}/3</td></tr>`).join('')}</table></div>
+   <div class="scroll"><table class="grid"><tr><th>Pahlawan</th><th>Nyawa</th><th>Skill Khusus tersisa</th></tr>${party().map(id=>`<tr><td>${esc(H(id).nama)}</td><td>${dead(id)?'☠ Gugur':`${s.hati[id]}/${maxH(id)}`}</td><td>${s.skill[id]}/3</td></tr>`).join('')}</table></div>
    <p>Quest selesai: ${qs.filter(([,q])=>q.selesai).length} dari ${qs.length}. Barang: ${s.items.length?s.items.map(esc).join(', '):'-'}.</p>
    <h3>Semua ending</h3><ul>${endings().map(x=>`<li><b>${esc(x.nama)}</b> (Stack ≤ ${x.maks})</li>`).join('')}</ul>`;
 }
@@ -1301,11 +1374,11 @@ function previewRows(){if(!RC)return;const o=RC.o;const ch=$('rCh')?dv($('rCh'))
     const rs=tr.querySelector('.rs');if(rs){if(!v||!ch)rs.textContent='';else{const ok=isCrit(id,d)||(!isFum(id,d)&&v>=ch);rs.innerHTML=ok?'<b style="color:var(--moss)">Lulus</b>':'<b style="color:var(--blood)">Gagal</b>'}}})}
 
 function verdict(cls,title,sub,body,actions){$('rOut').innerHTML=`<div class="verdict"><div class="vhead ${cls}">${title}<small>${sub}</small></div><div class="vbody">${body}<div class="actions">${actions}</div></div></div>`}
-function efekText(ef,ok){const t=[];if(!ef)return '';
+function efekText(ef,ok){const t=[];if(!ef)return '';if(ef.mati&&ef.mati.length)t.push(`☠ ${ef.mati.map(p=>H(p).nama).join(', ')} gugur`);
   if(ok){if(num(ef.stack))t.push(`Stack ${num(ef.stack)>0?'+':''}${num(ef.stack)}`);if(num(ef.ramuan))t.push(`Ramuan +${num(ef.ramuan)}`);if(num(ef.nyawa_semua))t.push(`Semua ${num(ef.nyawa_semua)>0?'+':''}${num(ef.nyawa_semua)} Nyawa`);if(ef.item)t.push(`Barang: ${ef.item}`);if(ef.quest_selesai)t.push('Quest selesai'+(typeof ef.quest_selesai==='string'?': '+ef.quest_selesai:''))}
   else{if(num(ef.stack))t.push(`Stack +${num(ef.stack)}`);const n=ef.nyawa;if(n==='gagal')t.push('Yang gagal −1 Nyawa');if(n==='semua')t.push('Semua −1 Nyawa');if(n==='pelaku')t.push('Pelaku −1 Nyawa')}
   return t.join(' · ')}
-function applySuccess(ef){if(!ef)return;const s=W.sesi,a=scn();
+function applySuccess(ef){if(!ef)return;const s=W.sesi,a=scn();(ef.mati||[]).forEach(p=>kill(p,`takdir Adegan ${a.no}`));
   if(num(ef.stack))addSB(num(ef.stack),'hasil pilihan');if(num(ef.ramuan)){s.ramuan+=num(ef.ramuan);log(`Ramuan +${num(ef.ramuan)}`)}
   if(num(ef.nyawa_semua))party().forEach(p=>hurt(p,-num(ef.nyawa_semua),'hasil pilihan'));
   if(ef.item){s.items.push(ef.item);log('Didapat: '+ef.item)}
@@ -1313,7 +1386,7 @@ function applySuccess(ef){if(!ef)return;const s=W.sesi,a=scn();
     else if(a.quest&&a.quest.nama&&s.quests[a.quest.nama]&&!s.quests[a.quest.nama].selesai)qn=a.quest.nama;
     else qn=Object.keys(s.quests).reverse().find(k=>!s.quests[k].selesai)||null;
     if(qn){s.quests[qn].selesai=true;log(`Quest "${qn}" SELESAI`)}}}
-function applyFail(ef,ids){if(!ef)return;if(num(ef.stack))addSB(num(ef.stack),'akibat gagal');const n=ef.nyawa;
+function applyFail(ef,ids){if(!ef)return;(ef.mati||[]).forEach(p=>kill(p,`takdir Adegan ${scn().no}`));if(num(ef.stack))addSB(num(ef.stack),'akibat gagal');const n=ef.nyawa;
   if(n&&n!=='tidak'&&ids.length){if(useShield())return;ids.forEach(p=>hurt(p,1,'akibat gagal'))}}
 function clearPending(ids){ids.forEach(p=>{const pd=W.sesi.pending[p];if(pd){delete pd.bonus;delete pd.kritis}})}
 function useShift(){if(W.sesi.shift){log(`Perubahan tingkat dari kejadian acak terpakai (${W.sesi.shift>0?'+':''}${W.sesi.shift})`);W.sesi.shift=0}}
