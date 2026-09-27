@@ -1,0 +1,30 @@
+/* Layar Presentasi (TV / proyektor) — terbaca dari jauh */
+:root { --acc: #d9a441; }
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: #070403; color: #f3e6cc; font-family: 'EB Garamond', Georgia, serif; overflow: hidden; }
+.ly-bg { position: fixed; inset: 0; background: radial-gradient(ellipse at 50% 0%, color-mix(in srgb, var(--acc) 22%, transparent), transparent 60%), url('/img/splash.webp') center / cover; filter: blur(3px) brightness(.28); transform: scale(1.04); }
+.ly-main { position: relative; height: calc(100vh - 140px); display: grid; place-items: center; padding: 4vh 6vw 2vh; }
+.ly-kosong { text-align: center; } .ly-kosong img { width: min(560px, 60vw); } .ly-kosong p { font-size: 26px; color: #cdb893; }
+.ly-kosong button { font: inherit; font-size: 20px; background: #a3141c; color: #fff; border: 1px solid #e0b35a; border-radius: 4px; padding: 10px 24px; cursor: pointer; }
+.ly-scene { width: 100%; max-width: 1500px; max-height: 100%; overflow-y: auto; scrollbar-width: none; }
+.ly-cerita { margin: 0; font-family: 'Cinzel', serif; letter-spacing: .12em; color: var(--acc); font-size: clamp(16px, 1.6vw, 26px); }
+.ly-scene h1 { font-family: 'Cinzel', serif; font-size: clamp(34px, 4.6vw, 80px); margin: .1em 0 .15em; line-height: 1.1; text-shadow: 0 4px 20px #000; }
+.ly-latar { font-size: clamp(18px, 1.8vw, 30px); color: #e0cfae; margin: 0 0 .3em; }
+.ly-suasana { font-style: italic; color: #cdb893; font-size: clamp(17px, 1.6vw, 26px); margin: 0 0 1em; }
+.ly-narasi { font-size: clamp(22px, 2.3vw, 40px); line-height: 1.5; max-width: 60ch; text-shadow: 0 2px 10px #000; }
+.ly-narasi p { margin: 0 0 .7em; }
+.ly-hasil { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(1100px, 86vw); padding: 3vh 3vw; border-radius: 8px; background: rgba(15, 9, 7, .94); border: 2px solid var(--acc); box-shadow: 0 0 60px rgba(0, 0, 0, .9); text-align: center; animation: muncul .5s ease-out; }
+.ly-hasil h2 { font-family: 'Cinzel', serif; font-size: clamp(36px, 5vw, 90px); margin: 0 0 .2em; }
+.ly-hasil p { font-size: clamp(20px, 2vw, 36px); margin: 0; line-height: 1.45; }
+.ly-hasil.win h2 { color: #7fd36b; } .ly-hasil.thin h2 { color: #f0c24b; } .ly-hasil.lose h2 { color: #ff6b5b; } .ly-hasil.worst h2 { color: #ff3b30; } .ly-hasil.crit h2 { color: #ffd76a; } .ly-hasil.fumble h2 { color: #ff3b30; }
+@keyframes muncul { from { opacity: 0; transform: translate(-50%, -46%); } }
+.ly-party { position: fixed; left: 0; right: 0; bottom: 0; height: 140px; display: flex; gap: 2vw; align-items: center; justify-content: center; padding: 0 3vw; background: linear-gradient(0deg, rgba(0, 0, 0, .9), transparent); }
+.ly-hero { display: flex; align-items: center; gap: 12px; } .ly-hero b { font-family: 'Cinzel', serif; font-size: clamp(16px, 1.4vw, 26px); }
+.ly-foto { width: 74px; height: 74px; border-radius: 50%; border: 3px solid var(--acc); overflow: hidden; display: grid; place-items: center; background: #2a1b12; font-family: 'Cinzel', serif; font-size: 32px; flex: none; }
+.ly-foto img { width: 100%; height: 100%; object-fit: cover; }
+.ly-hati { color: #6d5d4d; font-size: clamp(20px, 1.8vw, 32px); letter-spacing: 2px; } .ly-hati i { font-style: normal; } .ly-hati i.on { color: #e5252f; }
+.ly-hero.tumbang { opacity: .65; } .ly-hero.gugur { opacity: .45; filter: grayscale(1); }
+.ly-stack { text-align: center; border-left: 1px solid rgba(201, 162, 74, .5); padding-left: 2vw; } .ly-stack small { display: block; font-size: 16px; color: #cdb893; } .ly-stack b { font-family: 'Cinzel', serif; font-size: 44px; color: var(--acc); }
+.ly-tirai { position: fixed; inset: 0; background: #050202; display: grid; place-items: center; z-index: 10; } .ly-tirai img { width: min(480px, 50vw); opacity: .8; }
+[hidden] { display: none !important; }
+@media (prefers-reduced-motion: reduce) { .ly-hasil { animation: none; } }

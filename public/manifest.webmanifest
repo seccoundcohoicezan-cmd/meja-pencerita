@@ -1,0 +1,16 @@
+{
+  "name": "MasteryDnD — Meja Pencerita",
+  "short_name": "MasteryDnD",
+  "description": "Alat bercerita untuk Game Master: pahlawan, prompt cerita, kalkulator dadu, dan portal pemain.",
+  "lang": "id",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0d0807",
+  "theme_color": "#120a09",
+  "icons": [
+    { "src": "/img/ikon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/img/ikon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/img/ikon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

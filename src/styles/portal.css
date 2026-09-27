@@ -1,0 +1,24 @@
+/* Portal Pemain */
+.portal-main { max-width: 1120px; width: 100%; margin: 0 auto; }
+.portal-hero { position: relative; display: grid; place-items: center; min-height: 70vh; padding: 20px 0; }
+.ph-art { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: .45; border-radius: 6px; mask-image: radial-gradient(ellipse at center, #000 40%, transparent 75%); -webkit-mask-image: radial-gradient(ellipse at center, #000 40%, transparent 75%); }
+.ph-login { position: relative; max-width: 460px; width: 100%; }
+.kode-in { font-family: var(--display); letter-spacing: .2em; text-transform: uppercase; font-size: 18px; }
+.p-hero { margin-bottom: 26px; }
+.p-head { margin-bottom: 12px; } .p-head h2 { margin: 0; font-size: 26px; }
+.p-grid { display: grid; grid-template-columns: minmax(260px, 380px) 1fr; gap: 16px; align-items: start; }
+.p-card-img { background: #140e0b; border: 1px solid var(--emas2); border-radius: 6px; aspect-ratio: 9 / 16; display: grid; place-items: center; overflow: hidden; color: #cdb893; }
+.p-card-img img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.p-card .actions { justify-content: center; }
+.live { font-family: var(--serif); font-size: 12.5px; color: #3f7a36; font-weight: 400; margin-left: 6px; }
+.st-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.st-grid small { display: block; color: #6b5438; }
+.st-hati { font-size: 30px; color: #bdb09a; letter-spacing: 2px; line-height: 1.2; } .st-hati i { font-style: normal; } .st-hati i.on { color: #c21d26; }
+.st-dots { display: flex; gap: 6px; margin: 8px 0 6px; } .st-dots .dot { width: 16px; height: 16px; background: var(--emas); } .st-dots .dot.used { background: #cdbf9f; }
+.st-lencana { margin: 10px 0 0; } .st-waktu { margin-top: 8px; }
+.rekap { border-top: 1px dashed #c6ad7c; padding: 8px 0; } .rekap summary { cursor: pointer; }
+.rekap-teks { margin-top: 6px; white-space: normal; font-size: 16px; }
+@media (max-width: 760px) { .p-grid { grid-template-columns: 1fr; } .p-card { max-width: 380px; margin: 0 auto; width: 100%; } }
+.legal-main { max-width: 860px; margin: 0 auto; width: 100%; }
+.legal-main h1 { font-family: var(--display); color: var(--darah2); margin-top: 0; }
+.legal-main h2 { font-size: 18px; margin-top: 20px; }
