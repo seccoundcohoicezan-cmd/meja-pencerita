@@ -330,3 +330,82 @@ a:focus-visible, .snav:focus-visible, .tab:focus-visible, .seg-b:focus-visible {
 .ac-box.kunci { border-color: var(--emas); background: #f8ecc9; } .ac-box.kunci b { color: #5a1a12; }
 .ac-ket { flex: 1; min-width: 200px; margin: 0; align-self: center; }
 .ac-in { flex: 1; min-width: 240px; margin: 0; }
+
+/* ======================= MODE FOKUS PENCERITA ======================= */
+.fk-bar, .fk-kanan { display: none; }
+.fk-masuk { padding: 8px 14px; font-size: 14px; }
+.dbtn.perlu-ac { border-style: dashed; color: #7a5a14; }
+.ac-besar { width: 110px; font-size: 26px; text-align: center; font-family: var(--display); }
+kbd { display: inline-block; min-width: 22px; padding: 1px 6px; border: 1px solid #9c8358; border-bottom-width: 2px; border-radius: 4px; background: #fffaf0; font: 600 12px var(--sans, sans-serif); text-align: center; color: #3b2a1c; }
+
+body.fokus { overflow-y: auto; }
+body.fokus .topbar, body.fokus .sidenav, body.fokus .footbar, body.fokus .scrim,
+body.fokus #mejaWrap > .page-head, body.fokus #mejaWrap > nav.tabs { display: none !important; }
+body.fokus .shell { display: block; min-height: 100vh; }
+body.fokus .content { padding: 0 14px 14px; max-width: none; }
+body.fokus .play { grid-template-columns: 290px minmax(0, 1fr) 370px; grid-template-areas: 'bar bar bar' 'kiri tengah kanan'; gap: 14px; align-items: start; }
+
+/* bilah atas */
+body.fokus .fk-bar { grid-area: bar; display: flex; align-items: center; gap: 16px; position: sticky; top: 0; z-index: 30; margin: 0 -14px; padding: 10px 18px;
+  background: linear-gradient(180deg, #1c110d, #120a08); border-bottom: 1px solid rgba(201, 162, 74, .45); box-shadow: 0 6px 18px rgba(0, 0, 0, .45); color: #f1e2c0; }
+.fk-label { font-family: var(--display); font-size: 14px; letter-spacing: .08em; color: var(--emas); white-space: nowrap; }
+.fk-prog { flex: 1; min-width: 0; }
+.fk-prog b { display: block; font-family: var(--display); font-size: 17px; color: #f7e7c2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fk-meter { height: 5px; margin-top: 5px; border-radius: 3px; background: rgba(255, 255, 255, .12); overflow: hidden; }
+.fk-meter i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--emas), #e07a2e); transition: width .3s; }
+.fk-aksi { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.fk-bar .dbtn { background: #2d1c15; color: #eadcbc; border-color: rgba(201, 162, 74, .5); }
+.fk-bar .dbtn:disabled { opacity: .4; }
+
+/* kolom kiri: pahlawan, Stack, ramuan */
+body.fokus .play > aside { grid-area: kiri; position: sticky; top: 72px; max-height: calc(100vh - 86px); overflow: auto; padding-right: 2px; }
+body.fokus .play > aside > .panel:not(:first-child), body.fokus .fk-sembunyi, body.fokus #fokusBtn, body.fokus #pTitle { display: none !important; }
+body.fokus .play > aside > .panel:first-child { padding: 12px; }
+body.fokus .ptitle-row { justify-content: flex-end; }
+
+/* kolom tengah: bacaan */
+body.fokus .play > main { grid-area: tengah; }
+body.fokus #scene > details.gm:first-child { display: none; }
+body.fokus .read { font-size: 21px; line-height: 1.72; padding: 18px 24px; max-width: 78ch; }
+body.fokus #scene > h2 { font-size: 26px; }
+
+/* kolom kanan: dadu & arah cerita */
+body.fokus .fk-kanan { grid-area: kanan; display: flex; flex-direction: column; gap: 12px; position: sticky; top: 72px; max-height: calc(100vh - 86px); overflow: auto; }
+.fk-kanan .panel { margin: 0; padding: 12px 14px; }
+.fk-h { font-size: 18px !important; margin: 0 0 8px !important; }
+.fk-kosong { margin: 0; padding: 14px; border: 1px dashed #c6ad7c; border-radius: 6px; text-align: center; }
+#fkRoller .roller { margin: 0; border: 0; padding: 0; background: none; box-shadow: none; }
+.fk-pintas { color: #cdb893; text-align: center; margin: 0; }
+.fk-ending { display: flex; gap: 10px; align-items: stretch; }
+.fk-ending > div { flex: 1; padding: 8px 10px; border-radius: 6px; background: #2a1a13; color: #f3e6c9; }
+.fk-ending small { display: block; font-size: 12px; color: #cdb893; }
+.fk-ending b { font-family: var(--display); font-size: 17px; }
+.fk-ending .fk-sb { flex: 0 0 74px; text-align: center; background: var(--darah); } .fk-sb b { font-size: 26px; }
+.fk-jalur { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; margin: 8px 0; font-size: 13px; }
+.fk-jalur span { padding: 2px 8px; border-radius: 10px; border: 1px solid #c6ad7c; color: #6b5438; }
+.fk-jalur span.on { background: var(--darah); border-color: var(--darah); color: #fff; font-weight: 700; }
+.fk-jalur i { font-style: normal; color: #a8916b; }
+.fk-opsi, .fk-next { margin: 8px 0; } .fk-opsi small, .fk-next small { display: block; font-size: 12px; color: #6b5438; text-transform: uppercase; letter-spacing: .05em; }
+.fk-next { padding: 8px 10px; border-left: 3px solid var(--emas); background: #fbf4e2; border-radius: 4px; }
+.fk-next b { display: block; } .fk-next span { font-size: 14px; color: #5b4632; font-style: italic; }
+.fk-next.akhir { border-color: var(--darah); }
+.fk-saran { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.fk-saran li { padding: 7px 10px 7px 30px; border-radius: 5px; font-size: 14.5px; line-height: 1.35; position: relative; background: #f3ead4; }
+.fk-saran li::before { position: absolute; left: 9px; top: 7px; }
+.fk-saran li.bahaya { background: #f7dcd6; } .fk-saran li.bahaya::before { content: '⚠'; color: var(--darah); }
+.fk-saran li.baik { background: #e0efd8; } .fk-saran li.baik::before { content: '✦'; color: #3f7a36; }
+.fk-saran li.info::before { content: '•'; color: #8a6a4a; font-weight: 700; }
+
+/* laptop kecil */
+@media (max-width: 1280px) { body.fokus .play { grid-template-columns: 260px minmax(0, 1fr) 330px; } body.fokus .read { font-size: 19px; } }
+@media (max-width: 1080px) {
+  body.fokus .play { grid-template-columns: 250px minmax(0, 1fr); grid-template-areas: 'bar bar' 'kiri tengah' 'kanan kanan'; }
+  body.fokus .fk-kanan { position: static; max-height: none; }
+  .fk-aksi .dbtn { padding: 6px 10px; font-size: 13px; }
+}
+@media (max-width: 760px) {
+  body.fokus .play { grid-template-columns: 1fr; grid-template-areas: 'bar' 'tengah' 'kanan' 'kiri'; }
+  body.fokus .play > aside { position: static; max-height: none; }
+  body.fokus .fk-bar { flex-wrap: wrap; } .fk-label { display: none; }
+}
+#fkRoller:has(#roller > *) .fk-kosong { display: none; }

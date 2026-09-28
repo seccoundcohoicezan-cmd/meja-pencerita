@@ -1013,7 +1013,7 @@ function renderSide(){const s=W.sesi;
       <div>${Array.from({length:mx},(_,i)=>`<button class="heart ${i+1>s.hati[id]?'off':''}" data-h="${esc(id)}" data-i="${i+1}" aria-label="${esc(h.nama)} nyawa ${i+1}">♥</button>`).join('')}</div></div>
       <div class="hbtns"><button class="dbtn" data-sk="${esc(id)}" ${s.skill[id]<=0||down(id)?'disabled':''} title="${esc(h.sk.efek||'')}">⚡ ${esc(h.sk.nama||'Skill Khusus')} <span class="dots">${[0,1,2].map(i=>`<span class="dot ${i>=s.skill[id]?'used':''}"></span>`).join('')}</span></button>
       <button class="dbtn red" data-sp="${esc(id)}" ${s.hati[id]<num(h.sp.biaya,1)||dead(id)?'disabled':''} title="${esc(h.sp.efek||'')}">♥ ${esc(h.sp.nama||'Pengorbanan')}</button>
-      <button class="dbtn" data-atk="${esc(id)}" ${dead(id)||!acOf(h)?'disabled':''} title="${acOf(h)?'Serangan musuh / mendadak: d20 + bonus musuh melawan Pertahanan':'Kunci Pertahanan dulu di tab Pahlawan'}">⚔ Diserang</button>
+      <button class="dbtn ${acOf(h)?'':'perlu-ac'}" data-atk="${esc(id)}" ${dead(id)?'disabled':''} title="${acOf(h)?'Serangan musuh / mendadak: d20 + bonus musuh melawan Pertahanan':'Pertahanan belum dikunci: klik untuk mengisinya sekarang'}">⚔ Diserang${acOf(h)?'':' 🔒?'}</button>
       <button class="dbtn" data-uji="${esc(id)}" ${dead(id)||!h.ability?'disabled':''} title="Uji ability: menahan racun, jebakan, rasa takut, dll.">🎲 Uji</button></div></div>`}).join('');
   $('sbNum').textContent=s.sb;$('sbNum').classList.toggle('zero',s.sb===0);
   $('shiftInfo').innerHTML=s.shift?`<div class="${s.shift>0?'warn':'ok'}" style="margin:8px 0 0">Tantangan berikutnya <b>${s.shift>0?'naik':'turun'} ${Math.abs(s.shift)} tingkat</b> (akibat kejadian acak). <button class="dbtn" id="clrShift" style="padding:1px 8px">Batalkan</button></div>`:'';
@@ -1051,7 +1051,18 @@ $('contekBtn').onclick=()=>modal(`<h2>Contekan GM: pakai lemparan yang mana?</h2
   <div class="actions"><button class="btn" type="button" onclick="closeModal()">Mengerti</button></div>`);
 /* ---------- Musuh menyerang (Pertahanan / AC) ---------- */
 const d20=()=>1+Math.floor(Math.random()*20);
-function bukaSerangan(id){const h=H(id),ac=acOf(h);let mk='biasa';
+/* Kunci Pertahanan langsung dari halaman Main (tanpa pindah tab) */
+function kunciACModal(id,lanjut){const h=H(id);
+  modal(`<h2>🔒 Pertahanan ${esc(h.nama)} belum dikunci</h2>
+    <p>Serangan musuh dibandingkan dengan <b>Pertahanan</b>. Minta pemain mengocok <b>1 d20 fisik</b> sekali, lalu ketik hasilnya.</p>
+    <div class="row"><input class="s ac-besar" id="kaIn" type="number" min="1" max="20" inputmode="numeric" placeholder="1–20" aria-label="Hasil d20 Pertahanan"><button class="btn" id="kaOk" type="button">🔒 Kunci</button></div>
+    <p class="small">Pakem: setelah dikunci, angka ini <b>tidak bisa diubah</b> siapa pun sampai cerita selesai.</p>`);
+  setTimeout(()=>$('kaIn')&&$('kaIn').focus(),50);
+  const ok=()=>{const v=parseInt($('kaIn').value,10);if(!(v>=1&&v<=20)){toast('Tulis hasil d20: angka 1–20.',true);return}
+    if(!confirm(`Pertahanan ${h.nama} = ${v}. Setelah dikunci tidak bisa diubah. Sudah benar?`))return;
+    h.pertahanan={nilai:v,at:Date.now()};log(`Pertahanan ${h.nama} dikunci: ${v}`);save();renderSide();toast(`Pertahanan ${h.nama} dikunci: ${v}`);if(lanjut)lanjut();else closeModal()};
+  $('kaOk').onclick=ok;$('kaIn').onkeydown=e=>{if(e.key==='Enter')ok()}}
+function bukaSerangan(id){const h=H(id),ac=acOf(h);if(!ac){kunciACModal(id,()=>bukaSerangan(id));return}let mk='biasa';
   const isi=()=>{const m=MUSUH.find(x=>x.k===mk);return `<h2>⚔ Musuh menyerang ${esc(h.nama)}</h2>
     <p class="small">Musuh melempar <b>d20 + bonus</b>. Hasil ≥ Pertahanan <b>${ac}</b> = kena (−1 ${esc(T('nyawa'))}). Angka 20 = −2, angka 1 = selalu luput.</p>
     <div class="seg" role="radiogroup" aria-label="Kekuatan musuh">${MUSUH.map(x=>`<button type="button" class="seg-b ${x.k===mk?'on':''}" data-mk="${x.k}" aria-checked="${x.k===mk}">${x.nama} +${x.bonus}</button>`).join('')}</div>
@@ -1698,3 +1709,64 @@ applyTerms(document.body);termObs.observe(document.body,{childList:true,subtree:
 /* Akses untuk uji otomatis — hanya ada di build mode "test", dibuang dari build produksi. */
 if(import.meta.env.MODE==='test'){Object.assign(window,{$,pickGenre,openCamp,showTab,openRoller,renderScene,renderPlay,renderSide,syncSys,scn,party,H,recapText,undoTo,activate,IDB,lanjutanPrompt,save,G,renderSys});
   Object.defineProperty(window,'W',{get:()=>W});Object.defineProperty(window,'R',{get:()=>R})}
+
+
+/* ======================= MODE FOKUS PENCERITA ======================= */
+const FOKUS_KEY='mdnd-fokus';
+function fokusAktif(){return document.body.classList.contains('fokus')}
+function masukFokus(){if(!W||!W.sesi||!W.story){toast('Mulai sesi dulu untuk memakai Mode Fokus.',true);return}
+  document.body.classList.add('fokus');localStorage.setItem(FOKUS_KEY,'1');fokusSusun();window.scrollTo(0,0)}
+function keluarFokus(){if(!fokusAktif())return;document.body.classList.remove('fokus');localStorage.removeItem(FOKUS_KEY);
+  const r=$('fkRoller').querySelector('#roller');if(r&&$('scene'))$('scene').appendChild(r);
+  if(!$('fkRoller').querySelector('.fk-kosong'))$('fkRoller').innerHTML='<p class="small fk-kosong">Pilih salah satu <b>opsi pemain</b> di tengah. Penghitung dadu muncul di sini.</p>';
+  if(document.fullscreenElement)document.exitFullscreen().catch(()=>{})}
+/** Pindahkan penghitung dadu ke kolom kanan & perbarui bilah fokus + Arah Cerita. */
+function fokusSusun(){if(!fokusAktif()||!W||!W.sesi||!W.story)return;
+  const r=$('scene')&&$('scene').querySelector('#roller');
+  if(r){const box=$('fkRoller');box.innerHTML='';if(!r.children.length)box.insertAdjacentHTML('afterbegin','<p class="small fk-kosong">Pilih salah satu <b>opsi pemain</b> di tengah. Penghitung dadu muncul di sini.</p>');box.appendChild(r)}
+  const s=W.sesi,n=W.story.adegan.length,a=s.ended?null:scn();
+  $('fkJudul').textContent=s.ended?'Ending':`Adegan ${a.no} dari ${n} — ${a.judul}`;
+  $('fkMeter').style.width=`${Math.round(((s.ended?n:s.cur+1)/n)*100)}%`;
+  $('fkPrev').disabled=$('prevScn').disabled;$('fkNext').disabled=$('nextScn').disabled||s.ended;
+  $('fkUndo').disabled=!(W.undo&&W.undo.length);
+  renderArah()}
+/** Saran arah cerita dari data yang sudah ada: Stack Bayangan, ending, kondisi tim, adegan. */
+function renderArah(){const el=$('fkArah');if(!el||!W||!W.sesi||!W.story)return;const s=W.sesi;$('fkUndo').disabled=!(W.undo&&W.undo.length);
+  const es=[...endings()].sort((x,y)=>x.maks-y.maks);const cur=es.find(e=>s.sb<=e.maks)||es[es.length-1];const ci=es.indexOf(cur);
+  const lebihBuruk=es[ci+1],lebihBaik=ci>0?es[ci-1]:null;const sb=s.sb;
+  const saran=[];const tim=party().filter(p=>!dead(p));
+  if(lebihBuruk){const jarak=cur.maks-sb+1;saran.push(jarak<=1?{t:'bahaya',x:`<b>1 kegagalan lagi</b> menggeser cerita ke ending <b>${esc(lebihBuruk.nama)}</b>. Beri pemain pilihan aman, Skill Bantuan, atau momen bernapas.`}
+    :{t:'info',x:`${jarak} kenaikan Stack lagi menuju ending <b>${esc(lebihBuruk.nama)}</b>.`})}
+  if(lebihBaik)saran.push({t:'baik',x:`Turunkan Stack <b>${sb-lebihBaik.maks}</b> (lewat hasil Kritis) untuk kembali ke ending <b>${esc(lebihBaik.nama)}</b>.`});
+  if(sb===0&&!s.ended)saran.push({t:'info',x:'Tim sedang unggul. Naikkan ketegangan: kejadian acak, NPC mencurigakan, atau serangan mendadak (⚔ Diserang).'});
+  const kritis=tim.filter(p=>!down(p)&&s.hati[p]<=1);if(kritis.length)saran.push({t:'bahaya',x:`${kritis.map(p=>`<b>${esc(H(p).nama)}</b>`).join(', ')} tinggal 1 ${esc(T('nyawa'))}. ${s.ramuan?`Tawarkan ramuan (sisa ${s.ramuan}) atau`:'Pertimbangkan'} adegan tenang.`});
+  const tbg=tim.filter(p=>down(p));if(tbg.length)saran.push({t:'bahaya',x:`${tbg.map(p=>`<b>${esc(H(p).nama)}</b>`).join(', ')} tumbang: tidak ikut melempar sampai dipulihkan.`});
+  const sk=tim.reduce((t,p)=>t+num(s.skill[p]),0);if(sk>=tim.length*2&&!s.ended)saran.push({t:'info',x:`Tim masih punya <b>${sk}</b> Skill Khusus. Ingatkan pemain di momen penting.`});
+  const tanpaAC=tim.filter(p=>!acOf(H(p)));if(tanpaAC.length)saran.push({t:'info',x:`Pertahanan belum dikunci: ${tanpaAC.map(p=>esc(H(p).nama)).join(', ')}. Klik ⚔ Diserang untuk mengisinya.`});
+  let adegan='';
+  if(!s.ended){const a=scn(),nx=W.story.adegan[s.cur+1];
+    if(a.hasil_wajib)saran.unshift({t:'bahaya',x:'Adegan ini punya <b>hasil wajib</b>: arahkan narasi ke hasil yang sudah ditentukan plot. Pemain hanya bisa mengurangi kerugian.'});
+    const qs=Object.entries(s.quests||{}).filter(([,q])=>!q.selesai);if(qs.length)saran.push({t:'info',x:`Quest terbuka: ${qs.map(([k])=>`<b>${esc(k)}</b>`).join(', ')}.`});
+    adegan=`<div class="fk-opsi"><small>Opsi di adegan ini</small>${a.opsi.map(o=>`<span class="tagk t-${o.jenis}">${esc(o.kode)} · ${lbl(o.jenis)}</span>`).join(' ')}</div>
+      ${nx?`<div class="fk-next"><small>Berikutnya</small><b>Adegan ${nx.no} — ${esc(nx.judul)}</b>${nx.ringkas?`<span>${esc(nx.ringkas)}</span>`:''}</div>`:`<div class="fk-next akhir"><small>Adegan terakhir</small><b>Setelah ini: klik Ke Ending</b></div>`}`}
+  el.innerHTML=`<h2 class="fk-h">🧭 Arah cerita</h2>
+    <div class="fk-ending"><div><small>Menuju ending</small><b>${esc(cur?cur.nama:'—')}</b></div><div class="fk-sb"><small>Stack</small><b>${sb}</b></div></div>
+    <div class="fk-jalur" aria-label="Urutan ending">${es.map(e=>`<span class="${e===cur?'on':''}" title="Stack ≤ ${e.maks>=99?'∞':e.maks}">${esc(e.nama)}</span>`).join('<i>›</i>')}</div>
+    ${adegan}
+    <ul class="fk-saran">${saran.slice(0,6).map(x=>`<li class="${x.t}">${x.x}</li>`).join('')||'<li class="info">Semua aman. Lanjutkan cerita.</li>'}</ul>`}
+$('fokusBtn').onclick=masukFokus;$('fkKeluar').onclick=keluarFokus;
+$('fkPrev').onclick=()=>$('prevScn').click();$('fkNext').onclick=()=>$('nextScn').click();
+$('fkUndo').onclick=()=>{if(W&&W.undo&&W.undo.length)undoTo(W.undo.length-1)};
+$('fkFull').onclick=()=>{if(document.fullscreenElement)document.exitFullscreen().catch(()=>{});else document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen().catch(()=>toast('Browser menolak layar penuh. Tekan F11.',true))};
+document.addEventListener('fullscreenchange',()=>{$('fkFull').textContent=document.fullscreenElement?'⛶ Keluar layar penuh':'⛶ Layar penuh'});
+new MutationObserver(()=>{if(fokusAktif())fokusSusun()}).observe($('scene'),{childList:true});
+new MutationObserver(()=>{if(fokusAktif())renderArah()}).observe($('party'),{childList:true});
+bus.on('tab',p=>{if(p!=='play')keluarFokus();else if(localStorage.getItem(FOKUS_KEY)&&W&&W.sesi&&W.story&&!fokusAktif())masukFokus()});
+document.addEventListener('keydown',e=>{const t=e.target;const ketik=t&&(t.isContentEditable||/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName));
+  if(ketik||e.ctrlKey||e.metaKey||e.altKey||$('modal').classList.contains('show'))return;
+  const diPlay=$('p-play').classList.contains('active')&&W&&W.sesi;if(!diPlay)return;
+  if(e.key==='f'||e.key==='F'){e.preventDefault();fokusAktif()?keluarFokus():masukFokus();return}
+  if(!fokusAktif())return;
+  if(e.key==='Escape'&&!document.fullscreenElement){keluarFokus();return}
+  if(e.key==='ArrowRight'&&!$('fkNext').disabled){e.preventDefault();$('fkNext').click()}
+  if(e.key==='ArrowLeft'&&!$('fkPrev').disabled){e.preventDefault();$('fkPrev').click()}},true);
