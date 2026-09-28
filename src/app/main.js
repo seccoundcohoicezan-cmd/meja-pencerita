@@ -3,7 +3,7 @@ import { esc, clamp, num, sum, uid, uuid, slug, normL, pad2, fmtMod } from '../c
 import { POOLS, POOL_DESC, TIERS, BOSS_TIERS, dStr, rollArr, tierOf, findTier, tkToTier, shiftTier, rollD100, bands, distOf, conv, shiftDist, pSuccess } from '../core/dice';
 import { ABILS, ABIL_NAMA, ABILITY_ARRAY, SKILLS, findSkill, skAbil, DC_TABLE, dcTierOf, tierIdx, AID_MAG, AID_TYPES, aidLabel, aidCap, aidFailOpts,
   resultTier, kontesTier, RT_LABEL, RT_CLS, hasTierText, tierText, tierEfek, CLASS_SKILLS, classTable, shuffledAbility } from '../core/skills';
-import { loadImg, wrapText, heart, rrect, fitFont, drawCard, dlCanvas } from '../core/card';
+import { loadImg, wrapText, heart, rrect, fitFont, drawCard, dlCanvas, FOTO_AWAL } from '../core/card';
 import { pD20, pPasif, pKontes, pPool, pKelompok, pDuelRonde, pDuel, pBoss, pct } from '../core/prob';
 import { improv, IMPROV_JENIS } from '../core/improv';
 
@@ -251,9 +251,9 @@ function renderHeroes(){if(!W)return;renderRules();renderBuildStatus();
     <div class="photo-row" style="margin-top:6px">
       <div><img class="thumb" data-thumb="${esc(h.uid)}" alt="" style="display:none"><div class="thumb empty" data-thumbempty="${esc(h.uid)}">Belum ada foto</div></div>
       <div style="flex:1;min-width:220px">
-        <div class="actions" style="margin-top:0"><label class="dbtn" style="cursor:pointer">Pilih foto<input type="file" accept="image/*" data-photo="${i}" hidden></label><button class="dbtn red" data-photodel="${i}" type="button">Hapus foto</button></div>
+        <div class="actions" style="margin-top:0"><label class="dbtn" style="cursor:pointer">Pilih foto<input type="file" accept="image/*" data-photo="${i}" hidden></label><button class="dbtn" data-photopos="${i}" type="button">Atur posisi foto</button><button class="dbtn red" data-photodel="${i}" type="button">Hapus foto</button></div>
         <div class="field" style="margin-top:8px"><label>Password kartu (dibuat pemain sendiri)</label><input data-i="${i}" data-f="pw" value="${esc(h.pw||'')}" autocomplete="off"></div>
-        <div class="actions"><button class="btn" data-card="${i}" type="button">Unduh kartu (PNG)</button><button class="btn alt" data-invite="${i}" type="button">Undang ke portal pemain</button><button class="dbtn" data-link="${i}" type="button">Link kartu tanpa akun</button></div>
+        <div class="actions"><button class="btn" data-card="${i}" type="button">Unduh kartu (PNG)</button><button class="btn alt" data-invite="${i}" type="button">Buat kode untuk pemain</button><button class="dbtn" data-link="${i}" type="button">Link kartu tanpa akun</button></div>
         <div class="portal-info small" data-portal="${esc(h.cid)}"></div>
       </div>
     </div>
@@ -285,7 +285,7 @@ $('heroList').addEventListener('input',e=>{const t=e.target;if(t.dataset.f===und
   if(t.dataset.f==='id'){h._idManual=true;h.id=slug(t.value)}
   save();renderBuildStatus();const smry=t.closest('details').querySelector('summary');const w=heroWarn(h);
   smry.innerHTML=`<span>${esc(h.nama||'Pahlawan tanpa nama')} <span class="small">${esc(h.kelas)}${POOLS[h.dadu]?` · ${dStr(POOLS[h.dadu])}`:''}${h.bonus!==''?` +${esc(h.bonus)}`:''}</span></span><span class="small" style="color:${w.length?'var(--wax)':'var(--moss)'}">${w.length?'Belum lengkap: '+w.join(', '):'Lengkap'}</span>`});
-$('heroList').addEventListener('change',e=>{if(e.target.dataset.photo!==undefined){const h=W.heroes[+e.target.dataset.photo];const file=e.target.files[0];if(file)resizePhoto(file).then(d=>IDB.set(photoKey(h),d).then(()=>bus.emit('foto',W,h,d))).then(loadThumbs).catch(err=>alert('Foto gagal dimuat: '+err.message));e.target.value='';return}
+$('heroList').addEventListener('change',e=>{if(e.target.dataset.photo!==undefined){const h=W.heroes[+e.target.dataset.photo];const file=e.target.files[0];if(file)resizePhoto(file).then(d=>IDB.set(photoKey(h),d).then(()=>bus.emit('foto',W,h,d))).then(()=>{loadThumbs();h.fotoPos=null;save();aturFoto(h)}).catch(err=>alert('Foto gagal dimuat: '+err.message));e.target.value='';return}
   if(e.target.dataset.prof!==undefined){const h=W.heroes[+e.target.dataset.prof],n=e.target.dataset.sk;h.skills=(h.skills||[]).filter(x=>x.nama!==n);if(e.target.checked)h.skills.push({nama:n,abil:skAbil(n),prof:true});delete h._skillBelumDikurasi;W.heroes.forEach(x=>x._open=false);h._open=true;save();renderHeroes();return}
   if(String(e.target.dataset.f||'').startsWith('ability.')||e.target.dataset.f==='kelas'){const h=W.heroes[+e.target.dataset.i];W.heroes.forEach(x=>x._open=false);h._open=true;save();renderHeroes();return}
   if(e.target.dataset.f==='dadu'){const h=W.heroes[+e.target.dataset.i];h.dadu=e.target.value;save();W.heroes.forEach(x=>x._open=false);h._open=true;renderHeroes();return}if(e.target.dataset.f==='sk.tipe'){W.heroes.forEach(x=>x._open=false);W.heroes[+e.target.dataset.i]._open=true;save();renderHeroes()}});
@@ -296,6 +296,7 @@ $('heroList').addEventListener('click',e=>{const rb=e.target.closest('[data-roll
   const cb=e.target.closest('[data-card]');if(cb){downloadCard(W.heroes[+cb.dataset.card]);return}
   const lb=e.target.closest('[data-link]');if(lb){shareLink(W.heroes[+lb.dataset.link]);return}
   const ib=e.target.closest('[data-invite]');if(ib){const h=W.heroes[+ib.dataset.invite];if(!h.nama)return alert('Isi nama pahlawan dulu.');bus.emit('undang',W,h);return}
+  const pp=e.target.closest('[data-photopos]');if(pp){aturFoto(W.heroes[+pp.dataset.photopos]);return}
   const pd=e.target.closest('[data-photodel]');if(pd){const h=W.heroes[+pd.dataset.photodel];IDB.del(photoKey(h)).then(()=>{bus.emit('fotoHapus',W,h);loadThumbs()});return}
   const b=e.target.closest('[data-del]');if(!b)return;const h=W.heroes[+b.dataset.del];if(confirm(`Hapus ${h.nama||'pahlawan ini'}?`)){W.heroes.splice(+b.dataset.del,1);IDB.del(photoKey(h));bus.emit('heroDihapus',W,h);save();renderHeroes()}});
 $('addHero').onclick=()=>{W.heroes.forEach(x=>x._open=false);const h=newHero();h._open=true;W.heroes.push(h);save();renderHeroes()};
@@ -433,7 +434,34 @@ function cardData(h){const g=G();const ab=h.ability?ABILS.map(a=>abMod(h,a)):nul
   sk:{n:h.sk.nama,e:h.sk.efek},sp:{n:h.sp.nama,b:num(h.sp.biaya,1),e:h.sp.efek},sf:h.sifat?[h.sifat.baik,h.sifat.buruk]:null,
   gf:(g.build||[]).filter(b=>b.nama).map(b=>[b.nama,(h.gf||{})[b.id]||'']).filter(x=>String(x[1]).trim()),kep:h.kep,
   ab,pb:profB(),pp:ab?passiveOf(h):null,kc:h._kelasCocok||'',
-  sks:ab?SKILLS.map(sk=>[sk.n,sk.a,skillMod(h,sk.n),isProf(h,sk.n)?1:0]):null}}
+  sks:ab?SKILLS.map(sk=>[sk.n,sk.a,skillMod(h,sk.n),isProf(h,sk.n)?1:0]):null,fp:h.fotoPos||null}}
+/* ---------- Atur posisi foto di kartu ---------- */
+async function aturFoto(h){const photo=await IDB.get(photoKey(h));if(!photo){toast('Pilih foto dulu.',true);return}
+  const fp=Object.assign({},FOTO_AWAL,h.fotoPos||{});const lama=JSON.stringify(h.fotoPos||null);
+  modal(`<h2>Atur foto ${esc(h.nama||'')}</h2><p class="small">Geser foto langsung di pratinjau, atau pakai pengatur di bawah. Pilih <b>Tampilkan utuh</b> bila kepala/badan masih terpotong.</p>
+    <div class="fp-wrap"><div class="fp-prev" id="fpPrev"><canvas id="fpCv" width="540" height="960" aria-label="Pratinjau kartu"></canvas></div>
+    <div class="fp-ctl">
+      <div class="seg fp-mode" role="radiogroup" aria-label="Mode foto"><button type="button" class="seg-b" data-fpm="isi">Isi penuh</button><button type="button" class="seg-b" data-fpm="utuh">Tampilkan utuh</button></div>
+      <label class="fp-sl">Atas ↕ bawah<input type="range" min="0" max="1" step="0.01" id="fpY"></label>
+      <label class="fp-sl">Kiri ↔ kanan<input type="range" min="0" max="1" step="0.01" id="fpX"></label>
+      <label class="fp-sl">Perbesar<input type="range" min="1" max="3" step="0.01" id="fpZ"></label>
+      <div class="actions"><button class="dbtn" id="fpReset" type="button">Kembalikan awal</button></div>
+    </div></div>
+    <div class="actions"><button class="dbtn" id="fpBatal" type="button">Batal</button><button class="btn" id="fpSimpan" type="button">Simpan posisi</button></div>`);
+  const cv=$('fpCv'),ctx=cv.getContext('2d');let antre=false;const cd0=cardData(h);
+  const sync=()=>{$('fpY').value=fp.y;$('fpX').value=fp.x;$('fpZ').value=fp.z;document.querySelectorAll('[data-fpm]').forEach(b=>{b.classList.toggle('on',b.dataset.fpm===fp.m);b.setAttribute('aria-checked',String(b.dataset.fpm===fp.m))})};
+  const gambar=()=>{if(antre)return;antre=true;requestAnimationFrame(async()=>{const c=await drawCard(Object.assign({},cd0,{fp}),photo);ctx.clearRect(0,0,cv.width,cv.height);ctx.drawImage(c,0,0,cv.width,cv.height);antre=false})};
+  sync();gambar();
+  ['X','Y','Z'].forEach(k=>$('fp'+k).oninput=e=>{fp[k.toLowerCase()]=+e.target.value;gambar()});
+  document.querySelectorAll('[data-fpm]').forEach(b=>b.onclick=()=>{fp.m=b.dataset.fpm;sync();gambar()});
+  $('fpReset').onclick=()=>{Object.assign(fp,FOTO_AWAL);sync();gambar()};
+  // geser dengan jari/mouse di area foto
+  let drag=null;cv.style.touchAction='none';
+  cv.onpointerdown=e=>{const r=cv.getBoundingClientRect();if((e.clientY-r.top)/r.height>.37)return;drag={x:e.clientX,y:e.clientY,fx:fp.x,fy:fp.y};cv.setPointerCapture(e.pointerId)};
+  cv.onpointermove=e=>{if(!drag)return;const r=cv.getBoundingClientRect();fp.x=clamp(drag.fx-(e.clientX-drag.x)/r.width*1.6,0,1);fp.y=clamp(drag.fy-(e.clientY-drag.y)/(r.height*.37)*1.2,0,1);sync();gambar()};
+  cv.onpointerup=cv.onpointercancel=()=>{drag=null};
+  $('fpBatal').onclick=()=>{h.fotoPos=JSON.parse(lama);closeModal()};
+  $('fpSimpan').onclick=()=>{h.fotoPos={m:fp.m,x:+fp.x.toFixed(3),y:+fp.y.toFixed(3),z:+fp.z.toFixed(3)};save();closeModal();toast('Posisi foto disimpan. Kartu di portal pemain ikut berubah.')}}
 async function downloadCard(h){if(!h.nama)return alert('Isi nama dulu.');const photo=await IDB.get(photoKey(h));const c=await drawCard(cardData(h),photo);dlCanvas(c,`kartu-${slug(h.nama)||'karakter'}.png`)}
 
 /* ======================= LINK BERPASSWORD ======================= */

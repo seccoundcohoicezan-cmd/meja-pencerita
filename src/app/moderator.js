@@ -15,9 +15,9 @@ export const LABEL_AKSI = {
   sesi_mulai: 'Mulai sesi', sesi_selesai: 'Sesi selesai', terbit_rekap: 'Terbitkan rekap',
   buat_undangan: 'Buat undangan', pakai_undangan: 'Pemain bergabung', putus_pemain: 'Putus pemain',
   tambah_moderator: 'Tambah moderator', hapus_moderator: 'Cabut moderator', hapus_akun: 'Hapus akun',
-  buka_portal: 'Buka portal', simpan_file: 'Simpan ke file', buka_file: 'Buka file',
+  buka_portal: 'Buka portal', lihat_kartu: 'Kartu dibuka (kode)', kode_hangus: 'Kode hangus', simpan_file: 'Simpan ke file', buka_file: 'Buka file',
 };
-const WARNA = { hapus_campaign: 'merah', hapus_akun: 'merah', putus_pemain: 'merah', hapus_moderator: 'merah', tambah_moderator: 'emas', pakai_undangan: 'hijau', buat_undangan: 'hijau' };
+const WARNA = { kode_hangus: 'emas', lihat_kartu: 'hijau', hapus_campaign: 'merah', hapus_akun: 'merah', putus_pemain: 'merah', hapus_moderator: 'merah', tambah_moderator: 'emas', pakai_undangan: 'hijau', buat_undangan: 'hijau' };
 
 let tab = 'log';
 let akhir = null; // waktu baris terakhir (untuk "muat lebih lama")
@@ -32,7 +32,7 @@ function render() {
   el.innerHTML = `<div class="seg" role="tablist">
       <button class="seg-b ${tab === 'log' ? 'on' : ''}" data-mtab="log" type="button">Log aksi</button>
       <button class="seg-b ${tab === 'akses' ? 'on' : ''}" data-mtab="akses" type="button">Kelola akses</button>
-      <a class="seg-b" href="/portal#undang">Undang pemain ↗</a></div>
+      <a class="seg-b" href="/portal#undang">Kode pemain ↗</a></div>
     <div id="modIsi"></div>`;
   el.querySelectorAll('[data-mtab]').forEach(b => b.onclick = () => { tab = b.dataset.mtab; render(); });
   if (tab === 'log') renderLog(); else renderAkses();
@@ -78,7 +78,7 @@ async function muatLog(baru) {
 async function renderAkses() {
   const p = peran();
   $('modIsi').innerHTML = `<div class="panel"><h2>Kelola akses moderator</h2>
-    <p class="small">Moderator bisa melihat log aksi dan mengundang/memutus pemain di semua campaign.${p.pemilik ? '' : ' Hanya pemilik web yang bisa menambah atau mencabut moderator.'}</p>
+    <p class="small">Moderator bisa melihat log aksi serta membuat dan menghanguskan kode pemain di semua campaign.${p.pemilik ? '' : ' Hanya pemilik web yang bisa menambah atau mencabut moderator.'}</p>
     ${p.pemilik ? `<div class="row"><input class="s" type="email" id="mdEmail" placeholder="email@contoh.com" autocomplete="off" style="flex:1;min-width:180px"><button class="btn" id="mdTambah" type="button">Jadikan moderator</button></div><div id="mdMsg" class="small"></div>` : ''}
     <div id="mdList" class="loglist"><p class="small">Memuat…</p></div></div>`;
   if (p.pemilik) {

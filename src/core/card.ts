@@ -8,6 +8,30 @@ export interface CardData {
   bonus: string; nyawa: number; dasar: string; sk: { n: string; e: string }; sp: { n: string; b: number; e: string };
   sf: [string, string] | null; gf: [string, string][]; kep: string; ab?: number[] | null; pb?: number; pp?: number | null; kc?: string;
   sks?: [string, string, number, number][] | null;
+  /** posisi foto: m = 'isi' (penuh, bisa terpotong) | 'utuh' (seluruh foto tampil); x,y = titik fokus 0–1; z = perbesar 1–3 */
+  fp?: FotoPos | null;
+}
+export interface FotoPos { m?: 'isi' | 'utuh'; x?: number; y?: number; z?: number }
+export const FOTO_AWAL: Required<FotoPos> = { m: 'isi', x: 0.5, y: 0.2, z: 1 };
+/** Gambar foto ke area atas kartu. `teksH` = tinggi area nama di bawah foto (tidak diisi wajah saat mode utuh). */
+export function drawPhoto(x, img, W, H, fp, teksH = 250) {
+  const f = Object.assign({}, FOTO_AWAL, fp || {}); const z = clamp(num(f.z, 1), 1, 3);
+  const fx = clamp(num(f.x, .5), 0, 1), fy = clamp(num(f.y, .2), 0, 1);
+  x.save(); x.beginPath(); x.rect(0, 0, W, H); x.clip();
+  if (f.m === 'utuh') {
+    // latar: foto yang sama diperbesar & digelapkan, lalu foto utuh di atasnya
+    const sc0 = Math.max(W / img.width, H / img.height) * 1.15; const w0 = img.width * sc0, h0 = img.height * sc0;
+    try { x.filter = 'blur(28px) brightness(.55)'; } catch (e) { /* browser lama */ }
+    x.drawImage(img, (W - w0) / 2, (H - h0) / 2, w0, h0); x.filter = 'none';
+    x.fillStyle = 'rgba(20,16,12,.35)'; x.fillRect(0, 0, W, H);
+    const areaH = H - teksH * 0.45; const sc = Math.min(W / img.width, areaH / img.height) * z;
+    const w = img.width * sc, h = img.height * sc;
+    x.drawImage(img, (W - w) * fx, Math.min(0, areaH - h) * fy + Math.max(0, (areaH - h) / 2) * (h < areaH ? 1 : 0), w, h);
+  } else {
+    const sc = Math.max(W / img.width, H / img.height) * z; const w = img.width * sc, h = img.height * sc;
+    x.drawImage(img, (W - w) * fx, (H - h) * fy, w, h);
+  }
+  x.restore();
 }
 export function loadImg(src: string): Promise<HTMLImageElement> {
   return new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = () => rej(new Error('gambar tidak bisa dibaca')); i.src = src; });
@@ -22,10 +46,10 @@ export async function drawCard(cd,photo){const CW2=1080,CH=1920,M=56,acc=cd.acc|
   const SERIF='Georgia, "Times New Roman", serif',SANS='"Segoe UI", Arial, sans-serif';
   x.fillStyle='#14100c';x.fillRect(0,0,CW2,CH);
   /* foto / inisial */
-  if(photo){try{const img=await loadImg(photo);const sc=Math.max(CW2/img.width,PH/img.height);const w=img.width*sc,h=img.height*sc;x.save();x.beginPath();x.rect(0,0,CW2,PH);x.clip();x.drawImage(img,(CW2-w)/2,Math.min(0,(PH-h)*.3),w,h);x.restore()}catch(e){photo=null}}
+  if(photo){try{const img=await loadImg(photo);drawPhoto(x,img,CW2,PH,cd.fp,hasAb?230:260)}catch(e){photo=null}}
   if(!photo){const g=x.createRadialGradient(CW2/2,PH*.45,40,CW2/2,PH*.45,760);g.addColorStop(0,acc+'55');g.addColorStop(1,'#14100c');x.fillStyle=g;x.fillRect(0,0,CW2,PH);
     x.fillStyle=acc+'aa';x.font=`bold ${hasAb?320:420}px ${SERIF}`;x.textAlign='center';x.textBaseline='middle';x.fillText((cd.nama||'?').trim().charAt(0).toUpperCase(),CW2/2,PH*.42);x.textAlign='left';x.textBaseline='alphabetic'}
-  const gr=x.createLinearGradient(0,PH-460,0,PH+10);gr.addColorStop(0,'rgba(20,16,12,0)');gr.addColorStop(.7,'rgba(20,16,12,.85)');gr.addColorStop(1,'rgba(20,16,12,1)');x.fillStyle=gr;x.fillRect(0,PH-460,CW2,470);
+  const GH=hasAb?300:340;const gr=x.createLinearGradient(0,PH-GH,0,PH+10);gr.addColorStop(0,'rgba(20,16,12,0)');gr.addColorStop(.55,'rgba(20,16,12,.78)');gr.addColorStop(1,'rgba(20,16,12,1)');x.fillStyle=gr;x.fillRect(0,PH-GH,CW2,GH+10);
   const tg=x.createLinearGradient(0,0,0,220);tg.addColorStop(0,'rgba(0,0,0,.55)');tg.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=tg;x.fillRect(0,0,CW2,220);
   x.font=`bold 30px ${SANS}`;const gl=(cd.gn||'').toUpperCase();const gw=x.measureText(gl).width+44;rrect(x,M,M,gw,58,29);x.fillStyle=acc;x.fill();x.fillStyle='#14100c';x.fillText(gl,M+22,M+40);
   x.font=`600 26px ${SANS}`;x.fillStyle='rgba(255,255,255,.85)';x.textAlign='right';x.fillText('KARTU KARAKTER',CW2-M,M+38);x.textAlign='left';

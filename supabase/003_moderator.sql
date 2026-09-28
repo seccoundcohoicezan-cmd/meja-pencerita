@@ -175,49 +175,8 @@ end $$;
 revoke all on function public.mod_hapus(text) from public, anon;
 grant execute on function public.mod_hapus(text) to authenticated;
 
--- ---------- KELOLA PEMAIN (GM untuk campaign-nya, moderator untuk semua) ----------
-create or replace function public.kelola_pahlawan()
-returns table (campaign_id uuid, campaign_nama text, genre text, milik_saya boolean, gm_email text,
-               hero_id uuid, hero_nama text, pemain_nama text, pemain_email text, terhubung_at timestamptz, kode_aktif text)
-language sql stable security definer set search_path = public, auth as $$
-  with mod as (select public.is_moderator() as ya)
-  select c.id, c.nama, c.genre, c.owner_id = auth.uid(),
-         case when (select ya from mod) then (select lower(u.email) from auth.users u where u.id = c.owner_id) end,
-         h.id, coalesce(nullif(h.data->>'nama', ''), '(tanpa nama)'),
-         p.nama_tampil,
-         case when (select ya from mod) then (select lower(u.email) from auth.users u where u.id = m.user_id) end,
-         m.joined_at,
-         (select string_agg(i.kode, ', ') from public.invites i where i.hero_id = h.id and i.dipakai_oleh is null and i.kedaluwarsa > now())
-  from public.campaigns c
-  join public.heroes h on h.campaign_id = c.id
-  left join public.campaign_members m on m.hero_id = h.id and m.peran = 'pemain'
-  left join public.profiles p on p.id = m.user_id
-  where c.owner_id = auth.uid() or (select ya from mod)
-  order by (c.owner_id = auth.uid()) desc, c.updated_at desc, h.urutan
-  limit 1000
-$$;
-revoke all on function public.kelola_pahlawan() from public, anon;
-grant execute on function public.kelola_pahlawan() to authenticated;
-
-create or replace function public.buat_undangan(p_hero uuid) returns text
-language plpgsql security definer set search_path = public, auth as $$
-declare c uuid; k text; b bytea; alfabet text := 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; i int;
-begin
-  if auth.uid() is null then raise exception 'Harus login dulu.'; end if;
-  select campaign_id into c from public.heroes where id = p_hero;
-  if c is null then raise exception 'Pahlawan tidak ditemukan. Buka campaign di Meja Pencerita agar tersimpan ke cloud.'; end if;
-  if not (public.is_gm(c) or public.is_moderator()) then raise exception 'Kamu tidak punya akses ke pahlawan ini.'; end if;
-  loop
-    b := uuid_send(gen_random_uuid()); k := '';
-    for i in 0..7 loop k := k || substr(alfabet, 1 + (get_byte(b, i) % 32), 1); end loop;
-    exit when not exists (select 1 from public.invites where kode = k);
-  end loop;
-  insert into public.invites (kode, campaign_id, hero_id, dibuat_oleh) values (k, c, p_hero, auth.uid());
-  return k;
-end $$;
-revoke all on function public.buat_undangan(uuid) from public, anon;
-grant execute on function public.buat_undangan(uuid) to authenticated;
-
+-- ---------- KELOLA PEMAIN ----------
+-- kelola_pahlawan() dan buat_undangan() ada di 004_kode_tanpa_login.sql
 create or replace function public.putus_pemain(p_hero uuid) returns void
 language plpgsql security definer set search_path = public, auth as $$
 declare c uuid;

@@ -13,7 +13,11 @@ splashSelesai();
 
 Promise.all([import('./cloud.js'), import('./moderator.js')])
   .then(([c, m]) => { c.initCloud(); m.initModerator(); })
-  .catch(e => console.error('[cloud] gagal dimuat', e));
+  .catch(e => {
+    console.error('[cloud] gagal dimuat', e);
+    const el = document.getElementById('gbAksi');
+    if (el) el.innerHTML = '<p class="gb-muat">Tidak bisa terhubung. Periksa internet, lalu muat ulang.</p><button class="btn" type="button" onclick="location.reload()">Muat ulang</button>';
+  });
 
 if (import.meta.env.PROD && 'serviceWorker' in navigator) {
   window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));

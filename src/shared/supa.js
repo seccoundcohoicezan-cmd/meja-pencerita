@@ -33,25 +33,18 @@ export function dataUrlToBlob(d) {
 export function blobToDataUrl(blob) {
   return new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = () => rej(r.error); r.readAsDataURL(blob); });
 }
-/** Modal login yang dipakai halaman GM dan portal. */
+/** Kotak login (hanya Google). */
 export function loginModalHtml(judul, ket) {
   return `<h2>${judul}</h2><p class="small">${ket}</p>
-  <div class="actions" style="margin-top:4px"><button class="btn google-btn" id="lgGoogle" type="button"><span class="g">G</span> Masuk dengan Google</button></div>
-  <div class="or"><span>atau lewat email</span></div>
-  <div class="row"><input class="s" type="email" id="lgEmail" placeholder="nama@email.com" autocomplete="email" style="flex:1"><button class="btn alt" id="lgKirim" type="button">Kirim tautan masuk</button></div>
-  <div id="lgMsg" class="small"></div>
+  <div class="actions" style="margin-top:4px"><button class="btn google-btn" id="lgGoogle" type="button">${GOOGLE_SVG} Masuk dengan Google</button></div>
+  <div id="lgMsg" class="small" role="status"></div>
   <p class="small">Dengan masuk, kamu menyetujui <a href="/syarat" target="_blank" rel="noopener">Syarat Penggunaan</a> dan <a href="/privasi" target="_blank" rel="noopener">Kebijakan Privasi</a>.</p>`;
 }
+export const GOOGLE_SVG = '<svg class="g" width="20" height="20" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34 6.1 29.3 4 24 4 13 4 4 13 4 24s9 20 20 20 20-9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>';
 export function bindLoginModal(el) {
-  el.querySelector('#lgGoogle').onclick = async () => { const { error } = await loginGoogle(); if (error) el.querySelector('#lgMsg').textContent = pesanError(error); };
-  el.querySelector('#lgKirim').onclick = async () => {
-    const em = el.querySelector('#lgEmail').value.trim(); const msg = el.querySelector('#lgMsg');
-    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)) { msg.textContent = 'Tulis alamat email yang benar.'; return; }
-    msg.textContent = 'Mengirim…'; const { error } = await loginEmail(em);
-    msg.textContent = error ? pesanError(error) : `Tautan masuk dikirim ke ${em}. Buka email itu di perangkat ini, lalu klik tautannya.`;
-  };
+  const b = el.querySelector('#lgGoogle'); if (!b) return;
+  b.onclick = async () => { b.disabled = true; const { error } = await loginGoogle(); if (error) { b.disabled = false; el.querySelector('#lgMsg').textContent = pesanError(error); } };
 }
-
 /** Catat aksi ke log moderator (diam bila gagal / belum menjalankan SQL 003). */
 export function catatAksi(aksi, detail = '') {
   try { sb.rpc('catat_aksi', { p_aksi: aksi, p_detail: String(detail).slice(0, 300) }).then(() => {}, () => {}); } catch (e) { /* abaikan */ }
@@ -63,12 +56,18 @@ export async function peranSaya() {
   return data;
 }
 /** Buat kode undangan lewat database (GM pemilik campaign atau moderator). */
-export async function buatUndangan(heroId) {
-  const { data, error } = await sb.rpc('buat_undangan', { p_hero: heroId });
+export async function buatUndangan(heroId, fotoUrl = null) {
+  const { data, error } = await sb.rpc('buat_undangan', { p_hero: heroId, p_foto_url: fotoUrl });
   if (error) throw error; return data;
+}
+/** Tautan foto bertanda tangan (120 hari) supaya pemain tanpa login bisa melihat foto kartunya. */
+export async function tautanFoto(path) {
+  if (!path) return null;
+  const { data, error } = await sb.storage.from('foto').createSignedUrl(path, 60 * 60 * 24 * 120);
+  return error ? null : data.signedUrl;
 }
 /** Pesan WhatsApp siap kirim untuk pemain. */
 export function pesanUndangan(namaHero, namaCampaign, kode) {
   const link = `${location.origin}/portal?kode=${kode}`;
-  return { link, teks: `Halo *${namaHero}*! 🎲\nKamu diundang ke campaign *${namaCampaign}* di MasteryDnD.\n\n1. Buka link ini: ${link}\n2. Masuk dengan Google atau email\n3. Selesai! Kartu karaktermu langsung muncul.\n\nKode undangan: *${kode}* (berlaku 14 hari, hanya untuk 1 akun)` };
+  return { link, teks: `Halo *${namaHero}*! 🎲\nIni kartu karaktermu di campaign *${namaCampaign}*.\n\nBuka link ini (tanpa login): ${link}\n\nAtau buka ${location.origin}/portal lalu ketik kode: *${kode}*\n\nKode berlaku sampai sesi/bab ini selesai. Jangan bagikan ke orang lain.` };
 }
