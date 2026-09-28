@@ -159,20 +159,73 @@ nav.tabs { padding: 0; margin: 0 0 12px; gap: 8px; }
 .splash-bar { height: 12px; border: 1px solid #8a8076; border-radius: 10px; background: #1a1210; overflow: hidden; }
 .splash-bar span { display: block; height: 100%; width: 8%; background: linear-gradient(90deg, #d2272f, #f25a4a); border-radius: 10px; transition: width 1.3s cubic-bezier(.3, .6, .2, 1); }
 
+/* ---------- navigasi: tombol kembali, drawer, modal ---------- */
+[hidden] { display: none !important; }
+.back-btn { display: inline-flex; align-items: center; gap: 4px; flex: none; height: 42px; padding: 0 14px; background: rgba(13, 8, 7, .55); border: 1px solid rgba(201, 162, 74, .6); color: #f1e2c0; border-radius: 4px; font-family: var(--display); font-size: 14px; cursor: pointer; text-decoration: none; }
+.back-btn:hover { border-color: var(--emas); color: #fff; }
+.drawer-head { display: none; }
+.scrim { display: none; }
+.modal { z-index: 90; }
+.modal .panel { position: relative; }
+.modal-x { position: absolute; top: 8px; right: 8px; width: 34px; height: 34px; border: 1px solid #9c8358; background: var(--perkamen2); border-radius: 50%; font-size: 15px; line-height: 1; cursor: pointer; color: var(--ink); }
+.modal-x + h2 { padding-right: 40px; }
+
+/* ---------- panduan ---------- */
+#mejaWrap.is-help > .page-head, #mejaWrap.is-help > nav.tabs { display: none !important; }
+.langkah { counter-reset: lk; list-style: none; padding: 0; margin: 10px 0; }
+.langkah li { counter-increment: lk; position: relative; padding: 4px 0 10px 44px; margin: 0; }
+.langkah li::before { content: counter(lk); position: absolute; left: 0; top: 2px; width: 30px; height: 30px; border-radius: 50%; background: var(--darah); color: #fff; display: grid; place-items: center; font-family: var(--display); font-size: 15px; }
+.guide details.gm { margin-top: 4px; } .guide details.gm[open] summary { margin-bottom: 8px; }
+
+/* ---------- moderator & log ---------- */
+.seg { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+.seg-b { background: linear-gradient(180deg, #221512, #160d0b); color: #e9d8b6; border: 1px solid rgba(201, 162, 74, .45); border-radius: 3px; padding: 9px 16px; font-family: var(--display); font-size: 14.5px; cursor: pointer; text-decoration: none; }
+.seg-b.on { background: linear-gradient(180deg, #b8161f, #7a0c11); color: #fff; border-color: #e0b35a; }
+.loglist { border-top: 1px solid #c6ad7c; margin-top: 6px; }
+.lg-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; padding: 8px 4px 8px 10px; border-bottom: 1px dotted #c6ad7c; border-left: 3px solid transparent; font-size: 15px; }
+.lg-row time { color: #6b5438; font-size: 13.5px; min-width: 96px; font-variant-numeric: tabular-nums; }
+.lg-row .lg-siapa { color: #5b4632; font-size: 14px; }
+.lg-row .lg-det { flex-basis: 100%; color: #3d2c1d; font-size: 14px; padding-left: 108px; }
+.lg-row .dbtn { margin-left: auto; }
+.lg-row.merah { border-left-color: var(--darah); } .lg-row.hijau { border-left-color: var(--moss); } .lg-row.emas { border-left-color: var(--emas); }
+
 /* ---------- responsif ---------- */
 @media (max-width: 980px) {
+  body { background-attachment: scroll; }
   .shell { grid-template-columns: 1fr; grid-template-areas: 'top' 'main' 'foot'; }
-  .topbar { min-height: 64px; padding: 6px 12px; gap: 10px; }
-  .brand img { height: 52px; }
+  .topbar { min-height: 60px; padding: 6px 10px; gap: 8px; }
+  .brand img { height: 44px; }
   .motto { display: none; }
   .akun { margin-left: auto; }
-  .akun-btn span { display: none; } .akun-btn { padding: 3px; }
-  .menu-toggle { display: block; }
+  .akun-btn span { display: none; } .akun-btn { padding: 3px; } .akun-btn img { width: 38px; height: 38px; }
+  .login-btn { padding: 8px 14px; }
+  .menu-toggle { display: block; flex: none; }
   .shell-portal .menu-toggle { display: none; }
-  .sidenav { position: fixed; top: 64px; left: 0; bottom: 0; height: auto; width: 270px; z-index: 40; transform: translateX(-100%); transition: transform .25s; box-shadow: 10px 0 30px rgba(0, 0, 0, .6); }
-  body.menu-open .sidenav { transform: none; }
-  .content { padding: 14px 10px 24px; }
-  .page-head h1 { font-size: 25px; }
+  .back-btn { padding: 0 12px; }
+
+  /* drawer: di atas semua elemen, punya tombol tutup sendiri, latar gelap bisa diketuk untuk menutup */
+  .sidenav { position: fixed; top: 0; left: 0; bottom: 0; height: 100%; width: min(300px, 86vw); z-index: 70; transform: translateX(-105%); transition: transform .22s ease-out, visibility 0s linear .22s; box-shadow: 10px 0 30px rgba(0, 0, 0, .6); padding: 0 0 16px; justify-content: flex-start; visibility: hidden; }
+  body.menu-open .sidenav { transform: none; visibility: visible; transition-delay: 0s; }
+  .drawer-head { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px 10px 16px; margin-bottom: 8px; border-bottom: 1px solid rgba(201, 162, 74, .3); }
+  .drawer-head img { height: 44px; width: auto; }
+  .drawer-close { width: 42px; height: 42px; border: 1px solid rgba(201, 162, 74, .6); background: none; color: var(--emas); border-radius: 4px; font-size: 18px; cursor: pointer; }
+  .snav { padding: 13px 14px; font-size: 16px; }
+  .side-art { display: none; }
+  .scrim { display: block; position: fixed; inset: 0; z-index: 65; background: rgba(8, 4, 3, .6); opacity: 0; pointer-events: none; transition: opacity .2s; }
+  body.menu-open .scrim { opacity: 1; pointer-events: auto; }
+  body.menu-open { overflow: hidden; }
+
+  .content { padding: 12px 10px 24px; }
+  .page-head { gap: 10px; } .page-head .emblem { width: 44px; height: 44px; }
+  .page-head h1 { font-size: 23px; }
+  .ph-actions { width: 100%; }
+  #exportAll, .ph-actions label.dbtn { display: none !important; }
+  nav.tabs { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; padding-bottom: 2px; }
+  nav.tabs::-webkit-scrollbar { display: none; }
+  .tab { flex: none; padding: 9px 12px; font-size: 14px; }
   .footbar span::before, .footbar span::after { width: 24px; margin: 0 8px; }
+  .lg-row .lg-det { padding-left: 0; }
+  .panel { padding: 14px 12px; }
 }
+@media (max-width: 420px) { .back-btn span { display: none; } .back-btn { width: 42px; padding: 0; justify-content: center; } }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }

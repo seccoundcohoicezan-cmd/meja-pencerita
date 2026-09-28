@@ -5,7 +5,7 @@
  * Prinsip: perangkat GM tetap sumber kerja utama (bisa dipakai tanpa internet). Setiap perubahan
  * disimpan dulu di perangkat, lalu dikirim ke cloud beberapa detik kemudian bila GM sudah masuk.
  */
-import { sb, pesanError, dataUrlToBlob, blobToDataUrl, loginModalHtml, bindLoginModal, logout } from '../shared/supa';
+import { sb, pesanError, dataUrlToBlob, blobToDataUrl, loginModalHtml, bindLoginModal, logout, catatAksi, peranSaya, buatUndangan, pesanUndangan } from '../shared/supa';
 import { bus } from '../shared/bus';
 import { CONFIG } from '../shared/config';
 import { esc, uuid } from '../core/util';
@@ -18,6 +18,7 @@ let pesan = '';
 let timer = null;
 let sinkronBerjalan = false;
 let antreLagi = false;
+let peran = { moderator: false, pemilik: false };
 
 /* ---------------- status & tampilan ---------------- */
 function setStatus(s, m) { status = s; pesan = m || ''; renderAkun(); if ($('p-pengaturan') && $('p-pengaturan').classList.contains('active')) renderPengaturan(); }
@@ -29,11 +30,11 @@ function renderAkun() {
   if (!user) { el.innerHTML = `<button class="btn login-btn" id="akLogin" type="button">Masuk</button>`; $('akLogin').onclick = bukaLogin; return; }
   const av = (user.user_metadata || {}).avatar_url || '/img/avatar.webp';
   el.innerHTML = `<button class="akun-btn" id="akBtn" type="button" title="${esc(LABEL[status])}${pesan ? ': ' + esc(pesan) : ''}">
-    <img src="${esc(av)}" alt="" referrerpolicy="no-referrer" onerror="this.src='/img/avatar.webp'"><span><b>${esc(namaUser())}</b><small>Game Master · <i class="dot ${status}"></i>${esc(LABEL[status])}</small></span></button>`;
+    <img src="${esc(av)}" alt="" referrerpolicy="no-referrer" onerror="this.src='/img/avatar.webp'"><span><b>${esc(namaUser())}</b><small>${peran.pemilik ? 'Pemilik' : peran.moderator ? 'Moderator' : 'Game Master'} · <i class="dot ${status}"></i>${esc(LABEL[status])}</small></span></button>`;
   $('akBtn').onclick = () => A().showTab('pengaturan');
 }
 function bukaLogin() {
-  A().modal(loginModalHtml('Masuk sebagai Game Master', 'Campaign, pahlawan, dan foto akan tersimpan di cloud sehingga bisa dibuka dari perangkat lain. Tanpa masuk pun aplikasi tetap bisa dipakai penuh di perangkat ini.') +
+  A().modal(loginModalHtml('Masuk', 'Dengan masuk, datamu tersimpan online dan bisa dibuka dari HP atau laptop lain. Tanpa masuk pun aplikasi tetap bisa dipakai di perangkat ini.') +
     `<div class="actions"><button class="dbtn" onclick="closeModal()">Nanti saja</button></div>`);
   bindLoginModal($('modalBody'));
 }
@@ -187,28 +188,34 @@ async function hapusFoto(c, h) {
 }
 
 /* ---------------- undangan pemain ---------------- */
-const ALFABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-const kodeBaru = () => { const u = new Uint32Array(8); crypto.getRandomValues(u); return [...u].map(x => ALFABET[x % ALFABET.length]).join(''); };
+async function kodeUndangan(c, h) {
+  try { return await buatUndangan(h.cid); }
+  catch (e) {
+    // SQL 003 belum dijalankan → cara lama (insert langsung, hanya GM)
+    if (!/buat_undangan|PGRST202|does not exist|Could not find/i.test(String(e && (e.message || e.code)))) throw e;
+    const AL = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; const u = new Uint32Array(8); crypto.getRandomValues(u);
+    const kode = [...u].map(x => AL[x % AL.length]).join('');
+    await cek(sb.from('invites').insert({ kode, campaign_id: c.id, hero_id: h.cid, dibuat_oleh: user.id })); return kode;
+  }
+}
 async function undang(c, h) {
-  if (!user) { A().toast('Masuk ke akun dulu untuk mengundang pemain ke portal.', true); bukaLogin(); return; }
+  if (!user) { A().toast('Masuk ke akun dulu untuk mengundang pemain.', true); bukaLogin(); return; }
   try {
     setStatus('menyimpan'); await push(c); simpanLokalTanpaTandai(); setStatus('tersimpan');
-    const kode = kodeBaru();
-    await cek(sb.from('invites').insert({ kode, campaign_id: c.id, hero_id: h.cid, dibuat_oleh: user.id }));
-    const link = `${location.origin}/portal?kode=${kode}`;
-    const msg = `Halo *${h.nama}*! 🎲\nKamu diundang ke campaign *${c.nama}* di MasteryDnD.\n\n1. Buka: ${link}\n2. Masuk dengan Google atau email\n3. Kode undanganmu: *${kode}* (otomatis terisi dari link, berlaku 14 hari)\n\nDi portal kamu bisa melihat kartu karakter, ${A().T('nyawa')} terkini, dan rekap cerita.`;
+    const kode = await kodeUndangan(c, h);
+    const { teks: msg } = pesanUndangan(h.nama || 'Pahlawan', c.nama, kode);
     let ok = false; try { await navigator.clipboard.writeText(msg); ok = true; } catch (e) { /* manual */ }
-    A().modal(`<h2>Undangan untuk ${esc(h.nama)}</h2><p class="small">${ok ? 'Pesan sudah tersalin. Tempel di chat WA pemain.' : 'Salin pesan di bawah.'} Kode hanya bisa dipakai satu akun.</p>
-      <p class="kode-besar">${kode}</p><div class="field"><textarea rows="9" readonly>${esc(msg)}</textarea></div>
-      <div class="actions"><a class="dbtn" href="https://wa.me/?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">Buka WhatsApp</a><button class="btn" onclick="closeModal()">Selesai</button></div>`);
+    A().modal(`<h2>Undangan untuk ${esc(h.nama)}</h2><p class="small">${ok ? '✅ Pesan sudah disalin. Tinggal tempel di chat WhatsApp pemain.' : 'Salin pesan di bawah, lalu kirim ke pemain.'}</p>
+      <p class="kode-besar">${kode}</p><div class="field"><textarea rows="8" readonly>${esc(msg)}</textarea></div>
+      <div class="actions"><a class="dbtn" href="https://wa.me/?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">Kirim lewat WhatsApp</a><button class="btn" onclick="closeModal()">Selesai</button></div>`);
     infoPortal();
   } catch (e) { gagal(e); A().toast('Undangan gagal dibuat: ' + pesanError(e), true); }
 }
 /** Tampilkan status hubungan pahlawan ↔ akun pemain di kartu pahlawan. */
 async function infoPortal() {
   const els = [...document.querySelectorAll('[data-portal]')]; if (!els.length) return;
-  if (!user) { els.forEach(el => el.textContent = 'Portal pemain: masuk ke akun untuk mengundang pemain.'); return; }
-  const W = A().W; if (!W || !W.cloud || !W.cloud.syncedAt) { els.forEach(el => el.textContent = 'Portal pemain: campaign belum tersinkron ke cloud.'); return; }
+  if (!user) { els.forEach(el => el.textContent = 'Undang pemain: masuk ke akun dulu.'); return; }
+  const W = A().W; if (!W || !W.cloud || !W.cloud.syncedAt) { els.forEach(el => el.textContent = 'Undang pemain: tunggu sebentar, campaign sedang disimpan ke cloud.'); return; }
   try {
     const mem = await cek(sb.from('campaign_members').select('user_id,hero_id,joined_at').eq('campaign_id', W.id).eq('peran', 'pemain'));
     const inv = await cek(sb.from('invites').select('kode,hero_id,kedaluwarsa,dipakai_oleh').eq('campaign_id', W.id).is('dipakai_oleh', null).gt('kedaluwarsa', new Date().toISOString()));
@@ -262,23 +269,36 @@ function renderPengaturan() {
   const el = $('cloudPanel'); if (!el) return;
   const R = A().R; const n = Object.keys(R.camps).length; const kotor = Object.values(R.camps).filter(c => c.cloud && c.cloud.dirty).length;
   if (!user) {
-    el.innerHTML = `<h2>Akun Game Master</h2><p>Masuk supaya campaign tersimpan di cloud, bisa dibuka dari perangkat lain, dan pemain bisa melihat kartunya lewat <b>Portal Pemain</b>.</p>
-      <p class="small">Tanpa masuk, semua fitur meja permainan tetap berjalan penuh di perangkat ini (${n} campaign tersimpan lokal).</p>
+    el.innerHTML = `<h2>Akun</h2><p>Masuk supaya datamu tersimpan online, bisa dibuka dari perangkat lain, dan pemain bisa melihat kartunya di <b>Portal Pemain</b>.</p>
+      <p class="small">Belum masuk pun tidak apa-apa: ${n} campaign tersimpan di perangkat ini.</p>
       <div class="actions"><button class="btn" id="pgLogin" type="button">Masuk / Daftar</button></div>`;
     $('pgLogin').onclick = bukaLogin;
   } else {
-    el.innerHTML = `<h2>Akun Game Master</h2>
-      <p>Masuk sebagai <b>${esc(namaUser())}</b> (${esc(user.email || '')}).</p>
+    const label = peran.pemilik ? 'Pemilik web (moderator utama)' : peran.moderator ? 'Moderator' : 'Game Master';
+    el.innerHTML = `<h2>Akun</h2>
+      <p>Masuk sebagai <b>${esc(namaUser())}</b> (${esc(user.email || '')}) · <span class="gbadge">${label}</span></p>
       <p>Status: <i class="dot ${status}"></i> <b>${esc(LABEL[status])}</b>${pesan ? ` — ${esc(pesan)}` : ''}${kotor ? ` · ${kotor} campaign menunggu dikirim` : ''}</p>
-      <div class="actions"><button class="btn alt" id="pgSync" type="button">Sinkronkan sekarang</button><button class="dbtn" id="pgLogout" type="button">Keluar</button></div>
-      <h3>Portal pemain</h3><p class="small">Undang pemain dari kartu pahlawan (tab Pahlawan → <b>Undang ke portal pemain</b>). Pemain masuk di <a href="/portal" target="_blank" rel="noopener">${esc(location.origin)}/portal</a> dan hanya bisa melihat kartu, ${esc(A().T('nyawa'))} terkini, serta rekap yang kamu terbitkan.</p>
-      <h3>Data &amp; privasi</h3>
-      <div class="actions"><button class="dbtn red" id="pgHapusData" type="button">Hapus semua data cloud</button><button class="dbtn red" id="pgHapusAkun" type="button">Hapus akun</button></div>`;
-    $('pgSync').onclick = () => sinkronAwal(); $('pgLogout').onclick = async () => { await logout(); };
-    $('pgHapusData').onclick = () => hapusSemuaCloud(false); $('pgHapusAkun').onclick = () => hapusSemuaCloud(true);
+      <div class="actions"><button class="btn alt" id="pgSync" type="button">Simpan ke cloud sekarang</button>
+        <a class="dbtn" href="/portal#undang">Undang pemain</a>
+        ${peran.moderator ? '<button class="dbtn" id="pgMod" type="button">♛ Panel Moderator</button>' : ''}
+        <button class="dbtn" id="pgLogout" type="button">Keluar</button></div>
+      <h3>Hapus data</h3>
+      <p class="small">Menghapus data online secara permanen. Data di perangkat ini tidak ikut terhapus.</p>
+      <div class="actions"><button class="dbtn red" id="pgHapusData" type="button">Hapus semua data online</button>${peran.pemilik ? '' : '<button class="dbtn red" id="pgHapusAkun" type="button">Hapus akun</button>'}</div>`;
+    $('pgSync').onclick = () => sinkronAwal();
+    $('pgLogout').onclick = async () => { catatAksi('keluar'); await logout(); };
+    if ($('pgMod')) $('pgMod').onclick = () => A().showTab('moderator');
+    $('pgHapusData').onclick = () => hapusSemuaCloud(false); if ($('pgHapusAkun')) $('pgHapusAkun').onclick = () => hapusSemuaCloud(true);
   }
-  const b = $('backupInfo'); if (b) b.textContent = R.backupAt ? `Cadangan file terakhir: ${new Date(R.backupAt).toLocaleString('id-ID')}` : 'Belum pernah menyimpan cadangan ke file.';
+  const b = $('backupInfo'); if (b) b.textContent = R.backupAt ? `Terakhir disimpan ke file: ${new Date(R.backupAt).toLocaleString('id-ID')}` : 'Belum pernah disimpan ke file.';
   const site = $('siteUrl'); if (site && !site.value) site.placeholder = CONFIG.situs;
+}
+async function muatPeran() {
+  peran = user ? await peranSaya() : { moderator: false, pemilik: false };
+  A().peran = peran;
+  const nav = $('navMod'); if (nav) nav.hidden = !peran.moderator;
+  renderAkun(); bus.emit('peran', peran);
+  if ($('p-pengaturan') && $('p-pengaturan').classList.contains('active')) renderPengaturan();
 }
 
 /* ---------------- sambungkan ke aplikasi ---------------- */
@@ -286,7 +306,9 @@ export function initCloud() {
   A().cloudInfo = () => ({ login: !!user, status });
   A().renderPengaturan = renderPengaturan;
   A().terbitkanRekap = terbitkanRekap;
+  A().peran = peran; A().user = () => user;
   bus.on('save', jadwal);
+  bus.on('log', (aksi, det) => { if (user) catatAksi(aksi, det); });
   bus.on('foto', (c, h, d) => uploadFoto(c, h, d));
   bus.on('fotoHapus', (c, h) => hapusFoto(c, h));
   bus.on('undang', (c, h) => undang(c, h));
@@ -299,8 +321,12 @@ export function initCloud() {
   let pertama = true;
   sb.auth.onAuthStateChange((ev, session) => {
     const u = session ? session.user : null; const ganti = (u && u.id) !== (user && user.id); user = u;
-    if (!user) { setStatus('keluar'); if (!pertama) A().toast('Kamu sudah keluar. Data tetap tersimpan di perangkat ini.'); pertama = false; return; }
-    if (ganti) { setStatus('siap'); setTimeout(sinkronAwal, 0); if (document.getElementById('modal').classList.contains('show') && $('lgGoogle')) A().closeModal(); }
+    if (!user) { sessionStorage.removeItem('mdnd-log-masuk'); setStatus('keluar'); muatPeran(); if (!pertama) A().toast('Kamu sudah keluar. Data tetap tersimpan di perangkat ini.'); pertama = false; return; }
+    if (ganti) {
+      setStatus('siap'); setTimeout(sinkronAwal, 0); muatPeran();
+      if (!sessionStorage.getItem('mdnd-log-masuk')) { sessionStorage.setItem('mdnd-log-masuk', '1'); catatAksi('masuk', 'Meja Pencerita'); }
+      if (document.getElementById('modal').classList.contains('show') && $('lgGoogle')) A().closeModal();
+    }
     pertama = false;
   });
 }

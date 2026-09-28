@@ -51,3 +51,24 @@ export function bindLoginModal(el) {
     msg.textContent = error ? pesanError(error) : `Tautan masuk dikirim ke ${em}. Buka email itu di perangkat ini, lalu klik tautannya.`;
   };
 }
+
+/** Catat aksi ke log moderator (diam bila gagal / belum menjalankan SQL 003). */
+export function catatAksi(aksi, detail = '') {
+  try { sb.rpc('catat_aksi', { p_aksi: aksi, p_detail: String(detail).slice(0, 300) }).then(() => {}, () => {}); } catch (e) { /* abaikan */ }
+}
+/** Peran web: { moderator, pemilik, email }. Aman bila SQL 003 belum dijalankan. */
+export async function peranSaya() {
+  const { data, error } = await sb.rpc('peran_saya');
+  if (error || !data) return { moderator: false, pemilik: false, email: '' };
+  return data;
+}
+/** Buat kode undangan lewat database (GM pemilik campaign atau moderator). */
+export async function buatUndangan(heroId) {
+  const { data, error } = await sb.rpc('buat_undangan', { p_hero: heroId });
+  if (error) throw error; return data;
+}
+/** Pesan WhatsApp siap kirim untuk pemain. */
+export function pesanUndangan(namaHero, namaCampaign, kode) {
+  const link = `${location.origin}/portal?kode=${kode}`;
+  return { link, teks: `Halo *${namaHero}*! 🎲\nKamu diundang ke campaign *${namaCampaign}* di MasteryDnD.\n\n1. Buka link ini: ${link}\n2. Masuk dengan Google atau email\n3. Selesai! Kartu karaktermu langsung muncul.\n\nKode undangan: *${kode}* (berlaku 14 hari, hanya untuk 1 akun)` };
+}

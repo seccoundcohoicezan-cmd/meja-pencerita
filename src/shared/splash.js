@@ -8,6 +8,6 @@ export function splashSelesai() {
   const bar = el.querySelector('.splash-bar span');
   requestAnimationFrame(() => { bar.style.width = '100%'; });
   const tutup = () => { el.classList.add('hide'); setTimeout(() => el.remove(), 600); };
-  setTimeout(tutup, 1500);
+  setTimeout(tutup, 900);
   el.addEventListener('click', tutup, { once: true });
 }

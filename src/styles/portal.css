@@ -22,3 +22,15 @@
 .legal-main { max-width: 860px; margin: 0 auto; width: 100%; }
 .legal-main h1 { font-family: var(--display); color: var(--darah2); margin-top: 0; }
 .legal-main h2 { font-size: 18px; margin-top: 20px; }
+/* Undang pemain */
+.shell-portal .topbar .back-btn { order: -1; }
+.u-cara { padding: 10px 16px; } .u-cara .langkah { margin: 4px 0; } .u-cara .langkah li { padding-bottom: 4px; }
+.u-camp h2 { margin-bottom: 0; }
+.u-row { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; justify-content: space-between; padding: 10px 0; border-top: 1px dashed #c6ad7c; }
+.u-row:first-of-type { margin-top: 8px; }
+.u-info { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.u-info b { font-size: 18px; }
+.u-st { font-size: 14.5px; color: #5b4632; } .ok-st { color: #2e5a2a; } .wait-st { color: #7a5a14; }
+.u-act { display: flex; gap: 6px; flex-wrap: wrap; }
+.u-act .btn { padding: 8px 14px; font-size: 14px; }
+@media (max-width: 560px) { .u-act { width: 100%; } .u-act .btn { flex: 1; } }

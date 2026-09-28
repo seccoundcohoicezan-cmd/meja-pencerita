@@ -127,7 +127,7 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-acak]');if
 document.addEventListener('input',e=>{if(e.target.classList&&e.target.classList.contains('die'))dv(e.target)});
 function download(name,obj){const b=new Blob([JSON.stringify(obj,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}
 function readFile(input,cb){const f=input.files[0];if(!f)return;const r=new FileReader();r.onload=()=>cb(r.result);r.readAsText(f);input.value=''}
-function modal(html){$('modalBody').innerHTML=html;$('modal').classList.add('show')}
+function modal(html){$('modalBody').innerHTML='<button class="modal-x" type="button" aria-label="Tutup" onclick="closeModal()">✕</button>'+html;$('modal').classList.add('show')}
 function closeModal(){$('modal').classList.remove('show')}
 $('modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal()});
 
@@ -178,18 +178,34 @@ function updateChrome(){const on=!!R.genre;$('mainNav').style.display=on?'':'non
 $('changeGenre').onclick=()=>showTab('beranda');
 document.addEventListener('keydown',e=>{if(!$('p-beranda').classList.contains('active')||$('newCampBox').style.display==='none')return;if(['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName))return;const n=parseInt(e.key,10);if(n>=1&&n<=GENRE_ORDER.length)pickGenre(GENRE_ORDER[n-1])});
 
-/* navigasi */
+/* navigasi — setiap halaman tercatat di riwayat, jadi tombol ← dan tombol Back HP/browser selalu bisa kembali */
 const MEJA=['heroes','prompt','load','play','help'];
-function showTab(p){if(p==='genre')p='beranda';if(MEJA.includes(p)&&p!=='help'&&!R.genre)p='beranda';
+const HALAMAN=['beranda','pengaturan','moderator',...MEJA];
+let tabAktif=null,riwayatN=0;
+function halamanDariHash(){const m=location.hash.match(/^#\/([a-z]+)/);return m&&HALAMAN.includes(m[1])?m[1]:null}
+function showTab(p,opt){opt=opt||{};if(p==='genre')p='beranda';if(!HALAMAN.includes(p))p='beranda';if(MEJA.includes(p)&&p!=='help'&&!R.genre)p='beranda';
   if(p==='beranda')renderBeranda();if(p==='heroes')renderHeroes();if(p==='pengaturan'&&bus.app&&bus.app.renderPengaturan)bus.app.renderPengaturan();
   $('mejaWrap').style.display=MEJA.includes(p)?'':'none';
+  $('mejaWrap').classList.toggle('is-help',p==='help');
   document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.p===p));document.querySelectorAll('.page').forEach(x=>x.classList.toggle('active',x.id==='p-'+p));
-  const nav=p==='beranda'?'beranda':p==='pengaturan'?'pengaturan':p==='help'?'help':'heroes';document.querySelectorAll('.snav[data-go]').forEach(b=>{b.classList.toggle('active',b.dataset.go===nav);b.toggleAttribute('aria-current',b.dataset.go===nav)});
-  document.body.classList.remove('menu-open');$('menuToggle').setAttribute('aria-expanded','false');
+  const nav=['beranda','pengaturan','help','moderator'].includes(p)?p:'heroes';document.querySelectorAll('.snav[data-go]').forEach(b=>{b.classList.toggle('active',b.dataset.go===nav);b.toggleAttribute('aria-current',b.dataset.go===nav)});
+  tutupMenu();
+  const beda=p!==tabAktif;tabAktif=p;
+  if(!opt.riwayat){const url='#/'+p;if(opt.ganti||!history.state||!history.state.p)history.replaceState({p,n:riwayatN},'',url);else if(beda){riwayatN++;history.pushState({p,n:riwayatN},'',url)}}
+  $('backBtn').hidden=p==='beranda';
+  if(beda&&!opt.awal)window.scrollTo(0,0);
   if(p==='prompt')renderSys();if(p==='play')renderPlay();bus.emit('tab',p)}
+function kembali(){if(riwayatN>0)history.back();else showTab(MEJA.includes(tabAktif)&&tabAktif!=='heroes'&&R.genre?'heroes':'beranda')}
+window.addEventListener('popstate',e=>{if(location.hash.startsWith('#k='))return;$('modal').classList.remove('show');tutupMenu();
+  const st=e.state||{};riwayatN=st.n||0;const p=st.p||halamanDariHash()||'beranda';if(p!==tabAktif)showTab(p,{riwayat:true})});
+$('backBtn').onclick=kembali;
 document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>showTab(t.dataset.p));
-document.querySelectorAll('.snav[data-go]').forEach(b=>b.onclick=()=>{if(b.dataset.go==='layar'){bus.emit('bukaLayar');return}showTab(b.dataset.go)});
-$('menuToggle').onclick=()=>{const o=document.body.classList.toggle('menu-open');$('menuToggle').setAttribute('aria-expanded',String(o))};
+document.querySelectorAll('.snav[data-go]').forEach(b=>b.onclick=()=>{if(b.dataset.go==='layar'){tutupMenu();bus.emit('bukaLayar');return}showTab(b.dataset.go)});
+function bukaMenu(){document.body.classList.add('menu-open');$('menuToggle').setAttribute('aria-expanded','true');setTimeout(()=>$('menuClose').focus(),50)}
+function tutupMenu(){if(!document.body.classList.contains('menu-open'))return;document.body.classList.remove('menu-open');$('menuToggle').setAttribute('aria-expanded','false')}
+$('menuToggle').onclick=()=>document.body.classList.contains('menu-open')?tutupMenu():bukaMenu();
+$('menuClose').onclick=()=>{tutupMenu();$('menuToggle').focus()};$('scrim').onclick=tutupMenu;
+document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;if($('modal').classList.contains('show'))closeModal();else tutupMenu()});
 
 /* ======================= 1. HEROES ======================= */
 const SK_TYPES=[['bonus','+X ke satu lemparan pahlawan ini'],['bonus_tim','+X ke Serangan Bos tim'],['auto_kritis','Lemparan berikutnya otomatis Kritis'],['perisai','Batalkan luka tim pada satu hasil'],['pulih_semua','Pulihkan X Nyawa semua pahlawan'],['lempar_ulang','Ulangi satu lemparan'],['catat','Hanya dicatat (efek dibacakan GM)']];
@@ -1483,7 +1499,7 @@ function bindRekapSide(){const b=$('rekapWA');if(b&&!b.dataset.b){b.dataset.b=1;
 function endingExtras(){const cloud=bus.app.cloudInfo&&bus.app.cloudInfo().login;const nb=(W.bab||1)+1;
   return `<div class="panel inner-panel"><h3 style="margin-top:0">Rekap sesi</h3><p class="small">Bebas diedit. Rekap tidak memuat twist, catatan GM, maupun opsi yang tidak dipilih.</p>
     <div class="field"><textarea id="rekapTeks" rows="12">${esc(recapText())}</textarea></div>
-    <div class="actions"><button class="btn alt" id="rekapCopy">Salin untuk WhatsApp</button>${cloud?`<button class="btn" id="rekapTerbit">Terbitkan ke portal pemain</button>`:`<span class="small">Masuk ke akun (Pengaturan) untuk menerbitkan rekap ke portal pemain.</span>`}<span id="rekapMsg" class="small"></span></div></div>
+    <div class="actions"><button class="btn alt" id="rekapCopy">Salin untuk WhatsApp</button>${cloud?`<button class="btn" id="rekapTerbit">Terbitkan ke portal pemain</button>`:`<span class="small">Masuk ke akun (menu Akun &amp; Data) untuk menerbitkan rekap ke portal pemain.</span>`}<span id="rekapMsg" class="small"></span></div></div>
    <div class="panel inner-panel"><h3 style="margin-top:0">Lanjut ke Bab ${nb}</h3><p class="small">Tutup bab ini, simpan ke arsip campaign, lalu siapkan cerita Bab ${nb}. Pilih apa yang terbawa:</p>
     <div class="carry">
       <label class="chk"><input type="checkbox" id="cHati" checked> ${esc(T('nyawa'))} terakhir tiap ${esc(T('pahlawan').toLowerCase())} (tidak dicentang = pulih penuh)</label>
@@ -1548,7 +1564,7 @@ window.closeModal=closeModal;
 
 /* ======================= EXPORT / IMPORT ======================= */
 async function exportAllData(){const c=clone(R);Object.values(c.camps||{}).forEach(w=>{delete w.draft;delete w.undo});c.foto=await IDB.all();
-  download(`masterydnd-simpanan-${new Date().toISOString().slice(0,10)}.json`,c);R.backupAt=Date.now();save()}
+  download(`masterydnd-simpanan-${new Date().toISOString().slice(0,10)}.json`,c);R.backupAt=Date.now();save();bus.emit('log','simpan_file')}
 function importData(t){try{const d=JSON.parse(t);
   if(d.adegan&&!d.heroes&&!d.ws&&!d.camps){if(!R.genre){alert('Buka campaign dulu, lalu buka file cerita ini di tab 3.');return}$('storyIn').value=t;showTab('load');loadStoryText(t);return}
   const foto=d.foto||{};const putFoto=()=>Object.entries(foto).forEach(([k,v])=>IDB.set(k,v));
@@ -1567,7 +1583,8 @@ function importData(t){try{const d=JSON.parse(t);
 if(location.hash.startsWith('#k=')){startViewer()}else{
 $('siteUrl').value=R.siteUrl||'';siteHintR();
 updateChrome();
-if(R.genre){renderHeroes();renderSys();showTab(W.sesi&&!W.sesi.ended&&W.story?'play':'heroes')}else showTab('beranda');
+if(R.genre){renderHeroes();renderSys()}
+showTab(halamanDariHash()||(R.genre?(W.sesi&&!W.sesi.ended&&W.story?'play':'heroes'):'beranda'),{ganti:true,awal:true});
 applyTerms(document.body);termObs.observe(document.body,{childList:true,subtree:true,characterData:true});
 }
 
