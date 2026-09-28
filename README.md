@@ -17,8 +17,9 @@ Aplikasi GM tetap bisa dipakai penuh tanpa akun dan tanpa internet; data tersimp
 Buka Supabase → project `jadytrdmntfhudarysdy` → **SQL Editor** → **New query**.
 1. Tempel isi `supabase/001_skema.sql`, klik **Run**.
 2. Tempel isi `supabase/002_pembaruan.sql`, klik **Run**.
+3. Tempel isi `supabase/003_moderator.sql`, klik **Run** (moderator, log aksi, undang pemain).
 
-Keduanya aman dijalankan ulang. Kalau sudah pernah menjalankan file SQL sebelumnya, cukup jalankan `002_pembaruan.sql`.
+Semua aman dijalankan ulang. Kalau 001 dan 002 sudah pernah dijalankan, cukup jalankan `003_moderator.sql`.
 
 ### 2. Atur alamat login di Supabase
 **Authentication → URL Configuration**
@@ -62,15 +63,25 @@ Email bawaan Supabase dibatasi beberapa email per jam. Sebelum dibuka ke banyak 
 
 ---
 
+## Moderator
+- **Pemilik web (terkunci):** `seccoundcohoicezan@gmail.com`. Dikunci di database (`email_pemilik()` di `003_moderator.sql`), bukan di browser, jadi tidak bisa diakali dari aplikasi. Email harus sudah terverifikasi (Google otomatis).
+- Masuk dengan email itu → menu **♛ Moderator** muncul di kiri.
+  - **Log aksi**: siapa masuk/keluar, buat/hapus campaign, mulai/selesai sesi, terbit rekap, buat/pakai undangan, putus pemain, tambah/cabut moderator, hapus akun.
+  - **Kelola akses**: pemilik menambah/mencabut moderator lewat email. Moderator lain hanya bisa melihat daftarnya.
+- **Portal Pemain → Undang Pemain**: GM melihat pahlawan campaign miliknya; moderator melihat semua campaign. Keduanya bisa membuat kode undangan dan memutus pemain.
+- Untuk mengganti email pemilik: ubah teks di fungsi `email_pemilik()` lalu jalankan ulang `003_moderator.sql`.
+
 ## Uji manual setelah deploy (5 menit)
 1. Buka `/`, klik **Masuk** → Google. Nama & foto muncul di kanan atas, status "Tersimpan di cloud".
 2. Buat campaign, tambah pahlawan + foto. Buka situs di HP/perangkat lain dengan akun yang sama → campaign & foto muncul.
-3. Di kartu pahlawan, klik **Undang ke portal pemain**, buka link di browser lain (akun pemain) → kartu tampil.
+3. Buka **Portal Pemain → Undang Pemain**, klik **Buat undangan**, buka link di browser lain (akun pemain) → kartu tampil.
 4. Mulai sesi, kurangi Nyawa pahlawan itu → portal pemain berubah dalam beberapa detik tanpa refresh.
 5. Selesaikan sesi → **Terbitkan ke portal pemain** → rekap muncul di portal.
-6. Buka **Layar Presentasi** dari menu kiri → adegan & hasil tampil di jendela kedua.
+6. Buka **Layar TV** dari menu kiri → adegan & hasil tampil di jendela kedua.
+7. Masuk dengan email pemilik → menu **Moderator** → log aksi berisi langkah-langkah di atas.
+8. Di HP: tombol ☰ membuka menu dengan tombol ✕; tombol ← dan tombol Back HP kembali ke halaman sebelumnya.
 
-Kalau ada langkah gagal, buka Pengaturan & Akun: pesan error sinkronisasi tampil di sana.
+Kalau ada langkah gagal, buka Akun & Data: pesan error sinkronisasi tampil di sana.
 
 ---
 
@@ -87,7 +98,7 @@ npm run build      # hasil ke dist/
 ## Struktur
 ```
 src/core/     logika inti TypeScript + unit test (dadu, skill, peluang, kartu, improvisasi)
-src/app/      aplikasi GM (main.js), cloud.js (Supabase), layar-sender.js
+src/app/      aplikasi GM (main.js), cloud.js (Supabase), moderator.js, layar-sender.js
 src/portal/   portal pemain
 src/layar/    layar presentasi TV
 src/shared/   config, klien Supabase, splash, halaman legal

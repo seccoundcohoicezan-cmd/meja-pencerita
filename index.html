@@ -21,33 +21,37 @@
 
 <div class="shell">
   <header class="topbar noterm">
-    <button class="menu-toggle" id="menuToggle" aria-label="Buka menu" aria-expanded="false">☰</button>
+    <button class="menu-toggle" id="menuToggle" aria-label="Buka menu" aria-expanded="false" aria-controls="sidenav">☰</button>
+    <button class="back-btn" id="backBtn" type="button" aria-label="Kembali" hidden>←<span> Kembali</span></button>
     <a class="brand" href="/" aria-label="MasteryDnD beranda"><img src="/img/logo-kecil.webp" alt="MasteryDnD by Zan" width="186" height="110"></a>
     <p class="motto">Bukan sekadar permainan, ini adalah ujian untuk menjadi legenda.</p>
     <div class="akun" id="akunBox"></div>
   </header>
 
-  <aside class="sidenav noterm" id="sidenav">
+  <aside class="sidenav noterm" id="sidenav" aria-label="Menu">
+    <div class="drawer-head"><img src="/img/logo-kecil.webp" alt="MasteryDnD" width="93" height="55"><button class="drawer-close" id="menuClose" type="button" aria-label="Tutup menu">✕</button></div>
     <nav aria-label="Menu utama">
       <button class="snav" data-go="beranda"><span class="ico">⌂</span>Beranda</button>
       <button class="snav" data-go="heroes"><span class="ico">⚔</span>Meja Pencerita</button>
-      <button class="snav" data-go="layar"><span class="ico">▣</span>Layar Presentasi</button>
-      <button class="snav" data-go="pengaturan"><span class="ico">⚙</span>Pengaturan &amp; Akun</button>
-      <button class="snav" data-go="help"><span class="ico">?</span>Cara Pakai</button>
-      <a class="snav" href="/portal" target="_blank" rel="noopener"><span class="ico">☖</span>Portal Pemain</a>
+      <button class="snav" data-go="layar"><span class="ico">▣</span>Layar TV</button>
+      <a class="snav" href="/portal"><span class="ico">☖</span>Portal Pemain</a>
+      <button class="snav" data-go="pengaturan"><span class="ico">⚙</span>Akun &amp; Data</button>
+      <button class="snav" data-go="help"><span class="ico">?</span>Panduan</button>
+      <button class="snav" data-go="moderator" id="navMod" hidden><span class="ico">♛</span>Moderator</button>
     </nav>
-    <div class="side-art"><img src="/img/seni-kiri.webp" alt="" loading="lazy"><p>Zombie × Cyberpunk<br>Fantasy × Dungeon &amp; Dragon</p></div>
+    <div class="side-art"><img src="/img/seni-kiri.webp" alt="" loading="lazy" width="254" height="507"><p>Zombie × Cyberpunk<br>Fantasy × Dungeon &amp; Dragon</p></div>
   </aside>
+  <div class="scrim" id="scrim" aria-hidden="true"></div>
 
   <main class="content" id="content">
     <!-- ================= BERANDA (daftar campaign) ================= -->
     <section class="page" id="p-beranda">
-      <div class="page-head noterm"><img src="/img/ikon-192.png" alt="" class="emblem"><div><h1>Campaign</h1><p>Pilih campaign untuk dibuka, atau mulai yang baru.</p></div></div>
+      <div class="page-head noterm"><img src="/img/emblem.webp" alt="" class="emblem" width="58" height="58"><div><h1>Campaign</h1><p>Buka campaign, atau buat yang baru.</p></div></div>
       <div id="campList" class="camp-list"></div>
       <div id="newCampBox" class="panel" style="display:none">
         <h2>Campaign baru</h2>
         <div class="field"><label for="newCampName">Nama campaign</label><input id="newCampName" placeholder="contoh: Gerhana di Valmora"></div>
-        <h3>Pilih genre <span class="small">(tekan angka 1–7)</span></h3>
+        <h3>Pilih genre</h3>
         <div class="genre-list noterm" id="genreList"></div>
         <div class="actions"><button class="dbtn" id="cancelNewCamp">Batal</button></div>
       </div>
@@ -55,8 +59,8 @@
 
     <div id="mejaWrap">
       <div class="page-head noterm">
-        <img src="/img/ikon-192.png" alt="" class="emblem">
-        <div class="ph-title"><h1>Meja Pencerita</h1><p id="campTitle">Sistem lengkap: pahlawan, pembuat prompt cerita, dan meja permainan.</p></div>
+        <img src="/img/emblem.webp" alt="" class="emblem" width="58" height="58">
+        <div class="ph-title"><h1>Meja Pencerita</h1><p id="campTitle">Siapkan pahlawan, buat cerita, lalu main.</p></div>
         <div class="ph-actions">
           <span id="genreBadge" class="gbadge noterm" style="display:none"></span>
           <button class="dbtn" id="changeGenre" style="display:none">Ganti campaign</button>
@@ -66,10 +70,9 @@
       </div>
 <nav class="tabs" role="tablist" id="mainNav" aria-label="Langkah Meja Pencerita">
   <button class="tab" data-p="heroes"><span class="n">1</span>Pahlawan</button>
-  <button class="tab" data-p="prompt"><span class="n">2</span>Cerita Baru</button>
-  <button class="tab" data-p="load"><span class="n">3</span>Muat Cerita</button>
+  <button class="tab" data-p="prompt"><span class="n">2</span>Buat Cerita</button>
+  <button class="tab" data-p="load"><span class="n">3</span>Masukkan Cerita</button>
   <button class="tab" data-p="play"><span class="n">4</span>Main</button>
-  <button class="tab" data-p="help">Cara Pakai</button>
 </nav>
 <!-- ================= 1. PAHLAWAN ================= -->
 <section class="page" id="p-heroes">
@@ -137,7 +140,7 @@
   </div>
   <div class="panel" id="promptBox" style="display:none">
     <h2>Prompt siap dikirim</h2>
-    <p class="small">Salin seluruh teks ini, tempel ke AI (misalnya Claude) di percakapan baru. Setelah AI selesai menulis, salin seluruh jawabannya ke tab <b>3. Muat Cerita</b>.</p>
+    <p class="small">Salin seluruh teks ini, tempel ke AI (misalnya Claude) di percakapan baru. Setelah AI selesai menulis, salin seluruh jawabannya ke tab <b>3. Masukkan Cerita</b>.</p>
     <div class="field"><textarea id="promptOut" rows="16" readonly></textarea></div>
     <div class="actions"><button class="btn alt" id="copyPrompt">Salin prompt</button><span id="copyMsg" class="small"></span></div>
   </div>
@@ -146,7 +149,7 @@
 <!-- ================= 3. MUAT CERITA ================= -->
 <section class="page" id="p-load">
   <div class="panel">
-    <h2>Muat Cerita dari AI</h2>
+    <h2>Masukkan Cerita dari AI</h2>
     <p class="small">Tempel <b>seluruh</b> jawaban AI di sini, termasuk blok data JSON di bagian akhirnya. Sistem akan membaca blok data itu.</p>
     <div class="field"><textarea id="storyIn" rows="14" placeholder="Tempel jawaban AI di sini..."></textarea></div>
     <div class="actions"><button class="btn" id="parseStory">Baca cerita</button><label class="dbtn" style="cursor:pointer">Atau buka file .json cerita<input type="file" id="storyFile" accept=".json,application/json" hidden></label></div>
@@ -157,7 +160,7 @@
 
 <!-- ================= 4. MAIN ================= -->
 <section class="page" id="p-play">
-  <div id="playEmpty" class="panel"><h2>Belum ada cerita</h2><p>Muat cerita dulu di tab <b>3. Muat Cerita</b>, lalu klik <b>Mulai sesi baru</b>.</p></div>
+  <div id="playEmpty" class="panel"><h2>Belum ada cerita</h2><p>Masukkan cerita dulu di tab <b>3. Masukkan Cerita</b>, lalu klik <b>Mulai sesi baru</b>.</p></div>
   <div class="play" id="playWrap" style="display:none">
     <aside>
       <div class="panel">
@@ -195,78 +198,35 @@
 
 <!-- ================= CARA PAKAI ================= -->
 <section class="page guide" id="p-help">
+  <div class="page-head noterm"><img src="/img/emblem.webp" alt="" class="emblem" width="58" height="58"><div><h1>Panduan</h1><p>Cara memakai MasteryDnD, langkah demi langkah.</p></div></div>
   <div class="panel">
-<h2>Fitur baru di MasteryDnD</h2>
-<h3>Campaign &amp; akun</h3>
-<p>Beranda menampilkan semua campaign-mu. Satu genre boleh punya banyak campaign. Masuk ke akun (menu <b>Pengaturan &amp; Akun</b>) agar campaign, pahlawan, dan foto tersimpan di cloud dan bisa dibuka dari perangkat lain. Tanpa akun, semua tetap berjalan di perangkat ini.</p>
-<h3>Portal pemain</h3>
-<p>Di kartu pahlawan, klik <b>Undang ke portal pemain</b>. Kirim pesan yang tersalin ke WA pemain. Pemain masuk dengan akunnya, lalu bisa melihat kartu, Nyawa dan jatah Skill Khusus terkini (berubah langsung saat kamu bermain), serta rekap yang kamu terbitkan. Pemain tidak bisa melihat cerita atau twist.</p>
-<h3>Saat bermain</h3>
-<ul>
-<li><b>Lempar &amp; hitung</b>: GM melempar semua dadu sekaligus dan hasil langsung dihitung. Peluang berhasil tampil sebelum melempar.</li>
-<li><b>Batalkan</b>: salah klik? Tekan tombol Batalkan di panel samping, atau pilih langkah di riwayat aksi (maksimal 20 langkah).</li>
-<li><b>Giliran ✦</b>: tanda pahlawan yang sudah beraksi di adegan ini, supaya semua pemain kebagian sorotan.</li>
-<li><b>Improvisasi</b>: acak NPC, nama, barang, kejadian, atau detail lokasi saat pemain keluar dari naskah.</li>
-<li><b>Layar Presentasi</b>: buka lewat menu kiri, seret jendelanya ke TV/proyektor, tekan F11. Layar hanya menampilkan latar, narasi, kondisi party, dan hasil yang sudah diterapkan. Tombol <b>Tutup tirai</b> menyembunyikan layar sementara.</li>
-</ul>
-<h3>Selesai bab</h3>
-<p>Di layar ending, edit rekap lalu salin ke WA atau terbitkan ke portal. Klik <b>Tutup Bab &amp; siapkan Bab berikutnya</b> untuk mengarsipkan bab dan memilih apa yang terbawa (Nyawa, Stack, barang, ramuan, quest, pahlawan gugur). Prompt bab berikutnya otomatis memuat ringkasan dan kondisi party.</p>
-</div>
-<div class="panel">
-    <h2>Cara Pakai Sistem Meja Pencerita</h2>
-    <h3>Langkah 0 — Pilih genre</h3>
-    <ol>
-      <li>Di layar awal, pilih genre: Fantasy, Custom, Archive, Apocalyptic, Zombies, Cyberpunk, atau Mystery. Tekan angka 1–7 untuk memilih cepat.</li>
-      <li>Setiap genre punya <b>daftar pahlawan, cerita, dan sesi sendiri</b>. Berpindah genre tidak menghapus apa pun.</li>
-      <li>Genre mengubah istilah di layar (misalnya Nyawa menjadi Kewarasan di Mystery), menambah kolom build khusus, dan mengatur nada cerita di prompt.</li>
-      <li><b>Custom:</b> kamu mengatur sendiri nama genre, nada, aturan, istilah, dan kolom build.</li>
-      <li>Klik <b>Ganti genre</b> di kanan atas untuk kembali ke layar pilihan.</li>
+    <h2>Panduan singkat</h2>
+    <p>MasteryDnD membantu Game Master (GM) menjalankan permainan cerita. Cukup ikuti 4 langkah ini.</p>
+    <ol class="langkah">
+      <li><b>Buat campaign.</b> Di <b>Beranda</b>, klik <b>Campaign baru</b>, beri nama, lalu pilih genre.</li>
+      <li><b>Isi pahlawan.</b> Tab <b>1. Pahlawan</b> → klik <b>+ Tambah pahlawan</b>. Paling cepat: klik <b>Salin formulir kosong</b>, kirim ke WhatsApp pemain, lalu tempel balasan mereka dan klik <b>Isi dari formulir</b>.</li>
+      <li><b>Buat cerita dengan AI.</b> Tab <b>2. Buat Cerita</b> → tulis garis besar cerita → klik <b>Buat prompt</b> → <b>Salin prompt</b>. Tempel ke AI (misalnya Claude), lalu salin seluruh jawabannya.</li>
+      <li><b>Main.</b> Tab <b>3. Masukkan Cerita</b> → tempel jawaban AI → <b>Baca cerita</b> → <b>Mulai sesi baru</b>. Di tab <b>4. Main</b>, bacakan narasi, pilih opsi, lempar dadu, lalu klik <b>Terapkan</b>.</li>
     </ol>
-    <h3>Langkah 1 — Isi pahlawan (sekali per genre)</h3>
-    <ol>
-      <li>Buka tab <b>1. Pahlawan</b>. Baca kotak <b>Aturan Genre</b> di atas: di sana tertulis apa saja yang harus dibuild setiap pemain.</li>
-      <li>Klik <b>+ Tambah pahlawan</b>. Kolom <b>Build khusus genre</b> wajib diisi.</li>
-      <li>Isi nama, kelas, senjata, <b>dadu kelas</b>, bonus dadu, nyawa, kemampuan dasar, Skill Khusus, Skill Pengorbanan, dan kepribadian.</li>
-      <li>Pilih juga <b>efek mekanis</b> skill agar sistem bisa menghitungnya otomatis. Kalau tidak cocok dengan pilihan yang ada, pilih "Hanya dicatat".</li>
-      <li>Semua tersimpan otomatis di browser. Klik <b>Simpan semua ke file</b> di kanan atas untuk cadangan.</li>
+    <p class="small">Salah klik? Tekan <b>Batalkan</b> di panel kiri saat bermain. Tombol <b>←</b> di atas selalu membawamu ke halaman sebelumnya.</p>
+  </div>
+  <div class="panel">
+    <h2>Pemain ikut melihat kartunya</h2>
+    <ol class="langkah">
+      <li>Masuk ke akun (menu <b>Akun &amp; Data</b>).</li>
+      <li>Buka <b>Portal Pemain</b> → <b>Undang Pemain</b>, atau buka kartu pahlawan lalu klik <b>Undang ke portal pemain</b>.</li>
+      <li>Kirim pesan yang tersalin ke WhatsApp pemain. Pemain membuka link, masuk, dan kartunya langsung muncul.</li>
     </ol>
-    <h3>Langkah 1b — Formulir WhatsApp</h3>
-    <ol>
-      <li>Di tab <b>1. Pahlawan</b>, klik <b>Salin formulir kosong</b> lalu kirim ke pemain lewat WA.</li>
-      <li>Pemain mengisi setelah tanda titik dua dan mengirim balik. Mereka juga membuat <b>password kartu</b> sendiri.</li>
-      <li>Tempel semua balasan (boleh beberapa sekaligus) di kotak <b>Tempel balasan formulir</b>, lalu klik <b>Isi dari formulir</b>. Semua kolom langsung terisi.</li>
-      <li>Jika "Langsung lempar bonus &amp; sifat" dicentang, sistem otomatis melempar <b>bonus dadu (d4 + 1)</b> dan <b>sifat baik + sifat buruk (d20)</b>.</li>
-    </ol>
-    <h3>Langkah 1c — Kartu karakter</h3>
-    <ol>
-      <li>Buka kartu pahlawan, klik <b>Pilih foto</b> (opsional). Foto disimpan di browser ini saja.</li>
-      <li><b>Unduh kartu (PNG)</b> menghasilkan kartu 1080 × 1920 piksel (ukuran story HP), lengkap dengan foto.</li>
-      <li><b>Salin link + pesan WA</b> membuat link kartu yang dikunci dengan password pemain, lalu menyalin pesan siap kirim. Link ini hanya bekerja setelah kamu mengisi <b>Alamat situs</b> (alamat Vercel).</li>
-      <li>Saat pemain membuka link, mereka memasukkan password sendiri, lalu bisa menambahkan foto dan mengunduh kartunya. Foto di link tidak ikut tersimpan online.</li>
-    </ol>
-    <h3>Langkah 2 — Buat prompt cerita</h3>
-    <ol>
-      <li>Buka tab <b>2. Cerita Baru</b>. Isi judul, ending, pahlawan yang ikut, dan plot kasar.</li>
-      <li>Lihat tabel <b>peluang sukses</b> dan <b>peluang melawan bos</b> untuk memastikan kelompokmu seimbang.</li>
-      <li>Klik <b>Buat prompt</b>, lalu <b>Salin prompt</b>.</li>
-      <li>Buka AI (misalnya Claude) di percakapan baru, tempel, dan kirim.</li>
-    </ol>
-    <h3>Langkah 3 — Muat cerita</h3>
-    <ol>
-      <li>Salin <b>seluruh</b> jawaban AI, termasuk blok data JSON di bagian paling bawah.</li>
-      <li>Tempel di tab <b>3. Muat Cerita</b> dan klik <b>Baca cerita</b>.</li>
-      <li>Jika ada peringatan, baca pesannya. Biasanya cukup minta AI: "tulis ulang blok JSON-nya saja sesuai format".</li>
-      <li>Klik <b>Mulai sesi baru</b>.</li>
-    </ol>
-    <h3>Langkah 4 — Bermain</h3>
-    <ol>
-      <li>Buka <b>📜 Ringkasan cerita</b> di atas adegan kapan saja untuk melihat alur keseluruhan, twist, tokoh, dan takdir gugur. Khusus GM.</li>
-      <li>Baca kotak <b>Latar</b> (tempat, waktu, cuaca, suasana), lalu bacakan kotak narasi. Tanya pemain memilih opsi A, B, C...</li>
-      <li>Jika adegan punya <b>Takdir</b>, pahlawan yang disebut langsung gugur saat adegan dibuka: Nyawanya habis, tidak bisa dipulihkan, dan tidak ikut lemparan lagi. Salah klik? Klik hatinya untuk membatalkan.</li>
-      <li>Klik <b>Mainkan opsi ini</b>. Sistem membuka kalkulator sesuai jenis tantangan: Solo, Kelompok, Serangan Bos, atau Duel.</li>
-      <li>Ketik dadu tiap pemain (atau klik Acak), klik <b>Hitung</b>, bacakan hasilnya, lalu klik <b>Terapkan</b>. Nyawa, Stack, ramuan, dan barang berubah otomatis.</li>
-      <li>Klik tombol <b>Lanjut ke Adegan ...</b> yang muncul. Setelah adegan terakhir, sistem menampilkan ending sesuai Stack Bayangan.</li>
-    </ol>
+    <p class="small">Pemain hanya melihat kartu, sisa Nyawa, dan rekap yang kamu terbitkan. Cerita dan rahasia GM tetap tersembunyi.</p>
+  </div>
+  <div class="panel">
+    <h2>Layar TV</h2>
+    <p>Klik <b>Layar TV</b> di menu, seret jendela yang terbuka ke TV/proyektor, lalu tekan F11. Saat bermain, klik <b>Tampilkan adegan ini</b>. <b>Tutup tirai</b> menyembunyikan layar sementara.</p>
+  </div>
+  <div class="panel">
+    <h2>Aturan lengkap</h2>
+    <p class="small">Tidak wajib dibaca di awal. Buka bila perlu.</p>
+    <details class="gm"><summary>Aturan dadu, skill, dan ability</summary>
     <h3>Skill di meja permainan</h3>
     <ol>
       <li><b>Skill Khusus</b> (tombol ⚡ di panel kiri): 3x per cerita. Jika efeknya bonus, bonus itu "aktif" dan otomatis masuk ke lemparan berikutnya pahlawan itu. Jika efeknya perisai, perisai otomatis membatalkan luka tim pada hasil berikutnya.</li>
@@ -296,6 +256,8 @@
       <li><b>Kejadian acak d100:</b> di setiap adegan ada kotak Kejadian Acak. Jika GM mau, lempar d10 persen (puluhan) + d10 (satuan), ketik hasilnya, klik Cek kejadian, lalu Terapkan efek. Kejadian yang mengubah tingkat akan otomatis berlaku di tantangan berikutnya.</li>
       <li>Tingkat kesulitan bisa diganti GM di kalkulator sebelum menghitung.</li>
     </ol>
+  
+    </details>
   </div>
 </section>
 
@@ -304,24 +266,30 @@
 
     <!-- ================= PENGATURAN ================= -->
     <section class="page" id="p-pengaturan">
-      <div class="page-head noterm"><img src="/img/ikon-192.png" alt="" class="emblem"><div><h1>Pengaturan &amp; Akun</h1><p>Sinkronisasi cloud, portal pemain, dan cadangan data.</p></div></div>
+      <div class="page-head noterm"><img src="/img/emblem.webp" alt="" class="emblem" width="58" height="58"><div><h1>Akun &amp; Data</h1><p>Masuk, simpan online, dan cadangan file.</p></div></div>
       <div class="panel" id="cloudPanel"></div>
       <div class="panel">
-        <h2>Cadangan data</h2>
-        <p class="small">Semua data tetap tersimpan di perangkat ini dan bisa dipakai tanpa internet. Simpan ke file secara berkala sebagai cadangan tambahan.</p>
+        <h2>Cadangan file</h2>
+        <p class="small">Data selalu tersimpan di perangkat ini. Simpan juga ke file sesekali supaya aman.</p>
         <div class="actions"><button class="btn alt" id="exportAll2">Simpan semua ke file</button><label class="dbtn" style="cursor:pointer">Buka file simpanan<input type="file" id="importAll2" accept=".json,application/json" hidden></label></div>
         <p class="small" id="backupInfo"></p>
       </div>
       <div class="panel">
-        <h2>Link kartu tanpa akun (cara lama)</h2>
+        <details class="gm"><summary>Link kartu tanpa akun (cara lama)</summary>
         <p class="small">Untuk pemain yang tidak memakai portal. Link dikunci dengan password pemain (minimal 8 karakter).</p>
         <h3>Alamat situs untuk link kartu</h3>
         <div class="row"><input class="s noterm" id="siteUrl" placeholder="https://dndmastery.vercel.app" style="flex:1"></div>
-        <p class="small" id="siteHint"></p>
+        <p class="small" id="siteHint"></p></details>
       </div>
       <div class="panel small legal-links">
         <a href="/privasi" target="_blank" rel="noopener">Kebijakan Privasi</a> · <a href="/syarat" target="_blank" rel="noopener">Syarat Penggunaan</a> · <a href="/atribusi" target="_blank" rel="noopener">Atribusi &amp; Lisensi</a>
       </div>
+    </section>
+
+    <!-- ================= MODERATOR ================= -->
+    <section class="page" id="p-moderator">
+      <div class="page-head noterm"><img src="/img/emblem.webp" alt="" class="emblem" width="58" height="58"><div><h1>Moderator</h1><p>Lihat aktivitas web dan atur siapa yang jadi moderator.</p></div></div>
+      <div id="modPanel"></div>
     </section>
   </main>
   <footer class="footbar noterm"><span>Master your story</span></footer>
