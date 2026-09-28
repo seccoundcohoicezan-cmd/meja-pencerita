@@ -174,9 +174,20 @@
 <section class="page" id="p-play">
   <div id="playEmpty" class="panel"><h2>Belum ada cerita</h2><p>Masukkan cerita dulu di tab <b>3. Masukkan Cerita</b>, lalu klik <b>Mulai sesi baru</b>.</p></div>
   <div class="play" id="playWrap" style="display:none">
+    <div class="fk-bar" id="fkBar" role="toolbar" aria-label="Mode Fokus Pencerita">
+      <span class="fk-label">🎯 Mode Fokus</span>
+      <div class="fk-prog"><b id="fkJudul">Adegan</b><div class="fk-meter" aria-hidden="true"><i id="fkMeter"></i></div></div>
+      <div class="fk-aksi">
+        <button class="dbtn" id="fkPrev" type="button" title="Adegan sebelumnya (←)">← Sebelumnya</button>
+        <button class="dbtn" id="fkNext" type="button" title="Adegan berikutnya (→)">Berikutnya →</button>
+        <button class="dbtn" id="fkUndo" type="button" title="Batalkan aksi terakhir">↶ Batalkan</button>
+        <button class="dbtn" id="fkFull" type="button" title="Layar penuh">⛶ Layar penuh</button>
+        <button class="btn" id="fkKeluar" type="button" title="Keluar Mode Fokus (Esc)">✕ Keluar</button>
+      </div>
+    </div>
     <aside>
       <div class="panel">
-        <div class="ptitle-row"><h2 id="pTitle">Cerita</h2><button class="dbtn" id="contekBtn" type="button">❓ Contekan GM</button></div>
+        <div class="ptitle-row"><h2 id="pTitle">Cerita</h2><div class="row" style="margin:0"><button class="btn fk-masuk" id="fokusBtn" type="button" title="Mode Fokus Pencerita (tombol F)">🎯 Mode Fokus</button><button class="dbtn" id="contekBtn" type="button">❓ Contekan GM</button></div></div>
         <div id="party"></div><div id="giliranInfo"></div>
         <h3>Stack Bayangan</h3>
         <div class="sbbox"><div class="sbnum" id="sbNum">0</div>
@@ -186,9 +197,9 @@
         <h3>Ramuan</h3>
         <div class="row" style="margin:0"><button class="mini" data-ram="-1" aria-label="Kurangi ramuan">−</button><b id="ramNum" style="min-width:24px;text-align:center">0</b><button class="mini" data-ram="1" aria-label="Tambah ramuan">+</button>
           <select class="s" id="potTarget" style="flex:1"></select><button class="dbtn" id="usePot">Minum</button></div>
-        <h3>Quest</h3><div id="questList" class="small"></div>
+        <div class="fk-sembunyi"><h3>Quest</h3><div id="questList" class="small"></div>
         <h3>Barang &amp; hadiah</h3><div id="itemList" class="small"></div>
-        <div class="row" style="margin-top:6px"><input class="s" id="itemIn" placeholder="tambah barang..." style="flex:1"><button class="dbtn" id="addItem">+</button></div>
+        <div class="row" style="margin-top:6px"><input class="s" id="itemIn" placeholder="tambah barang..." style="flex:1"><button class="dbtn" id="addItem">+</button></div></div>
       </div>
       <div class="panel"><h2>Batalkan &amp; riwayat</h2><div id="undoBox"></div></div>
       <div class="panel"><h2>Catatan Sesi</h2><div class="log" id="log"></div><div class="actions"><button class="dbtn" id="rekapWA" type="button">Salin rekap untuk WhatsApp</button></div></div>
@@ -205,6 +216,11 @@
         <div id="scene"></div>
       </div>
     </main>
+    <div class="fk-kanan" id="fkKanan">
+      <div class="panel"><h2 class="fk-h">🎲 Dadu</h2><div id="fkRoller"><p class="small fk-kosong">Pilih salah satu <b>opsi pemain</b> di tengah. Penghitung dadu muncul di sini.</p></div></div>
+      <div class="panel" id="fkArah"></div>
+      <p class="small fk-pintas">Pintasan: <kbd>←</kbd> <kbd>→</kbd> pindah adegan · <kbd>F</kbd> fokus · <kbd>Esc</kbd> keluar</p>
+    </div>
   </div>
 </section>
 
@@ -284,6 +300,14 @@
     <h3>Uji ability (tombol 🎲 Uji)</h3>
     <p>Dipakai saat pahlawan harus <b>menahan</b> sesuatu: <b>d20 + ability ≥ DC</b>. Contoh: Kaelen menghirup asap racun → Uji <b>Tahan</b> DC 13 → d20 = 11, +1 = 12 → gagal menahan, GM mengurangi 1 hati.</p>
     <p class="small">Di halaman Main, tombol <b>❓ Contekan GM</b> menjelaskan kapan memakai tiap jenis lemparan.</p>
+  </div>
+  <div class="panel">
+    <h2>🎯 Mode Fokus Pencerita</h2>
+    <p>Di tab <b>4. Main</b>, klik <b>🎯 Mode Fokus</b> (atau tekan <kbd>F</kbd>). Menu dan panel lain disembunyikan, layar dibagi tiga:</p>
+    <ul class="guide-ul"><li><b>Kiri</b>: hati, Skill Khusus, Pengorbanan, ⚔ Diserang, 🎲 Uji, Stack Bayangan, ramuan.</li>
+      <li><b>Tengah</b>: narasi dengan huruf besar, pilihan pemain, dan tombol Layar TV.</li>
+      <li><b>Kanan</b>: penghitung dadu dan <b>🧭 Arah cerita</b>, yaitu ending yang sedang dituju, jarak ke ending lain, adegan berikutnya, serta saran (pahlawan kritis, quest terbuka, dll.).</li></ul>
+    <p class="small">Pintasan: <kbd>←</kbd> <kbd>→</kbd> pindah adegan · <kbd>F</kbd> masuk/keluar · <kbd>Esc</kbd> keluar · tombol <b>⛶ Layar penuh</b> menyembunyikan bilah browser.</p>
   </div>
   <div class="panel">
     <h2>Layar TV</h2>

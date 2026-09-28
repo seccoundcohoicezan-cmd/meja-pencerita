@@ -12,6 +12,7 @@ Alat bercerita untuk Game Master: pahlawan, pembuat prompt cerita, kalkulator da
 - **Panduan pemain (PDF)**: `/panduan-pemain.pdf`.
 - **Pertahanan (AC) — pakem**: pemain mengocok **1 d20 fisik sekali di awal**; GM memasukkannya lalu klik **🔒 Kunci Pertahanan** (atau lewat baris *Pertahanan* di formulir WA). Setelah terkunci, database menolak setiap perubahan. Tombol **⚔ Diserang** (serangan musuh / mendadak) melempar d20 + bonus musuh (Lemah +2 · Biasa +4 · Kuat +6 · Bos +8); hasil ≥ Pertahanan = −1 Nyawa (20 = −2, 1 = luput).
 - **Uji ability** (tombol **🎲 Uji**): d20 + ability ≥ DC saat pahlawan harus menahan racun, jebakan, rasa takut, dst. Tahan (CON) sekarang punya fungsi.
+- **🎯 Mode Fokus Pencerita** (tab Main, tombol F): layar tiga kolom tanpa distraksi — pahlawan/Stack/ramuan · narasi & opsi · dadu & Arah cerita (dari data cerita, offline). Pintasan ←/→, Esc, layar penuh. Tombol ⚔ Diserang kini bisa langsung mengunci Pertahanan bila belum.
 - **Dadu digital** di Portal Pemain, bisa dinyalakan/dimatikan moderator di **Moderator → Pengaturan** (berlaku untuk semua pemain); **❓ Contekan GM** di halaman Main.
 
 ---
@@ -83,6 +84,7 @@ Aplikasi hanya memakai Google. Kamu boleh mematikan provider **Email** di Supaba
 2. Buat campaign, tambah pahlawan + foto, klik **Atur posisi foto** (coba mode *Tampilkan utuh*). Buka situs di HP/perangkat lain dengan akun yang sama → campaign & foto muncul.
 3. Buka **Portal Pemain → Kode Pemain**, klik **Buat kode**, buka link di jendela penyamaran (tanpa login) → kartu & foto tampil utuh.
 4. Mulai sesi, kurangi Hati pahlawan itu → portal pemain berubah dalam ±20 detik tanpa refresh.
+4a. Masuk **🎯 Mode Fokus**, pilih opsi → dadu muncul di kanan; tekan → untuk adegan berikutnya, Esc untuk keluar.
 4a. Kunci Pertahanan satu pahlawan (mis. 14), lalu coba ubah lagi → tidak bisa. Klik **⚔ Diserang** dan **🎲 Uji** pada pahlawan → hasil tercatat di riwayat dan bisa dibatalkan.
 4b. Selesaikan sesi → buka lagi link tadi → muncul pesan kode sudah tidak berlaku.
 5. Selesaikan sesi → **Terbitkan ke portal pemain** → rekap muncul di portal.
