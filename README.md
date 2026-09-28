@@ -10,6 +10,9 @@ Alat bercerita untuk Game Master: pahlawan, pembuat prompt cerita, kalkulator da
 - **Game Master wajib masuk dengan Google** sebelum memakai Meja Pencerita. Data tetap disimpan juga di perangkat (bisa lanjut saat sinyal putus), dan dipisah per akun.
 - **Pemain tidak perlu login**: cukup link/kode 8 huruf dari GM di `/portal`. Kode hangus otomatis saat sesi selesai, bab berganti, atau GM membuat kode baru.
 - **Panduan pemain (PDF)**: `/panduan-pemain.pdf`.
+- **Pertahanan (AC) — pakem**: pemain mengocok **1 d20 fisik sekali di awal**; GM memasukkannya lalu klik **🔒 Kunci Pertahanan** (atau lewat baris *Pertahanan* di formulir WA). Setelah terkunci, database menolak setiap perubahan. Tombol **⚔ Diserang** (serangan musuh / mendadak) melempar d20 + bonus musuh (Lemah +2 · Biasa +4 · Kuat +6 · Bos +8); hasil ≥ Pertahanan = −1 Nyawa (20 = −2, 1 = luput).
+- **Uji ability** (tombol **🎲 Uji**): d20 + ability ≥ DC saat pahlawan harus menahan racun, jebakan, rasa takut, dst. Tahan (CON) sekarang punya fungsi.
+- **Dadu digital** di Portal Pemain, bisa dinyalakan/dimatikan moderator di **Moderator → Pengaturan** (berlaku untuk semua pemain); **❓ Contekan GM** di halaman Main.
 
 ---
 
@@ -21,8 +24,9 @@ Buka Supabase → project `jadytrdmntfhudarysdy` → **SQL Editor** → **New qu
 2. Tempel isi `supabase/002_pembaruan.sql`, klik **Run**.
 3. Tempel isi `supabase/003_moderator.sql`, klik **Run** (moderator & log aksi).
 4. Tempel isi `supabase/004_kode_tanpa_login.sql`, klik **Run** (kode kartu tanpa login).
+5. Tempel isi `supabase/005_pertahanan_pengaturan.sql`, klik **Run** (Pertahanan terkunci & sakelar dadu digital).
 
-Semua aman dijalankan ulang, urut 001 → 004. Kalau 001–003 sudah pernah dijalankan, cukup jalankan `004_kode_tanpa_login.sql`.
+Semua aman dijalankan ulang, urut 001 → 005. Kalau 001–004 sudah pernah dijalankan, cukup jalankan `005_pertahanan_pengaturan.sql`.
 
 ### 2. Atur alamat login di Supabase
 **Authentication → URL Configuration**
@@ -79,6 +83,7 @@ Aplikasi hanya memakai Google. Kamu boleh mematikan provider **Email** di Supaba
 2. Buat campaign, tambah pahlawan + foto, klik **Atur posisi foto** (coba mode *Tampilkan utuh*). Buka situs di HP/perangkat lain dengan akun yang sama → campaign & foto muncul.
 3. Buka **Portal Pemain → Kode Pemain**, klik **Buat kode**, buka link di jendela penyamaran (tanpa login) → kartu & foto tampil utuh.
 4. Mulai sesi, kurangi Hati pahlawan itu → portal pemain berubah dalam ±20 detik tanpa refresh.
+4a. Kunci Pertahanan satu pahlawan (mis. 14), lalu coba ubah lagi → tidak bisa. Klik **⚔ Diserang** dan **🎲 Uji** pada pahlawan → hasil tercatat di riwayat dan bisa dibatalkan.
 4b. Selesaikan sesi → buka lagi link tadi → muncul pesan kode sudah tidak berlaku.
 5. Selesaikan sesi → **Terbitkan ke portal pemain** → rekap muncul di portal.
 6. Buka **Layar TV** dari menu kiri → adegan & hasil tampil di jendela kedua.

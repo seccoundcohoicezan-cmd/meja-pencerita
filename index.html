@@ -176,7 +176,7 @@
   <div class="play" id="playWrap" style="display:none">
     <aside>
       <div class="panel">
-        <h2 id="pTitle">Cerita</h2>
+        <div class="ptitle-row"><h2 id="pTitle">Cerita</h2><button class="dbtn" id="contekBtn" type="button">❓ Contekan GM</button></div>
         <div id="party"></div><div id="giliranInfo"></div>
         <h3>Stack Bayangan</h3>
         <div class="sbbox"><div class="sbnum" id="sbNum">0</div>
@@ -228,7 +228,7 @@
     <ol class="langkah">
       <li>Di kartu pahlawan klik <b>Buat kode untuk pemain</b>, atau buka <b>Portal Pemain → Kode Pemain</b>.</li>
       <li>Kirim pesan yang tersalin ke WhatsApp pemain. Isinya link dan kode 8 huruf.</li>
-      <li>Pemain membuka link. Kartu, sisa hati, dan rekap langsung tampil tanpa login.</li>
+      <li>Pemain membuka link. Kartu, sisa hati, dan rekap langsung tampil tanpa login. Dadu digital di portal bisa dinyalakan/dimatikan moderator (menu Moderator → Pengaturan).</li>
     </ol>
     <p class="small">Kode <b>hangus otomatis</b> saat sesi selesai atau bab berganti. Buat kode baru untuk sesi berikutnya. Pemain tidak bisa melihat cerita atau rahasia GM.</p>
   </div>
@@ -259,6 +259,31 @@
       <li><b>Pasif</b> (tanpa lempar) = 10 + angka skill. Perception pasif Kaelen <b>12</b>: jebakan dengan DC 12 ke bawah otomatis ia sadari.</li>
       <li><b>Skill Bantuan</b>: satu pahlawan membantu sebelum tantangan utama. Contoh: Arcana DC 15 membaca rune → bila berhasil, tantangan berikutnya turun satu tingkat.</li>
     </ul>
+  </div>
+  <div class="panel">
+    <h2>Ability &amp; Pertahanan (AC): versi sederhana</h2>
+    <p>Enam angka di kartu menunjukkan seberapa jago pahlawan. <b>Plus</b> = jago, <b>minus</b> = kurang jago. Angka ini ditambahkan ke <b>d20</b>.</p>
+    <div class="scroll"><table class="grid"><tr><th>Di kartu</th><th>Artinya</th><th>Dipakai untuk</th></tr>
+      <tr><td>💪 <b>Kuat</b> (STR)</td><td>tenaga</td><td>memanjat, mendobrak, tetap berdiri saat didorong</td></tr>
+      <tr><td>🤸 <b>Lincah</b> (DEX)</td><td>gesit</td><td>menyelinap, menghindari jebakan, melompat</td></tr>
+      <tr><td>🛡️ <b>Tahan</b> (CON)</td><td>daya tahan tubuh</td><td>menahan racun, lelah, dingin, sakit</td></tr>
+      <tr><td>🧠 <b>Pintar</b> (INT)</td><td>akal &amp; ingatan</td><td>menyelidiki, sejarah, sihir, ilusi</td></tr>
+      <tr><td>👁️ <b>Peka</b> (WIS)</td><td>naluri</td><td>melihat bahaya, membaca orang, merawat luka, rasa takut</td></tr>
+      <tr><td>✨ <b>Pesona</b> (CHA)</td><td>wibawa</td><td>membujuk, berbohong, menakut-nakuti, melawan kutukan</td></tr></table></div>
+    <h3>Pertahanan (Armor Class / AC): pakem</h3>
+    <p class="rumus"><span>Pertahanan</span> = <span>hasil 1 d20</span> yang dikocok pemain <b>sekali di awal</b></p>
+    <ol class="langkah">
+      <li>Pemain mengocok <b>1 d20 fisik</b> di depan GM (atau menulis hasilnya di formulir WA, baris <b>Pertahanan</b>).</li>
+      <li>GM memasukkan angkanya di kartu pahlawan lalu klik <b>🔒 Kunci Pertahanan</b>.</li>
+      <li>Angka itu <b>terkunci selamanya</b> dan tidak bisa diubah siapa pun, juga dari perangkat lain.</li>
+    </ol>
+    <div class="contoh"><p class="contoh-j">Saat ada serangan mendadak (tombol ⚔ Diserang)</p>
+      <ol><li>GM memilih kekuatan musuh: Lemah +2 · Biasa +4 · Kuat +6 · Bos +8.</li>
+      <li>GM melempar d20 + bonus musuh. Contoh: prajurit (Biasa) 9 + 4 = 13.</li>
+      <li>Pertahanan Kaelen 14 → 13 &lt; 14 → <b>luput</b>. Jika hasilnya 14 atau lebih → <b>kena, −1 hati</b>. Angka 20 selalu kena (−2), angka 1 selalu luput.</li></ol></div>
+    <h3>Uji ability (tombol 🎲 Uji)</h3>
+    <p>Dipakai saat pahlawan harus <b>menahan</b> sesuatu: <b>d20 + ability ≥ DC</b>. Contoh: Kaelen menghirup asap racun → Uji <b>Tahan</b> DC 13 → d20 = 11, +1 = 12 → gagal menahan, GM mengurangi 1 hati.</p>
+    <p class="small">Di halaman Main, tombol <b>❓ Contekan GM</b> menjelaskan kapan memakai tiap jenis lemparan.</p>
   </div>
   <div class="panel">
     <h2>Layar TV</h2>
