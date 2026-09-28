@@ -7,7 +7,9 @@ Alat bercerita untuk Game Master: pahlawan, pembuat prompt cerita, kalkulator da
 - **Layar Presentasi**: `/layar` (dibuka dari aplikasi GM)
 - **Legal**: `/privasi`, `/syarat`, `/atribusi`
 
-Aplikasi GM tetap bisa dipakai penuh tanpa akun dan tanpa internet; data tersimpan di browser. Akun (Supabase) menambah sinkronisasi cloud, foto di cloud, dan portal pemain.
+- **Game Master wajib masuk dengan Google** sebelum memakai Meja Pencerita. Data tetap disimpan juga di perangkat (bisa lanjut saat sinyal putus), dan dipisah per akun.
+- **Pemain tidak perlu login**: cukup link/kode 8 huruf dari GM di `/portal`. Kode hangus otomatis saat sesi selesai, bab berganti, atau GM membuat kode baru.
+- **Panduan pemain (PDF)**: `/panduan-pemain.pdf`.
 
 ---
 
@@ -17,9 +19,10 @@ Aplikasi GM tetap bisa dipakai penuh tanpa akun dan tanpa internet; data tersimp
 Buka Supabase → project `jadytrdmntfhudarysdy` → **SQL Editor** → **New query**.
 1. Tempel isi `supabase/001_skema.sql`, klik **Run**.
 2. Tempel isi `supabase/002_pembaruan.sql`, klik **Run**.
-3. Tempel isi `supabase/003_moderator.sql`, klik **Run** (moderator, log aksi, undang pemain).
+3. Tempel isi `supabase/003_moderator.sql`, klik **Run** (moderator & log aksi).
+4. Tempel isi `supabase/004_kode_tanpa_login.sql`, klik **Run** (kode kartu tanpa login).
 
-Semua aman dijalankan ulang. Kalau 001 dan 002 sudah pernah dijalankan, cukup jalankan `003_moderator.sql`.
+Semua aman dijalankan ulang, urut 001 → 004. Kalau 001–003 sudah pernah dijalankan, cukup jalankan `004_kode_tanpa_login.sql`.
 
 ### 2. Atur alamat login di Supabase
 **Authentication → URL Configuration**
@@ -58,8 +61,8 @@ Setiap `git push` ke `main` otomatis men-deploy ulang.
 - Untuk dibuka ke publik: klik **Publish app**. Google meminta URL kebijakan privasi → isi `https://dndmastery.vercel.app/privasi`, dan URL syarat → `https://dndmastery.vercel.app/syarat`.
 - **Keamanan**: client secret yang pernah terkirim di chat sebaiknya dirotasi (Credentials → OAuth client → **Add secret**, pasang yang baru di Supabase → Authentication → Providers → Google, lalu hapus yang lama).
 
-### 6. Email login (tanpa Google)
-Email bawaan Supabase dibatasi beberapa email per jam. Sebelum dibuka ke banyak orang, pasang SMTP sendiri (misal Resend) di **Authentication → Emails → SMTP Settings**.
+### 6. Login email
+Aplikasi hanya memakai Google. Kamu boleh mematikan provider **Email** di Supabase → Authentication → Providers.
 
 ---
 
@@ -68,14 +71,15 @@ Email bawaan Supabase dibatasi beberapa email per jam. Sebelum dibuka ke banyak 
 - Masuk dengan email itu → menu **♛ Moderator** muncul di kiri.
   - **Log aksi**: siapa masuk/keluar, buat/hapus campaign, mulai/selesai sesi, terbit rekap, buat/pakai undangan, putus pemain, tambah/cabut moderator, hapus akun.
   - **Kelola akses**: pemilik menambah/mencabut moderator lewat email. Moderator lain hanya bisa melihat daftarnya.
-- **Portal Pemain → Undang Pemain**: GM melihat pahlawan campaign miliknya; moderator melihat semua campaign. Keduanya bisa membuat kode undangan dan memutus pemain.
+- **Portal Pemain → Kode Pemain**: GM melihat pahlawan campaign miliknya; moderator melihat semua campaign. Keduanya bisa membuat, menyalin, dan menghanguskan kode, serta melihat berapa kali kartu dibuka.
 - Untuk mengganti email pemilik: ubah teks di fungsi `email_pemilik()` lalu jalankan ulang `003_moderator.sql`.
 
 ## Uji manual setelah deploy (5 menit)
 1. Buka `/`, klik **Masuk** → Google. Nama & foto muncul di kanan atas, status "Tersimpan di cloud".
-2. Buat campaign, tambah pahlawan + foto. Buka situs di HP/perangkat lain dengan akun yang sama → campaign & foto muncul.
-3. Buka **Portal Pemain → Undang Pemain**, klik **Buat undangan**, buka link di browser lain (akun pemain) → kartu tampil.
-4. Mulai sesi, kurangi Nyawa pahlawan itu → portal pemain berubah dalam beberapa detik tanpa refresh.
+2. Buat campaign, tambah pahlawan + foto, klik **Atur posisi foto** (coba mode *Tampilkan utuh*). Buka situs di HP/perangkat lain dengan akun yang sama → campaign & foto muncul.
+3. Buka **Portal Pemain → Kode Pemain**, klik **Buat kode**, buka link di jendela penyamaran (tanpa login) → kartu & foto tampil utuh.
+4. Mulai sesi, kurangi Hati pahlawan itu → portal pemain berubah dalam ±20 detik tanpa refresh.
+4b. Selesaikan sesi → buka lagi link tadi → muncul pesan kode sudah tidak berlaku.
 5. Selesaikan sesi → **Terbitkan ke portal pemain** → rekap muncul di portal.
 6. Buka **Layar TV** dari menu kiri → adegan & hasil tampil di jendela kedua.
 7. Masuk dengan email pemilik → menu **Moderator** → log aksi berisi langkah-langkah di atas.

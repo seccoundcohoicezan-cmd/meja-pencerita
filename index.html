@@ -13,7 +13,19 @@
 <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
 <link rel="manifest" href="/manifest.webmanifest">
 </head>
-<body>
+<body class="terkunci">
+<section id="gerbang" class="gerbang" aria-labelledby="gbJudul">
+  <img src="/img/splash.webp" alt="" class="gb-art">
+  <div class="gb-kotak">
+    <img src="/img/logo.webp" alt="MasteryDnD by Zan" class="gb-logo" width="372" height="220">
+    <h1 id="gbJudul">Meja Pencerita</h1>
+    <p class="gb-sub">Alat bantu Game Master: siapkan pahlawan, buat cerita dengan AI, lalu jalankan permainan.</p>
+    <div id="gbAksi" class="gb-aksi" aria-live="polite"><p class="gb-muat">Memeriksa akun…</p></div>
+    <div class="gb-pisah"><span>Pemain?</span></div>
+    <a class="gb-pemain" href="/portal">Lihat kartu dengan kode undangan <span aria-hidden="true">›</span></a>
+    <p class="gb-legal"><a href="/privasi">Privasi</a> · <a href="/syarat">Syarat</a> · <a href="/atribusi">Atribusi</a></p>
+  </div>
+</section>
 <div id="splash" aria-hidden="true">
   <img src="/img/splash.webp" alt="" class="splash-art">
   <div class="splash-foot"><div class="splash-bar"><span></span></div><p>Siapkan pikiranmu. Petualangan sedang dimuat…</p></div>
@@ -199,29 +211,58 @@
 <!-- ================= CARA PAKAI ================= -->
 <section class="page guide" id="p-help">
   <div class="page-head noterm"><img src="/img/emblem.webp" alt="" class="emblem" width="58" height="58"><div><h1>Panduan</h1><p>Cara memakai MasteryDnD, langkah demi langkah.</p></div></div>
+  <div class="panel guide-pdf"><div><h2>Panduan Pemain V2 (PDF)</h2><p class="small">Versi bergambar untuk dibagikan ke pemain: cara membaca kartu, melempar dadu, dan contoh setiap skill.</p></div>
+    <a class="btn" href="/panduan-pemain.pdf" target="_blank" rel="noopener" download>Unduh PDF</a></div>
   <div class="panel">
-    <h2>Panduan singkat</h2>
-    <p>MasteryDnD membantu Game Master (GM) menjalankan permainan cerita. Cukup ikuti 4 langkah ini.</p>
+    <h2>Untuk Game Master: 4 langkah</h2>
     <ol class="langkah">
-      <li><b>Buat campaign.</b> Di <b>Beranda</b>, klik <b>Campaign baru</b>, beri nama, lalu pilih genre.</li>
-      <li><b>Isi pahlawan.</b> Tab <b>1. Pahlawan</b> → klik <b>+ Tambah pahlawan</b>. Paling cepat: klik <b>Salin formulir kosong</b>, kirim ke WhatsApp pemain, lalu tempel balasan mereka dan klik <b>Isi dari formulir</b>.</li>
-      <li><b>Buat cerita dengan AI.</b> Tab <b>2. Buat Cerita</b> → tulis garis besar cerita → klik <b>Buat prompt</b> → <b>Salin prompt</b>. Tempel ke AI (misalnya Claude), lalu salin seluruh jawabannya.</li>
-      <li><b>Main.</b> Tab <b>3. Masukkan Cerita</b> → tempel jawaban AI → <b>Baca cerita</b> → <b>Mulai sesi baru</b>. Di tab <b>4. Main</b>, bacakan narasi, pilih opsi, lempar dadu, lalu klik <b>Terapkan</b>.</li>
+      <li><b>Masuk &amp; buat campaign.</b> Masuk dengan Google. Di <b>Beranda</b>, klik <b>Campaign baru</b>, beri nama, lalu pilih genre.</li>
+      <li><b>Isi pahlawan.</b> Tab <b>1. Pahlawan</b> → <b>Salin formulir kosong</b> → kirim ke WhatsApp pemain → tempel balasannya → <b>Isi dari formulir</b>. Tambahkan foto, lalu klik <b>Atur posisi foto</b> agar wajah tidak terpotong.</li>
+      <li><b>Buat cerita dengan AI.</b> Tab <b>2. Buat Cerita</b> → tulis garis besar → <b>Buat prompt</b> → <b>Salin prompt</b>. Tempel ke AI (misalnya Claude), lalu salin seluruh jawabannya.</li>
+      <li><b>Main.</b> Tab <b>3. Masukkan Cerita</b> → tempel jawaban AI → <b>Baca cerita</b> → <b>Mulai sesi baru</b>. Di tab <b>4. Main</b>: bacakan narasi, pemain memilih, lempar dadu, klik <b>Terapkan</b>.</li>
     </ol>
-    <p class="small">Salah klik? Tekan <b>Batalkan</b> di panel kiri saat bermain. Tombol <b>←</b> di atas selalu membawamu ke halaman sebelumnya.</p>
+    <p class="small">Salah klik? Tekan <b>Batalkan</b> di panel kiri saat bermain. Tombol <b>←</b> di atas selalu kembali ke halaman sebelumnya.</p>
   </div>
   <div class="panel">
-    <h2>Pemain ikut melihat kartunya</h2>
+    <h2>Pemain melihat kartunya (tanpa login)</h2>
     <ol class="langkah">
-      <li>Masuk ke akun (menu <b>Akun &amp; Data</b>).</li>
-      <li>Buka <b>Portal Pemain</b> → <b>Undang Pemain</b>, atau buka kartu pahlawan lalu klik <b>Undang ke portal pemain</b>.</li>
-      <li>Kirim pesan yang tersalin ke WhatsApp pemain. Pemain membuka link, masuk, dan kartunya langsung muncul.</li>
+      <li>Di kartu pahlawan klik <b>Buat kode untuk pemain</b>, atau buka <b>Portal Pemain → Kode Pemain</b>.</li>
+      <li>Kirim pesan yang tersalin ke WhatsApp pemain. Isinya link dan kode 8 huruf.</li>
+      <li>Pemain membuka link. Kartu, sisa hati, dan rekap langsung tampil tanpa login.</li>
     </ol>
-    <p class="small">Pemain hanya melihat kartu, sisa Nyawa, dan rekap yang kamu terbitkan. Cerita dan rahasia GM tetap tersembunyi.</p>
+    <p class="small">Kode <b>hangus otomatis</b> saat sesi selesai atau bab berganti. Buat kode baru untuk sesi berikutnya. Pemain tidak bisa melihat cerita atau rahasia GM.</p>
+  </div>
+  <div class="panel">
+    <h2>Cek skill: rumus &amp; contoh</h2>
+    <p>Saat pemain mencoba sesuatu yang tidak pasti di luar pertarungan, GM meminta <b>cek skill</b>:</p>
+    <p class="rumus"><span>d20</span> + <span>angka skill di kartu</span> ≥ <span>DC dari GM</span> → berhasil</p>
+    <div class="dc-row" aria-label="Tingkat kesulitan (DC)"><span><b>5</b>Sangat mudah</span><span><b>10</b>Mudah</span><span><b>15</b>Sedang</span><span><b>20</b>Sulit</span><span><b>25</b>Sangat sulit</span><span><b>30</b>Mustahil</span></div>
+    <div class="contoh">
+      <p class="contoh-j">Contoh: Kaelen membujuk penjaga gerbang (Persuasion +3)</p>
+      <ol><li>Kaelen: “Aku bilang kami datang atas panggilan Raja.” GM: “Cek <b>Persuasion</b>, DC <b>15</b>.”</li>
+      <li>Pemain melempar d20 → keluar <b>13</b>. Tambah +3 = <b>16</b>.</li>
+      <li>16 ≥ 15 → <b>berhasil</b>. Selisih hanya 1, jadi hasilnya <i>berhasil dengan komplikasi</i>: gerbang dibuka, tapi penjaga ikut mengawal.</li></ol>
+    </div>
+    <h3>Hasil bertingkat</h3>
+    <div class="scroll"><table class="grid tingkat"><tr><th>Selisih dengan DC</th><th>Hasil</th><th>Contoh cerita</th></tr>
+      <tr><td>Lebih 5 atau lebih</td><td><b class="t-hijau">Berhasil bersih</b></td><td>Penjaga percaya penuh dan memberi petunjuk.</td></tr>
+      <tr><td>Lebih 0–4</td><td><b class="t-emas">Berhasil, ada harganya</b></td><td>Boleh lewat, tapi dikawal.</td></tr>
+      <tr><td>Kurang 1–4</td><td><b class="t-merah">Gagal</b></td><td>Ditolak, boleh coba cara lain.</td></tr>
+      <tr><td>Kurang 5 atau lebih</td><td><b class="t-merah">Gagal berat</b></td><td>Penjaga curiga dan memanggil bantuan.</td></tr></table></div>
+    <h3>18 skill dan kapan dipakai</h3>
+    <p class="small">Angka dari kartu Kaelen Bisikmalam. ● = skill andalan (proficient, sudah ditambah Proficiency +2).</p>
+    <div class="scroll"><table class="grid skill-guide"><tr><th>Skill</th><th>Ability</th><th class="m">Kaelen</th><th>Contoh pemakaian</th></tr><tr><td><b>Persuasion</b></td><td>CHA</td><td class="m">+3</td><td>Membujuk penjaga membuka gerbang, menawar harga, meminta bantuan NPC.</td></tr><tr><td><b>Deception</b></td><td>CHA</td><td class="m">+3</td><td>Berbohong atau menyamar: “Kami utusan Raja.”</td></tr><tr><td><b>Intimidation</b></td><td>CHA</td><td class="m">+3</td><td>Menakut-nakuti bandit agar mundur atau membuka mulut.</td></tr><tr><td><b>Performance</b></td><td>CHA</td><td class="m">+3</td><td>Bernyanyi, berpidato, atau mengalihkan perhatian keramaian.</td></tr><tr><td><b>Stealth</b></td><td>DEX</td><td class="m">+1 ●</td><td>Menyelinap melewati patroli, bersembunyi di bayangan.</td></tr><tr><td><b>Acrobatics</b></td><td>DEX</td><td class="m">−1</td><td>Melompati jurang kecil, menjaga keseimbangan di atap licin.</td></tr><tr><td><b>Sleight of Hand</b></td><td>DEX</td><td class="m">−1</td><td>Mencopet kunci, menyembunyikan belati di lengan baju.</td></tr><tr><td><b>Athletics</b></td><td>STR</td><td class="m">+0</td><td>Memanjat tembok, berenang melawan arus, mendobrak pintu.</td></tr><tr><td><b>Perception</b></td><td>WIS</td><td class="m">+2 ●</td><td>Mendengar langkah di balik pintu, melihat jebakan tersembunyi.</td></tr><tr><td><b>Insight</b></td><td>WIS</td><td class="m">+0</td><td>Menebak apakah NPC berbohong atau menyembunyikan sesuatu.</td></tr><tr><td><b>Survival</b></td><td>WIS</td><td class="m">+2 ●</td><td>Melacak jejak, mencari jalan pulang di hutan, berburu.</td></tr><tr><td><b>Animal Handling</b></td><td>WIS</td><td class="m">+2 ●</td><td>Menenangkan kuda yang panik, membujuk serigala agar tidak menyerang.</td></tr><tr><td><b>Medicine</b></td><td>WIS</td><td class="m">+0</td><td>Menghentikan pendarahan rekan, mengenali racun.</td></tr><tr><td><b>Investigation</b></td><td>INT</td><td class="m">+2</td><td>Mencari petunjuk di kamar korban, memecahkan teka-teki.</td></tr><tr><td><b>Arcana</b></td><td>INT</td><td class="m">+2</td><td>Mengenali rune sihir, memahami artefak kuno.</td></tr><tr><td><b>History</b></td><td>INT</td><td class="m">+2</td><td>Mengingat legenda kerajaan, mengenali lambang keluarga bangsawan.</td></tr><tr><td><b>Nature</b></td><td>INT</td><td class="m">+2</td><td>Mengenali tumbuhan beracun, membaca tanda cuaca.</td></tr><tr><td><b>Religion</b></td><td>INT</td><td class="m">+2</td><td>Memahami ritual kuil, mengenali simbol dewa atau sekte.</td></tr></table></div>
+    <h3>Aturan tambahan</h3>
+    <ul class="guide-ul">
+      <li><b>Advantage</b>: lempar d20 dua kali, ambil yang <b>terbesar</b>. <b>Disadvantage</b>: ambil yang <b>terkecil</b>. Contoh: menyelinap saat hujan deras → Stealth dengan Advantage.</li>
+      <li><b>Kontes</b>: dua pihak sama-sama melempar. Contoh: Kaelen (Stealth +1) melawan penjaga (Perception +3). Yang lebih besar menang. Kalau seri, lawan menang.</li>
+      <li><b>Pasif</b> (tanpa lempar) = 10 + angka skill. Perception pasif Kaelen <b>12</b>: jebakan dengan DC 12 ke bawah otomatis ia sadari.</li>
+      <li><b>Skill Bantuan</b>: satu pahlawan membantu sebelum tantangan utama. Contoh: Arcana DC 15 membaca rune → bila berhasil, tantangan berikutnya turun satu tingkat.</li>
+    </ul>
   </div>
   <div class="panel">
     <h2>Layar TV</h2>
-    <p>Klik <b>Layar TV</b> di menu, seret jendela yang terbuka ke TV/proyektor, lalu tekan F11. Saat bermain, klik <b>Tampilkan adegan ini</b>. <b>Tutup tirai</b> menyembunyikan layar sementara.</p>
+    <p>Klik <b>Layar TV</b> di menu, seret jendela ke TV/proyektor, lalu tekan F11. Saat bermain, klik <b>Tampilkan adegan ini</b>. <b>Tutup tirai</b> menyembunyikan layar sementara.</p>
   </div>
   <div class="panel">
     <h2>Aturan lengkap</h2>
