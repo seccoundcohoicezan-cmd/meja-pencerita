@@ -297,3 +297,36 @@ a:focus-visible, .snav:focus-visible, .tab:focus-visible, .seg-b:focus-visible {
 .skill-guide td.m, .skill-guide th.m { text-align: center; white-space: nowrap; font-weight: 700; }
 .skill-guide td:first-child { white-space: nowrap; }
 .guide-ul { padding-left: 20px; } .guide-ul li { margin-bottom: 6px; }
+
+/* ============ Ability sederhana, Pertahanan, serangan musuh, uji ============ */
+.ab-f label { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.ab-ik { font-size: 15px; }
+.ab-u { display: block; font-size: 12.5px; color: #6b5438; line-height: 1.25; margin-top: 3px; }
+.ab-armor { display: flex; flex-wrap: wrap; gap: 12px; align-items: stretch; margin-top: 10px; padding-top: 10px; border-top: 1px dashed #c6ad7c; }
+.ab-armor .field { flex: 1; min-width: 220px; margin: 0; }
+.ac-box { display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 130px; padding: 6px 14px; border: 2px solid #7a8fa8; border-radius: 8px; background: #eef1f3; }
+.ac-box small { font-size: 12.5px; color: #4a5a6a; font-weight: 700; } .ac-box b { font-family: var(--display); font-size: 30px; line-height: 1.1; color: #2c3e50; } .ac-box span { font-size: 12px; color: #5a6a7a; }
+.atk-res { margin-top: 12px; border-radius: 8px; padding: 12px 14px; text-align: center; color: #fff; }
+.atk-res.kena { background: linear-gradient(180deg, #a3141c, #6e0b10); } .atk-res.luput { background: linear-gradient(180deg, #3f7a36, #2a5424); }
+.atk-n { font-size: 20px; } .atk-n b { font-family: var(--display); font-size: 30px; } .atk-n span { opacity: .8; font-size: 15px; }
+.atk-v { font-family: var(--display); font-size: 20px; letter-spacing: .06em; margin-top: 2px; }
+.uji-ab { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 8px 0; }
+.uji-b { display: flex; flex-direction: column; align-items: flex-start; gap: 1px; padding: 8px 10px; border: 1px solid #c6ad7c; border-radius: 6px; background: #fbf4e2; cursor: pointer; text-align: left; font: inherit; }
+.uji-b span { font-weight: 700; } .uji-b b { font-family: var(--display); font-size: 20px; color: var(--darah2); } .uji-b small { font-size: 12px; color: #6b5438; line-height: 1.2; }
+.uji-b.on { border: 2px solid var(--darah); background: #f6e3c8; }
+.dbtn.on-dc { background: var(--darah); color: #fff; border-color: var(--darah); }
+@media (max-width: 560px) { .uji-ab { grid-template-columns: 1fr 1fr; } }
+.ptitle-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+.ptitle-row h2 { margin: 0 !important; }
+.contek td { vertical-align: top; font-size: 15px; } .contek td:nth-child(2) { white-space: nowrap; }
+/* pengaturan moderator */
+.atur-row { display: flex; gap: 16px; align-items: center; justify-content: space-between; flex-wrap: wrap; padding: 12px 0; border-top: 1px dashed #c6ad7c; }
+.atur-row > div { flex: 1; min-width: 220px; } .atur-row p { margin: 4px 0 0; }
+.sakelar { display: inline-flex; align-items: center; gap: 10px; padding: 6px 14px 6px 6px; border-radius: 30px; border: 1px solid #9c8358; background: #e7dcc4; cursor: pointer; font: inherit; }
+.sakelar span { width: 46px; height: 26px; border-radius: 13px; background: #b5a88e; position: relative; transition: background .15s; }
+.sakelar span::after { content: ''; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.3); transition: left .15s; }
+.sakelar.on span { background: #3f7a36; } .sakelar.on span::after { left: 23px; }
+.sakelar b { font-family: var(--display); font-size: 14px; letter-spacing: .06em; min-width: 84px; text-align: left; }
+.ac-box.kunci { border-color: var(--emas); background: #f8ecc9; } .ac-box.kunci b { color: #5a1a12; }
+.ac-ket { flex: 1; min-width: 200px; margin: 0; align-self: center; }
+.ac-in { flex: 1; min-width: 240px; margin: 0; }

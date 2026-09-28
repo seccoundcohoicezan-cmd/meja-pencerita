@@ -15,9 +15,9 @@ export const LABEL_AKSI = {
   sesi_mulai: 'Mulai sesi', sesi_selesai: 'Sesi selesai', terbit_rekap: 'Terbitkan rekap',
   buat_undangan: 'Buat undangan', pakai_undangan: 'Pemain bergabung', putus_pemain: 'Putus pemain',
   tambah_moderator: 'Tambah moderator', hapus_moderator: 'Cabut moderator', hapus_akun: 'Hapus akun',
-  buka_portal: 'Buka portal', lihat_kartu: 'Kartu dibuka (kode)', kode_hangus: 'Kode hangus', simpan_file: 'Simpan ke file', buka_file: 'Buka file',
+  buka_portal: 'Buka portal', lihat_kartu: 'Kartu dibuka (kode)', kode_hangus: 'Kode hangus', kunci_pertahanan: 'Pertahanan dikunci', ubah_pengaturan: 'Ubah pengaturan', simpan_file: 'Simpan ke file', buka_file: 'Buka file',
 };
-const WARNA = { kode_hangus: 'emas', lihat_kartu: 'hijau', hapus_campaign: 'merah', hapus_akun: 'merah', putus_pemain: 'merah', hapus_moderator: 'merah', tambah_moderator: 'emas', pakai_undangan: 'hijau', buat_undangan: 'hijau' };
+const WARNA = { ubah_pengaturan: 'emas', kunci_pertahanan: 'emas', kode_hangus: 'emas', lihat_kartu: 'hijau', hapus_campaign: 'merah', hapus_akun: 'merah', putus_pemain: 'merah', hapus_moderator: 'merah', tambah_moderator: 'emas', pakai_undangan: 'hijau', buat_undangan: 'hijau' };
 
 let tab = 'log';
 let akhir = null; // waktu baris terakhir (untuk "muat lebih lama")
@@ -32,10 +32,11 @@ function render() {
   el.innerHTML = `<div class="seg" role="tablist">
       <button class="seg-b ${tab === 'log' ? 'on' : ''}" data-mtab="log" type="button">Log aksi</button>
       <button class="seg-b ${tab === 'akses' ? 'on' : ''}" data-mtab="akses" type="button">Kelola akses</button>
+      <button class="seg-b ${tab === 'atur' ? 'on' : ''}" data-mtab="atur" type="button">Pengaturan</button>
       <a class="seg-b" href="/portal#undang">Kode pemain ↗</a></div>
     <div id="modIsi"></div>`;
   el.querySelectorAll('[data-mtab]').forEach(b => b.onclick = () => { tab = b.dataset.mtab; render(); });
-  if (tab === 'log') renderLog(); else renderAkses();
+  if (tab === 'log') renderLog(); else if (tab === 'atur') renderAtur(); else renderAkses();
 }
 
 /* ---------------- LOG AKSI ---------------- */
@@ -72,6 +73,24 @@ async function muatLog(baru) {
   list.insertAdjacentHTML('beforeend', data.map(baris).join(''));
   if (data.length) akhir = data[data.length - 1].at;
   $('lgLagi').hidden = data.length < PER_HAL;
+}
+
+/* ---------------- PENGATURAN WEB ---------------- */
+async function renderAtur() {
+  $('modIsi').innerHTML = `<div class="panel"><h2>Pengaturan web</h2><p class="small">Berlaku untuk semua pemain di semua campaign. Perubahan tercatat di log.</p><div id="atList"><p class="small">Memuat…</p></div></div>`;
+  const { data, error } = await sb.from('pengaturan_web').select('kunci,nilai,diubah_oleh,updated_at');
+  const el = $('atList'); if (!el) return;
+  if (error) { el.innerHTML = `<div class="warn">${esc(pesanError(error))}${/pengaturan_web|does not exist/i.test(error.message) ? ' — jalankan supabase/005_pertahanan_pengaturan.sql di Supabase.' : ''}</div>`; return; }
+  const dd = data.find(r => r.kunci === 'dadu_digital'); const on = !dd || dd.nilai !== false;
+  el.innerHTML = `<div class="atur-row"><div><b>🎲 Dadu digital di Portal Pemain</b><p class="small">Bila <b>aktif</b>, pemain bisa melempar dadu di HP. Bila <b>nonaktif</b>, pemain wajib memakai dadu fisik. Portal yang sedang terbuka ikut berubah dalam ±20 detik.</p>
+      ${dd && dd.diubah_oleh ? `<p class="small">Terakhir diubah ${esc(dd.diubah_oleh)} · ${new Date(dd.updated_at).toLocaleString('id-ID')}</p>` : ''}</div>
+    <button class="sakelar ${on ? 'on' : ''}" id="atDadu" type="button" role="switch" aria-checked="${on}" aria-label="Dadu digital"><span></span><b>${on ? 'AKTIF' : 'NONAKTIF'}</b></button></div>`;
+  $('atDadu').onclick = async () => {
+    const b = $('atDadu'); b.disabled = true;
+    const { error: er } = await sb.rpc('set_pengaturan', { p_kunci: 'dadu_digital', p_nilai: !on });
+    if (er) { A().toast(pesanError(er), true); b.disabled = false; return; }
+    A().toast(`Dadu digital ${!on ? 'diaktifkan' : 'dimatikan'}.`); renderAtur();
+  };
 }
 
 /* ---------------- KELOLA AKSES ---------------- */

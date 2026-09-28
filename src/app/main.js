@@ -1,6 +1,7 @@
 import { bus } from '../shared/bus';
 import { esc, clamp, num, sum, uid, uuid, slug, normL, pad2, fmtMod } from '../core/util';
 import { POOLS, POOL_DESC, TIERS, BOSS_TIERS, dStr, rollArr, tierOf, findTier, tkToTier, shiftTier, rollD100, bands, distOf, conv, shiftDist, pSuccess } from '../core/dice';
+import { ABIL_SEDERHANA, MUSUH, seranganMusuh, peluangKena, UJI_CONTOH, nilaiPertahanan } from '../core/skills';
 import { ABILS, ABIL_NAMA, ABILITY_ARRAY, SKILLS, findSkill, skAbil, DC_TABLE, dcTierOf, tierIdx, AID_MAG, AID_TYPES, aidLabel, aidCap, aidFailOpts,
   resultTier, kontesTier, RT_LABEL, RT_CLS, hasTierText, tierText, tierEfek, CLASS_SKILLS, classTable, shuffledAbility } from '../core/skills';
 import { loadImg, wrapText, heart, rrect, fitFont, drawCard, dlCanvas, FOTO_AWAL } from '../core/card';
@@ -210,7 +211,7 @@ document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;if($('modal')
 /* ======================= 1. HEROES ======================= */
 const SK_TYPES=[['bonus','+X ke satu lemparan pahlawan ini'],['bonus_tim','+X ke Serangan Bos tim'],['auto_kritis','Lemparan berikutnya otomatis Kritis'],['perisai','Batalkan luka tim pada satu hasil'],['pulih_semua','Pulihkan X Nyawa semua pahlawan'],['lempar_ulang','Ulangi satu lemparan'],['catat','Hanya dicatat (efek dibacakan GM)']];
 const SP_TYPES=[['tumbal','Tumbal-Selamatkan: rekan pulih 2 Nyawa'],['putar','Putar Waktu: ulangi satu lemparan / batalkan efek buruk'],['lain','Lainnya (dicatat)']];
-function newHero(){return ({uid:uid(),cid:uuid(),pw:'',sifat:null,build:null,gf:{},dadu:'',id:'',nama:'',kelas:'',senjata:'',bonus:'',nyawa:3,dasar:'',sk:{nama:'',efek:'',tipe:'bonus',nilai:''},sp:{nama:'',biaya:1,efek:'',pola:'putar'},kep:'',ability:null,skills:[]})}
+function newHero(){return ({uid:uid(),cid:uuid(),pw:'',pertahanan:null,sifat:null,build:null,gf:{},dadu:'',id:'',nama:'',kelas:'',senjata:'',bonus:'',nyawa:3,dasar:'',sk:{nama:'',efek:'',tipe:'bonus',nilai:''},sp:{nama:'',biaya:1,efek:'',pola:'putar'},kep:'',ability:null,skills:[]})}
 function heroWarn(h){const w=[];if(!h.nama)w.push('nama');(G().build||[]).forEach(b=>{if(b.nama&&!String((h.gf||{})[b.id]||'').trim())w.push(b.nama.toLowerCase())});if(h.bonus===''||isNaN(parseFloat(h.bonus))||!h.sifat)w.push('lempar build (bonus & sifat)');if(!POOLS[h.dadu])w.push('dadu kelas');if(!h.sk.nama)w.push('nama Skill Khusus');if(!h.sp.nama)w.push('nama Skill Pengorbanan');return w}
 function renderHeroes(){if(!W)return;renderRules();renderBuildStatus();
   if(!W.heroes.length){$('heroList').innerHTML='<div class="hint">Belum ada pahlawan. Klik <b>+ Tambah pahlawan</b>.</div>';return}
@@ -266,13 +267,18 @@ function skillSection(h,i){const pb=profB();const nProf=(h.skills||[]).filter(x=
   const cm=h.kelas?matchClass(h,R.genre):null;
   const warn=[];if(h._skillBelumDikurasi)warn.push(`Kelas "${esc(h.kelas||'(kosong)')}" tidak cocok dengan kelas genre ${esc(G().nama)}. Skill diisi dari urutan pendaftaran — cek ulang manual.`);
   if(h.ability&&nProf!==4)warn.push(`Jumlah skill proficient ${nProf} (aturan: 4 per kelas).`);
-  const abInputs=h.ability?`<div class="abrow">${ABILS.map(a=>`<div class="field"><label title="${ABIL_NAMA[a]}">${a} <span class="small">${ABIL_NAMA[a]}</span></label><input type="number" min="-5" max="10" data-i="${i}" data-f="ability.${a}" value="${esc(abMod(h,a))}"></div>`).join('')}</div>
-    <p class="small" style="margin:4px 0 0">Total ${fmtMod(ABILS.reduce((t,a)=>t+abMod(h,a),0))} (kumpulan tetap +3, +2, +1, 0, 0, −1). CON tidak dipakai skill mana pun, hanya pelengkap narasi.</p>`
+  const acv=acOf(h);
+  const armSel=`<div class="ab-armor">${acv?`<div class="ac-box kunci" title="Dikocok pemain di awal. Terkunci, tidak bisa diubah."><small>🔒 Pertahanan (AC)</small><b>${acv}</b><span>d20 · dikunci ${h.pertahanan.at?new Date(h.pertahanan.at).toLocaleDateString('id-ID'):''}</span></div>
+      <p class="small ac-ket">Pakem: angka ini dipakai setiap kali ada serangan musuh/serangan mendadak dan <b>tidak bisa diubah</b>.</p>`
+    :`<div class="field ac-in"><label for="acIn-${i}">Pertahanan (AC): hasil d20 yang dikocok pemain</label><div class="row" style="margin:0"><input id="acIn-${i}" type="number" min="1" max="20" inputmode="numeric" placeholder="1–20" data-acin="${i}" style="width:90px"><button class="btn" type="button" data-kunciac="${i}">🔒 Kunci Pertahanan</button></div>
+      <span class="ab-u">Pemain mengocok <b>1 d20 fisik</b> sekali di awal. Setelah dikunci, angka tidak bisa diubah siapa pun.</span></div>`}</div>`;
+  const abInputs=h.ability?`<div class="abrow">${ABILS.map(a=>`<div class="field ab-f"><label title="${ABIL_NAMA[a]}"><span class="ab-ik" aria-hidden="true">${ABIL_SEDERHANA[a].ikon}</span> ${ABIL_SEDERHANA[a].n} <span class="small">${a}</span></label><input type="number" min="-5" max="10" data-i="${i}" data-f="ability.${a}" value="${esc(abMod(h,a))}" aria-label="${ABIL_SEDERHANA[a].n} (${a})"><span class="ab-u">${ABIL_SEDERHANA[a].u}</span></div>`).join('')}</div>
+    <p class="small" style="margin:4px 0 0">Angka ditambahkan ke d20 saat cek skill atau Uji ability. Total ${fmtMod(ABILS.reduce((t,a)=>t+abMod(h,a),0))} (kumpulan tetap +3, +2, +1, 0, 0, −1).</p>`
     :`<div class="hint">Ability belum dilempar. Klik <b>Acak ability</b> (atau <b>Lempar build</b> untuk sekaligus bonus &amp; sifat).</div>`;
   const col=SKILLS.map(sk=>{const pr=isProf(h,sk.n),m=skillMod(h,sk.n);return `<tr class="${pr?'prof':''}"><td><label class="chk" style="font-size:13.5px"><input type="checkbox" data-prof="${i}" data-sk="${esc(sk.n)}" ${pr?'checked':''}> ${esc(sk.n)}</label></td><td class="small">${sk.a}</td><td class="m">${h.ability?fmtMod(m):'—'}</td></tr>`});
   const chunks=[col.slice(0,6),col.slice(6,12),col.slice(12)];
-  return `<div class="sec"><b class="t">Ability &amp; Skill Individu</b> <span class="small">· skill check = d20 + ability + Proficiency (+${pb} bila dicentang)</span>
-    ${abInputs}
+  return `<div class="sec"><b class="t">Ability, Pertahanan &amp; Skill</b> <span class="small">· cek skill = d20 + ability + ${pb} bila skill andalan (dicentang)</span>
+    ${abInputs}${armSel}
     <p class="small" style="margin:8px 0 2px">Kelas terdeteksi: <b>${esc(h._kelasCocok||(cm?cm.m.nama:'—'))}</b>${h.ability?` · Perception pasif <b>${passiveOf(h)}</b>`:''}</p>
     ${warn.map(w=>`<div class="warn" style="margin:4px 0">${w}</div>`).join('')}
     <div class="skcols">${chunks.map(c=>`<table class="sktbl"><tr><th>Skill (✓ = proficient)</th><th>Abil</th><th class="m">Mod</th></tr>${c.join('')}</table>`).join('')}</div>
@@ -296,6 +302,10 @@ $('heroList').addEventListener('click',e=>{const rb=e.target.closest('[data-roll
   const cb=e.target.closest('[data-card]');if(cb){downloadCard(W.heroes[+cb.dataset.card]);return}
   const lb=e.target.closest('[data-link]');if(lb){shareLink(W.heroes[+lb.dataset.link]);return}
   const ib=e.target.closest('[data-invite]');if(ib){const h=W.heroes[+ib.dataset.invite];if(!h.nama)return alert('Isi nama pahlawan dulu.');bus.emit('undang',W,h);return}
+  const ka=e.target.closest('[data-kunciac]');if(ka){const h=W.heroes[+ka.dataset.kunciac];if(acOf(h))return;const v=parseInt(document.querySelector(`[data-acin="${ka.dataset.kunciac}"]`).value,10);
+    if(!(v>=1&&v<=20)){toast('Tulis hasil d20 pemain: angka 1–20.',true);return}
+    if(!confirm(`Pertahanan ${h.nama||'pahlawan ini'} = ${v}.\n\nSetelah dikunci, angka ini TIDAK BISA diubah siapa pun (pakem). Sudah benar?`))return;
+    h.pertahanan={nilai:v,at:Date.now()};W.heroes.forEach(x=>x._open=false);h._open=true;save();renderHeroes();toast(`Pertahanan ${h.nama} dikunci: ${v}`);return}
   const pp=e.target.closest('[data-photopos]');if(pp){aturFoto(W.heroes[+pp.dataset.photopos]);return}
   const pd=e.target.closest('[data-photodel]');if(pd){const h=W.heroes[+pd.dataset.photodel];IDB.del(photoKey(h)).then(()=>{bus.emit('fotoHapus',W,h);loadThumbs()});return}
   const b=e.target.closest('[data-del]');if(!b)return;const h=W.heroes[+b.dataset.del];if(confirm(`Hapus ${h.nama||'pahlawan ini'}?`)){W.heroes.splice(+b.dataset.del,1);IDB.del(photoKey(h));bus.emit('heroDihapus',W,h);save();renderHeroes()}});
@@ -357,6 +367,8 @@ const isProf=(h,n)=>!!(h.skills||[]).find(s=>s.nama===n&&s.prof);
 const abMod=(h,a)=>num((h.ability||{})[a],0);
 function skillMod(h,n){return abMod(h,skAbil(n))+(isProf(h,n)?profB():0)}
 const passiveOf=(h,n='Perception')=>10+skillMod(h,n);
+/** Pertahanan (AC): 1 d20 yang dikocok pemain di awal, dimasukkan GM sekali, lalu TERKUNCI (pakem). null bila belum. */
+const acOf=h=>h?nilaiPertahanan(h.pertahanan):null;
 
 
 /* ======================= FORMULIR WA ======================= */
@@ -365,6 +377,7 @@ function waForm(){const g=G();const L=[];const pk=Object.keys(POOLS);
   L.push(`*${FORM_HEAD} — ${g.nama.toUpperCase()}*`);L.push('_Isi setelah tanda titik dua (:), lalu kirim balik ke Pencerita. Jangan ubah tulisan sebelum titik dua._');L.push('');
   L.push('Nama: ');L.push('Kelas / Peran (pilih angka 1-4 atau tulis nama kelas): ');classTable(R.genre).forEach((c,i)=>L.push(`   ${i+1} = ${c.nama} (${c.skills.join(', ')})`));L.push('Senjata & ciri khas: ');
   L.push('Dadu kelas (pilih angka 1-4): ');pk.forEach((k,i)=>L.push(`   ${i+1} = ${dStr(POOLS[k])} (${POOL_DESC[k]})`));
+  L.push('Pertahanan (kocok 1 d20 SEKALI, tulis hasilnya 1-20): ');
   L.push('Kemampuan dasar: ');
   (g.build||[]).filter(b=>b.nama).forEach(b=>L.push(`${b.nama}${b.ket?` (${b.ket})`:''}: `));
   L.push('');L.push('*Skill Khusus (dipakai 3x per cerita)*');L.push('Skill Khusus - nama: ');L.push('Skill Khusus - efek: ');
@@ -376,7 +389,7 @@ function waForm(){const g=G();const L=[];const pk=Object.keys(POOLS);
   L.push('');L.push('Kepribadian: ');L.push('Password kartu (opsional, minimal 8 karakter, hanya jika tidak memakai portal pemain): ');
   L.push('');L.push('_Bonus dadu (d4 + 1), sifat (d20), 6 ability, dan skill kelas akan diisi oleh Pencerita. Tidak perlu diisi._');
   return L.join('\n').replace(/Nyawa/g,T('nyawa'))}
-function formKeys(){const m=[['nama','nama'],['kelasperan','kelas'],['senjatacirikhas','senjata'],['senjata','senjata'],['dadukelas','dadu'],['kemampuandasar','dasar'],
+function formKeys(){const m=[['nama','nama'],['kelasperan','kelas'],['senjatacirikhas','senjata'],['senjata','senjata'],['dadukelas','dadu'],['pertahanan','pertahanan'],['kemampuandasar','dasar'],
   ['skillkhususnama','sk.nama'],['skillkhususefek','sk.efek'],['skillkhususjenisefek','sk.tipe'],['skillkhususnilaix','sk.nilai'],
   ['skillpengorbanannama','sp.nama'],['skillpengorbananpola','sp.pola'],['skillpengorbananefek','sp.efek'],['kepribadian','kep'],['passwordkartu','pw'],['password','pw']];
   (G().build||[]).filter(b=>b.nama).forEach(b=>m.push([normL(b.nama),'gf.'+b.id]));return m}
@@ -396,6 +409,9 @@ function applyForm(o){const warn=[];const id=slug(o.nama);let h=W.heroes.find(x=
   h.id=slug(h.nama);h._idManual=false;
   if(o.dadu!==undefined){const pk=Object.keys(POOLS);const n=parseInt(o.dadu,10);let d=null;if(n>=1&&n<=pk.length)d=pk[n-1];else{const t=o.dadu.toLowerCase().replace(/\s+/g,'');d=pk.find(k=>k===t)||null}
     if(d)h.dadu=d;else warn.push(`dadu kelas "${o.dadu}" tidak dikenali`)}
+  if(o.pertahanan!==undefined&&o.pertahanan!==''){const v=parseInt(o.pertahanan,10);
+    if(acOf(h)){if(v!==acOf(h))warn.push(`Pertahanan sudah terkunci di ${acOf(h)}, angka ${o.pertahanan} diabaikan`)}
+    else if(v>=1&&v<=20)h.pertahanan={nilai:v,at:Date.now()};else warn.push(`Pertahanan "${o.pertahanan}" harus hasil d20 (1–20)`)}
   if(o['sk.tipe']!==undefined){const n=parseInt(o['sk.tipe'],10);if(n>=1&&n<=SK_TYPES.length)h.sk.tipe=SK_TYPES[n-1][0];else if(o['sk.tipe'])warn.push('jenis efek Skill Khusus tidak dikenali')}
   if(o['sk.nilai']!==undefined&&o['sk.nilai']!=='')h.sk.nilai=String(parseInt(o['sk.nilai'],10)||'');
   if(o['sp.pola']!==undefined){const n=parseInt(o['sp.pola'],10);if(n>=1&&n<=SP_TYPES.length)h.sp.pola=SP_TYPES[n-1][0];else if(o['sp.pola'])warn.push('pola Skill Pengorbanan tidak dikenali')}
@@ -434,7 +450,7 @@ function cardData(h){const g=G();const ab=h.ability?ABILS.map(a=>abMod(h,a)):nul
   sk:{n:h.sk.nama,e:h.sk.efek},sp:{n:h.sp.nama,b:num(h.sp.biaya,1),e:h.sp.efek},sf:h.sifat?[h.sifat.baik,h.sifat.buruk]:null,
   gf:(g.build||[]).filter(b=>b.nama).map(b=>[b.nama,(h.gf||{})[b.id]||'']).filter(x=>String(x[1]).trim()),kep:h.kep,
   ab,pb:profB(),pp:ab?passiveOf(h):null,kc:h._kelasCocok||'',
-  sks:ab?SKILLS.map(sk=>[sk.n,sk.a,skillMod(h,sk.n),isProf(h,sk.n)?1:0]):null,fp:h.fotoPos||null}}
+  sks:ab?SKILLS.map(sk=>[sk.n,sk.a,skillMod(h,sk.n),isProf(h,sk.n)?1:0]):null,fp:h.fotoPos||null,ac:acOf(h)}}
 /* ---------- Atur posisi foto di kartu ---------- */
 async function aturFoto(h){const photo=await IDB.get(photoKey(h));if(!photo){toast('Pilih foto dulu.',true);return}
   const fp=Object.assign({},FOTO_AWAL,h.fotoPos||{});const lama=JSON.stringify(h.fotoPos||null);
@@ -457,8 +473,8 @@ async function aturFoto(h){const photo=await IDB.get(photoKey(h));if(!photo){toa
   $('fpReset').onclick=()=>{Object.assign(fp,FOTO_AWAL);sync();gambar()};
   // geser dengan jari/mouse di area foto
   let drag=null;cv.style.touchAction='none';
-  cv.onpointerdown=e=>{const r=cv.getBoundingClientRect();if((e.clientY-r.top)/r.height>.37)return;drag={x:e.clientX,y:e.clientY,fx:fp.x,fy:fp.y};cv.setPointerCapture(e.pointerId)};
-  cv.onpointermove=e=>{if(!drag)return;const r=cv.getBoundingClientRect();fp.x=clamp(drag.fx-(e.clientX-drag.x)/r.width*1.6,0,1);fp.y=clamp(drag.fy-(e.clientY-drag.y)/(r.height*.37)*1.2,0,1);sync();gambar()};
+  cv.onpointerdown=e=>{const r=cv.getBoundingClientRect();if((e.clientY-r.top)/r.height>.44)return;drag={x:e.clientX,y:e.clientY,fx:fp.x,fy:fp.y};cv.setPointerCapture(e.pointerId)};
+  cv.onpointermove=e=>{if(!drag)return;const r=cv.getBoundingClientRect();fp.x=clamp(drag.fx-(e.clientX-drag.x)/r.width*1.6,0,1);fp.y=clamp(drag.fy-(e.clientY-drag.y)/(r.height*.44)*1.2,0,1);sync();gambar()};
   cv.onpointerup=cv.onpointercancel=()=>{drag=null};
   $('fpBatal').onclick=()=>{h.fotoPos=JSON.parse(lama);closeModal()};
   $('fpSimpan').onclick=()=>{h.fotoPos={m:fp.m,x:+fp.x.toFixed(3),y:+fp.y.toFixed(3),z:+fp.z.toFixed(3)};save();closeModal();toast('Posisi foto disimpan. Kartu di portal pemain ikut berubah.')}}
@@ -544,9 +560,9 @@ function renderChance(){const s=W.sys;const hs=W.heroes.filter(h=>s.ikut.include
 
 function heroTable(hs){
   const gb=(G().build||[]).filter(b=>b.nama);
-  const rows=[[...['ID','Nama','Kelas/Peran','Senjata'],...gb.map(b=>b.nama),'Dadu Kelas','Bonus Dadu Dasar','Sifat Baik','Sifat Buruk','Nyawa Maks','Kemampuan Dasar','Skill Khusus — Nama','Skill Khusus — Efek','Skill Khusus — Batas Pakai','Skill Pengorbanan — Nama','Skill Pengorbanan — Biaya','Skill Pengorbanan — Efek','Ability','Skill Proficient (mod total)','Perception Pasif','Catatan Kepribadian']];
+  const rows=[[...['ID','Nama','Kelas/Peran','Senjata'],...gb.map(b=>b.nama),'Dadu Kelas','Bonus Dadu Dasar','Sifat Baik','Sifat Buruk','Nyawa Maks','Kemampuan Dasar','Skill Khusus — Nama','Skill Khusus — Efek','Skill Khusus — Batas Pakai','Skill Pengorbanan — Nama','Skill Pengorbanan — Biaya','Skill Pengorbanan — Efek','Ability','Skill Proficient (mod total)','Perception Pasif','Pertahanan (AC)','Catatan Kepribadian']];
   hs.forEach(h=>{const skt=SK_TYPES.find(x=>x[0]===h.sk.tipe);const spt=SP_TYPES.find(x=>x[0]===h.sp.pola);
-    rows.push([h.id,h.nama,h.kelas,h.senjata,...gb.map(b=>(h.gf||{})[b.id]||''),POOLS[h.dadu]?dStr(POOLS[h.dadu]):'d20','+'+h.bonus,h.sifat?h.sifat.baik:'',h.sifat?h.sifat.buruk:'',h.nyawa,h.dasar,h.sk.nama,`${h.sk.efek}${skt?` [mekanik: ${skt[1].replace('X',h.sk.nilai||'X')}]`:''}`,'3x per cerita',h.sp.nama,`${h.sp.biaya||1} Nyawa (diri sendiri)`,`${h.sp.efek}${spt?` [pola: ${spt[1]}]`:''}`,h.ability?ABILS.map(a=>`${a} ${fmtMod(abMod(h,a))}`).join(', '):'(belum ada)',h.ability?(h.skills||[]).filter(x=>x.prof).map(x=>`${x.nama} ${fmtMod(skillMod(h,x.nama))}`).join(', '):'',h.ability?passiveOf(h):'',h.kep])});
+    rows.push([h.id,h.nama,h.kelas,h.senjata,...gb.map(b=>(h.gf||{})[b.id]||''),POOLS[h.dadu]?dStr(POOLS[h.dadu]):'d20','+'+h.bonus,h.sifat?h.sifat.baik:'',h.sifat?h.sifat.buruk:'',h.nyawa,h.dasar,h.sk.nama,`${h.sk.efek}${skt?` [mekanik: ${skt[1].replace('X',h.sk.nilai||'X')}]`:''}`,'3x per cerita',h.sp.nama,`${h.sp.biaya||1} Nyawa (diri sendiri)`,`${h.sp.efek}${spt?` [pola: ${spt[1]}]`:''}`,h.ability?ABILS.map(a=>`${a} ${fmtMod(abMod(h,a))}`).join(', '):'(belum ada)',h.ability?(h.skills||[]).filter(x=>x.prof).map(x=>`${x.nama} ${fmtMod(skillMod(h,x.nama))}`).join(', '):'',h.ability?passiveOf(h):'',acOf(h)?`${acOf(h)} (d20, terkunci)`:'(belum dikocok)',h.kep])});
   const c=v=>String(v??'').replace(/\|/g,'/').replace(/\n/g,' ');
   return rows.map((r,i)=>'| '+r.map(c).join(' | ')+' |'+(i===0?'\n|'+r.map(()=>'---').join('|')+'|':'')).join('\n');
 }
@@ -801,6 +817,14 @@ ${TIERS.map(t=>{const m=AID_MAG[t.k];return `    - ${t.n} (${DC_TABLE[t.k]}): ${
 17. "lewati_bos" (khusus Persuasion) hanya pada DC Sangat Sulit atau Mustahil, hanya untuk Bos Lemah / Bos Kuat
     (tidak untuk Raja Bos), dan tidak berlaku di adegan dengan hasil_wajib.
 18. Perception pasif hanya membuka informasi tambahan, tidak pernah memberi bonus angka.
+19. Pertahanan (AC) = hasil 1 d20 yang dikocok pemain SEKALI di awal dan terkunci selamanya (pakem).
+    Saat musuh menyerang atau ada serangan mendadak ke satu pahlawan, GM melempar
+    d20 + bonus serang musuh (Lemah +2, Biasa +4, Kuat +6, Bos +8) melawan AC pahlawan itu. Kena = −1 Nyawa
+    (angka 20 = −2 Nyawa), angka 1 selalu luput. Di narasi, tulis jelas "Musuh [nama] (kekuatan: Biasa)
+    menyerang [nama pahlawan]" agar GM tahu kapan memakai tombol Diserang. Jangan lebih dari 1 serangan per adegan.
+20. Uji ability (saving throw) = d20 + ability melawan DC, dipakai saat pahlawan harus MENAHAN sesuatu:
+    CON untuk racun/lelah/dingin, DEX untuk menghindari jebakan/ledakan, WIS untuk rasa takut/hipnotis,
+    STR untuk tetap berdiri, INT untuk ilusi, CHA untuk kerasukan/kutukan. Tulis "Uji CON DC 13 (racun)".
 
 === FORMAT OUTPUT ===
 Awali dengan bagian "RINGKASAN CERITA (KHUSUS GM)": sinopsis keseluruhan dari awal sampai
@@ -985,10 +1009,12 @@ function renderPlay(){
 function renderSide(){const s=W.sesi;
   $('party').innerHTML=party().map(id=>{const h=H(id),mx=maxH(id),pd=s.pending[id]||{};
     const acted=((s.giliran||{})[scnNoSafe()]||[]).includes(id);
-    return `<div class="hero ${down(id)?'down':''}"><div class="top"><div><button class="giliran ${acted?'on':''}" data-giliran="${esc(id)}" title="${acted?'Sudah beraksi di adegan ini (klik untuk batalkan)':'Belum beraksi di adegan ini (klik untuk tandai)'}" aria-label="Giliran ${esc(h.nama)}">✦</button><b>${esc(h.nama)}</b> <span class="small">${dStr(poolOf(id))} +${bonusOf(id)}</span>${dead(id)?'<span class="badge gugur">☠ Gugur</span>':down(id)?'<span class="badge">Tumbang</span>':''}${pd.bonus?`<span class="badge skill">Skill +${pd.bonus}</span>`:''}${pd.bonus_tim?`<span class="badge skill">Tim +${pd.bonus_tim}</span>`:''}${pd.kritis?'<span class="badge skill">Auto Kritis</span>':''}${pd.perisai?'<span class="badge shield">Perisai</span>':''}${pd.adv&&!pd.dis?'<span class="badge adv">Advantage</span>':''}${pd.dis&&!pd.adv?'<span class="badge dis">Disadvantage</span>':''}${pd.adv||pd.dis?`<button class="dbtn" data-clradv="${esc(id)}" style="padding:0 5px;font-size:11px;margin-left:3px" title="Hapus Advantage/Disadvantage">×</button>`:''}</div>
+    return `<div class="hero ${down(id)?'down':''}"><div class="top"><div><button class="giliran ${acted?'on':''}" data-giliran="${esc(id)}" title="${acted?'Sudah beraksi di adegan ini (klik untuk batalkan)':'Belum beraksi di adegan ini (klik untuk tandai)'}" aria-label="Giliran ${esc(h.nama)}">✦</button><b>${esc(h.nama)}</b> <span class="small">${dStr(poolOf(id))} +${bonusOf(id)}${acOf(h)?` · <span title="Pertahanan (AC), terkunci">🛡${acOf(h)}</span>`:' · <span title="Pertahanan belum dikunci">🛡—</span>'}</span>${dead(id)?'<span class="badge gugur">☠ Gugur</span>':down(id)?'<span class="badge">Tumbang</span>':''}${pd.bonus?`<span class="badge skill">Skill +${pd.bonus}</span>`:''}${pd.bonus_tim?`<span class="badge skill">Tim +${pd.bonus_tim}</span>`:''}${pd.kritis?'<span class="badge skill">Auto Kritis</span>':''}${pd.perisai?'<span class="badge shield">Perisai</span>':''}${pd.adv&&!pd.dis?'<span class="badge adv">Advantage</span>':''}${pd.dis&&!pd.adv?'<span class="badge dis">Disadvantage</span>':''}${pd.adv||pd.dis?`<button class="dbtn" data-clradv="${esc(id)}" style="padding:0 5px;font-size:11px;margin-left:3px" title="Hapus Advantage/Disadvantage">×</button>`:''}</div>
       <div>${Array.from({length:mx},(_,i)=>`<button class="heart ${i+1>s.hati[id]?'off':''}" data-h="${esc(id)}" data-i="${i+1}" aria-label="${esc(h.nama)} nyawa ${i+1}">♥</button>`).join('')}</div></div>
       <div class="hbtns"><button class="dbtn" data-sk="${esc(id)}" ${s.skill[id]<=0||down(id)?'disabled':''} title="${esc(h.sk.efek||'')}">⚡ ${esc(h.sk.nama||'Skill Khusus')} <span class="dots">${[0,1,2].map(i=>`<span class="dot ${i>=s.skill[id]?'used':''}"></span>`).join('')}</span></button>
-      <button class="dbtn red" data-sp="${esc(id)}" ${s.hati[id]<num(h.sp.biaya,1)||dead(id)?'disabled':''} title="${esc(h.sp.efek||'')}">♥ ${esc(h.sp.nama||'Pengorbanan')}</button></div></div>`}).join('');
+      <button class="dbtn red" data-sp="${esc(id)}" ${s.hati[id]<num(h.sp.biaya,1)||dead(id)?'disabled':''} title="${esc(h.sp.efek||'')}">♥ ${esc(h.sp.nama||'Pengorbanan')}</button>
+      <button class="dbtn" data-atk="${esc(id)}" ${dead(id)||!acOf(h)?'disabled':''} title="${acOf(h)?'Serangan musuh / mendadak: d20 + bonus musuh melawan Pertahanan':'Kunci Pertahanan dulu di tab Pahlawan'}">⚔ Diserang</button>
+      <button class="dbtn" data-uji="${esc(id)}" ${dead(id)||!h.ability?'disabled':''} title="Uji ability: menahan racun, jebakan, rasa takut, dll.">🎲 Uji</button></div></div>`}).join('');
   $('sbNum').textContent=s.sb;$('sbNum').classList.toggle('zero',s.sb===0);
   $('shiftInfo').innerHTML=s.shift?`<div class="${s.shift>0?'warn':'ok'}" style="margin:8px 0 0">Tantangan berikutnya <b>${s.shift>0?'naik':'turun'} ${Math.abs(s.shift)} tingkat</b> (akibat kejadian acak). <button class="dbtn" id="clrShift" style="padding:1px 8px">Batalkan</button></div>`:'';
   if($('clrShift'))$('clrShift').onclick=()=>{s.shift=0;log('Perubahan tingkat dibatalkan');save();renderSide();refreshRoller()};
@@ -1010,7 +1036,60 @@ $('playWrap').addEventListener('click',e=>{const t=e.target.closest('button');if
   if(t.dataset.clradv){const pd=s.pending[t.dataset.clradv]||{};delete pd.adv;delete pd.dis;log(`Advantage/Disadvantage ${H(t.dataset.clradv).nama} dihapus GM`);save();renderSide();refreshRoller();return}
   if(t.dataset.sk)useSkill(t.dataset.sk);
   if(t.dataset.sp)useSacrifice(t.dataset.sp);
+  if(t.dataset.atk)bukaSerangan(t.dataset.atk);
+  if(t.dataset.uji)bukaUji(t.dataset.uji);
 });
+/* ---------- Contekan GM: lemparan apa yang dipakai? ---------- */
+$('contekBtn').onclick=()=>modal(`<h2>Contekan GM: pakai lemparan yang mana?</h2>
+  <div class="scroll"><table class="grid contek"><tr><th>Situasinya</th><th>Lemparan</th><th>Caranya</th></tr>
+  <tr><td>Pahlawan menghadapi tantangan dari cerita (bertarung, kabur, merusak segel)</td><td><b>Aksi</b><br>dadu kelas</td><td>Pilih opsi di adegan, lempar di <b>Penghitung</b>, klik <b>Terapkan</b>.</td></tr>
+  <tr><td>Pahlawan mencoba sesuatu yang tidak pasti (membujuk, menyelinap, mencari petunjuk)</td><td><b>Cek skill</b><br>d20 + skill</td><td>Sebut skill &amp; DC (10 mudah · 15 sedang · 20 sulit). Pemain lempar d20 + angka skill.</td></tr>
+  <tr><td>Pahlawan harus <b>menahan</b> sesuatu (racun, jebakan, rasa takut)</td><td><b>Uji ability</b><br>d20 + ability</td><td>Tombol <b>🎲 Uji</b> di kartu pahlawan. Contoh: racun → Tahan (CON) DC 13.</td></tr>
+  <tr><td>Musuh menyerang atau ada <b>serangan mendadak</b> ke satu pahlawan</td><td><b>Serangan musuh</b><br>d20 + bonus musuh</td><td>Tombol <b>⚔ Diserang</b>. Hasil ≥ Pertahanan (d20 terkunci) = −1 ${esc(T('nyawa'))}.</td></tr>
+  </table></div>
+  <p class="small">Aturan emas: bila ragu, pilih yang paling sederhana dan lanjutkan cerita. Keputusan GM adalah final.</p>
+  <div class="actions"><button class="btn" type="button" onclick="closeModal()">Mengerti</button></div>`);
+/* ---------- Musuh menyerang (Pertahanan / AC) ---------- */
+const d20=()=>1+Math.floor(Math.random()*20);
+function bukaSerangan(id){const h=H(id),ac=acOf(h);let mk='biasa';
+  const isi=()=>{const m=MUSUH.find(x=>x.k===mk);return `<h2>⚔ Musuh menyerang ${esc(h.nama)}</h2>
+    <p class="small">Musuh melempar <b>d20 + bonus</b>. Hasil ≥ Pertahanan <b>${ac}</b> = kena (−1 ${esc(T('nyawa'))}). Angka 20 = −2, angka 1 = selalu luput.</p>
+    <div class="seg" role="radiogroup" aria-label="Kekuatan musuh">${MUSUH.map(x=>`<button type="button" class="seg-b ${x.k===mk?'on':''}" data-mk="${x.k}" aria-checked="${x.k===mk}">${x.nama} +${x.bonus}</button>`).join('')}</div>
+    <p class="small">${esc(m.ket)} · peluang kena <b>${Math.round(peluangKena(m.bonus,ac)*100)}%</b></p>
+    <div class="row"><button class="btn" id="atkRoll" type="button">🎲 Lempar d20 musuh</button><span class="small">atau ketik hasil dadu fisik:</span><input class="s" id="atkD" type="number" min="1" max="20" style="width:80px" aria-label="Hasil d20 musuh"><button class="dbtn" id="atkCek" type="button">Cek</button></div>
+    <div id="atkHasil"></div>`};
+  modal(isi());
+  const bind=()=>{document.querySelectorAll('[data-mk]').forEach(b=>b.onclick=()=>{mk=b.dataset.mk;modal(isi());bind()});
+    const tampil=r=>{const res=seranganMusuh(r,MUSUH.find(x=>x.k===mk).bonus,ac);const lindung=(W.sesi.pending[id]||{}).perisai||party().some(p=>(W.sesi.pending[p]||{}).perisai);
+      $('atkHasil').innerHTML=`<div class="atk-res ${res.kena?'kena':'luput'}"><div class="atk-n">${res.d20} ${fmtMod(res.bonus)} = <b>${res.total}</b> <span>vs Pertahanan ${ac}</span></div>
+        <div class="atk-v">${res.kena?`KENA${res.kritis?' KRITIS':''} · −${res.luka} ${esc(T('nyawa'))}`:res.luput?'LUPUT (angka 1)':'LUPUT · tidak terluka'}</div></div>
+        <div class="actions">${res.kena?`<button class="btn red" id="atkApply" type="button">Terapkan −${res.luka} ${esc(T('nyawa'))}</button>${lindung?'<span class="small">Perisai aktif: luka akan dibatalkan.</span>':''}`:`<button class="btn" id="atkApply" type="button">Catat &amp; tutup</button>`}</div>`;
+      $('atkApply').onclick=()=>{const m=MUSUH.find(x=>x.k===mk);const ket=`musuh ${m.nama} ${res.d20}${fmtMod(res.bonus)}=${res.total} vs AC ${ac}`;
+        if(res.kena){if(!useShield())hurt(id,res.luka,ket)}else log(`${h.nama} menghindar (${ket})`);
+        save();closeModal();renderSide()}};
+    $('atkRoll').onclick=()=>tampil(d20());
+    $('atkCek').onclick=()=>{const v=parseInt($('atkD').value,10);if(v>=1&&v<=20)tampil(v);else toast('Isi angka 1–20.',true)}};
+  bind()}
+/* ---------- Uji ability (saving throw) ---------- */
+function bukaUji(id){const h=H(id);let ab='CON',dc=13;
+  const isi=()=>`<h2>🎲 Uji ability ${esc(h.nama)}</h2>
+    <p class="small">Dipakai saat pahlawan harus <b>menahan</b> sesuatu. Lempar <b>d20 + ability</b> ≥ DC.</p>
+    <div class="uji-ab">${ABILS.map(a=>`<button type="button" class="uji-b ${a===ab?'on':''}" data-ab="${a}"><span>${ABIL_SEDERHANA[a].ikon} ${ABIL_SEDERHANA[a].n}</span><b>${fmtMod(abMod(h,a))}</b><small>${esc(UJI_CONTOH[a])}</small></button>`).join('')}</div>
+    <div class="row"><span class="small">DC:</span>${[10,13,15,18,20].map(v=>`<button type="button" class="dbtn ${v===dc?'on-dc':''}" data-dc="${v}">${v}</button>`).join('')}</div>
+    <div class="row"><button class="btn" id="ujiRoll" type="button">🎲 Lempar d20</button><span class="small">atau hasil dadu fisik:</span><input class="s" id="ujiD" type="number" min="1" max="20" style="width:80px" aria-label="Hasil d20"><button class="dbtn" id="ujiCek" type="button">Cek</button></div>
+    <div id="ujiHasil"></div>`;
+  const bind=()=>{document.querySelectorAll('[data-ab]').forEach(b=>b.onclick=()=>{ab=b.dataset.ab;modal(isi());bind()});
+    document.querySelectorAll('[data-dc]').forEach(b=>b.onclick=()=>{dc=+b.dataset.dc;modal(isi());bind()});
+    const tampil=r=>{const m=abMod(h,ab),tot=r+m,ok=r===20||(r!==1&&tot>=dc);
+      $('ujiHasil').innerHTML=`<div class="atk-res ${ok?'luput':'kena'}"><div class="atk-n">${r} ${fmtMod(m)} = <b>${tot}</b> <span>vs DC ${dc}</span></div><div class="atk-v">${ok?'BERHASIL MENAHAN':'GAGAL MENAHAN'}</div></div>
+        <p class="small">Akibatnya diputuskan GM sesuai cerita (mis. gagal menahan racun = −1 ${esc(T('nyawa'))}).</p>
+        <div class="actions">${ok?'':`<button class="btn red" id="ujiLuka" type="button">−1 ${esc(T('nyawa'))}</button>`}<button class="btn" id="ujiTutup" type="button">Catat &amp; tutup</button></div>`;
+      const ket=`Uji ${ABIL_SEDERHANA[ab].n} (${ab}) ${r}${fmtMod(m)}=${tot} vs DC ${dc}`;
+      $('ujiTutup').onclick=()=>{log(`${h.nama} ${ok?'berhasil':'gagal'} ${ket}`);save();closeModal();renderSide()};
+      if($('ujiLuka'))$('ujiLuka').onclick=()=>{hurt(id,1,'gagal '+ket);save();closeModal();renderSide()}};
+    $('ujiRoll').onclick=()=>tampil(d20());
+    $('ujiCek').onclick=()=>{const v=parseInt($('ujiD').value,10);if(v>=1&&v<=20)tampil(v);else toast('Isi angka 1–20.',true)}};
+  modal(isi());bind()}
 $('playWrap').addEventListener('change',e=>{const t=e.target;if(t.dataset.q){W.sesi.quests[t.dataset.q].selesai=t.checked;log(`Quest "${t.dataset.q}" ${t.checked?'SELESAI':'dibuka lagi'}`);save();renderSide()}});
 $('sbPlus').onclick=()=>{addSB(1,'diatur manual');save();renderSide()};$('sbMinus').onclick=()=>{addSB(-1,'diatur manual');save();renderSide()};
 $('usePot').onclick=()=>{const id=$('potTarget').value,s=W.sesi;if(s.ramuan<1)return alert('Ramuan habis.');if(s.hati[id]>=maxH(id))return alert(H(id).nama+' masih penuh.');s.ramuan--;hurt(id,-1,'minum ramuan');save();renderSide()};
@@ -1435,7 +1514,7 @@ const scnNoSafe=()=>{try{return W&&W.story&&W.sesi&&!W.sesi.ended?scn().no:0}cat
 
 /* ---------- Undo & riwayat aksi ---------- */
 const UNDO_MAX=20;
-const UNDO_SEL='#rApply,#evApply,#mOk,#usePot,#addItem,#sbPlus,#sbMinus,#applyFate,#toEnding,#clrShift,#clrAid,#rSkip,#improvAdd,[data-h],[data-ram],[data-rmitem],[data-clradv],[data-next],[data-giliran]';
+const UNDO_SEL='#atkApply,#ujiLuka,#ujiTutup,#rApply,#evApply,#mOk,#usePot,#addItem,#sbPlus,#sbMinus,#applyFate,#toEnding,#clrShift,#clrAid,#rSkip,#improvAdd,[data-h],[data-ram],[data-rmitem],[data-clradv],[data-next],[data-giliran]';
 function undoWatch(e){if(!W||!W.sesi)return;const b=e.target&&e.target.closest?e.target.closest(UNDO_SEL):null;const q=e.type==='change'&&e.target.dataset&&e.target.dataset.q!==undefined;
   if((!b||b.disabled)&&!q)return;if(b&&!b.closest('#p-play')&&!b.closest('#modal'))return;const before=JSON.stringify(W.sesi);
   setTimeout(()=>{if(!W||!W.sesi)return;const after=JSON.stringify(W.sesi);if(after===before)return;

@@ -13,7 +13,8 @@ import '../styles/tema.css';
 import '../styles/portal.css';
 import { sb, pesanError, loginModalHtml, bindLoginModal, logout, catatAksi, peranSaya, buatUndangan, pesanUndangan, tautanFoto, GOOGLE_SVG } from '../shared/supa';
 import { drawCard, dlCanvas } from '../core/card';
-import { esc, slug } from '../core/util';
+import { esc, slug, fmtMod } from '../core/util';
+import { ABILS, ABIL_SEDERHANA, UJI_CONTOH } from '../core/skills';
 
 const $ = id => document.getElementById(id);
 const SIMPAN_KODE = 'mdnd-kode-kartu';
@@ -24,7 +25,8 @@ const GENRE_NAMA = { fantasy: 'Fantasy', archive: 'Archive', apocalyptic: 'Apoca
 let user = null; let peran = { moderator: false }; let authSiap = false;
 let view = null; let riwayatN = 0; let filter = '';
 let kelola = []; let kelolaError = '';
-let kartu = null; let polling = null;
+let kartu = null; let polling = null; let daduAktif = true;
+async function muatPengaturan() { try { const { data, error } = await sb.rpc('pengaturan_publik'); if (!error && data) daduAktif = data.dadu_digital !== false; } catch (e) { /* default aktif */ } }
 
 /* ---------- utilitas tampilan ---------- */
 function toast(m, bad) { const t = $('toast'); t.textContent = m; t.className = 'show' + (bad ? ' bad' : ''); clearTimeout(t._h); t._h = setTimeout(() => t.className = '', 4500); }
@@ -103,7 +105,7 @@ async function renderKartu() {
   const kode = localStorage.getItem(SIMPAN_KODE);
   $('pMain').innerHTML = `<div class="panel pk-muat"><p>Membuka kartu…</p></div>`;
   let d;
-  try { const r = await sb.rpc('lihat_kartu', { p_kode: kode }); if (r.error) throw r.error; d = r.data; }
+  try { const [r] = await Promise.all([sb.rpc('lihat_kartu', { p_kode: kode }), muatPengaturan()]); if (r.error) throw r.error; d = r.data; }
   catch (e) { localStorage.removeItem(SIMPAN_KODE); view = 'awal'; history.replaceState({ v: 'awal', n: riwayatN }, '', '#awal'); renderAwal(esc(pesanError(e))); return; }
   if (view !== 'kartu') return;
   kartu = d; const cd = d.hero.kartu; const nama = d.hero.nama || (cd && cd.nama) || 'Pahlawan'; const tn = (cd && cd.tn) || 'Hati';
@@ -119,6 +121,8 @@ async function renderKartu() {
       <div class="pk-side">
         <section class="panel"><h2 class="pk-h">Kondisi terkini <span class="live" title="Diperbarui otomatis tiap 20 detik">● langsung</span></h2><div id="kSt"></div></section>
         <section class="panel"><h2 class="pk-h">Rekap cerita</h2><div id="kRk"></div></section>
+        <section class="panel" id="kDadu"></section>
+        <section class="panel" id="kArti"></section>
         <section class="panel pk-tips"><h2 class="pk-h">Cara memakai kartu</h2>
           <ul><li>Lempar <b>dadu kelas</b>, jumlahkan, lalu sebut ke GM. Bonus ditambahkan sistem.</li>
           <li>Diminta cek skill? Lempar <b>1 d20</b>, tambah angka skill di kartu (mis. Persuasion +3).</li>
@@ -129,6 +133,8 @@ async function renderKartu() {
   $('kGanti').onclick = () => { localStorage.removeItem(SIMPAN_KODE); kartu = null; tampil('awal'); };
   isiStatus(d.status, d.rekap, tn);
   mulaiPolling(kode, tn);
+  if (cd) { renderDadu(cd); renderArti(cd); }
+  kartu._cd = cd;
   if (!cd) { $('kImg').innerHTML = '<span class="pk-ph">Kartu belum tersedia. Minta GM membuka campaign agar tersimpan.</span>'; return; }
   const cv = await drawCard(cd, d.foto_url ? await muatFoto(d.foto_url) : null);
   if (view !== 'kartu') return;
@@ -163,9 +169,59 @@ function mulaiPolling(kode, tn) {
     const { data, error } = await sb.rpc('status_kartu', { p_kode: kode }); if (error || !data) return;
     if (!data.berlaku) { berhentiPolling(); localStorage.removeItem(SIMPAN_KODE); if ($('kSt')) $('kSt').innerHTML = '<div class="warn">Kode ini sudah hangus karena sesi/bab selesai. Kartu yang sudah diunduh tetap bisa kamu simpan. Minta kode baru ke GM untuk sesi berikutnya.</div>'; return; }
     isiStatus(data.status, data.rekap, tn);
+    const lama = daduAktif; await muatPengaturan(); if (lama !== daduAktif && kartu && kartu._cd) renderDadu(kartu._cd);
   }, 20000);
 }
 function berhentiPolling() { if (polling) { clearInterval(polling); polling = null; } }
+
+/* ---------- dadu digital untuk pemain ---------- */
+const lempar = n => 1 + Math.floor(Math.random() * n);
+const sisiDadu = t => (String(t || 'd20').match(/d(\d+)/g) || ['d20']).map(x => +x.slice(1));
+let modeDadu = 'aksi';
+function renderDadu(cd) {
+  const el = $('kDadu'); if (!el) return; const punyaAb = !!(cd.ab && cd.sks);
+  if (!daduAktif) { el.innerHTML = `<h2 class="pk-h">🎲 Lempar dadu</h2><p class="small">Dadu digital sedang <b>dimatikan</b> oleh moderator. Pakai dadu fisik dan lempar di depan semua pemain.</p>`; return; }
+  const mode = [['aksi', 'Aksi'], ...(punyaAb ? [['skill', 'Cek skill'], ['uji', 'Uji ability']] : [])];
+  if (!mode.some(m => m[0] === modeDadu)) modeDadu = 'aksi';
+  const sk = punyaAb ? [...cd.sks].sort((a, b) => b[3] - a[3] || b[2] - a[2]) : [];
+  el.innerHTML = `<h2 class="pk-h">🎲 Lempar dadu</h2><p class="small">Tidak punya dadu? Lempar di sini, lalu <b>sebut hasilnya ke GM</b>.</p>
+    <div class="seg" role="tablist">${mode.map(([k, l]) => `<button class="seg-b ${k === modeDadu ? 'on' : ''}" data-md="${k}" type="button" role="tab" aria-selected="${k === modeDadu}">${l}</button>`).join('')}</div>
+    <div class="ld-form">${modeDadu === 'aksi' ? `<p class="small">Dadu kelasmu: <b>${esc(cd.dadu || 'd20')}</b>. Dipakai saat GM bilang “lempar dadu”.</p>`
+      : modeDadu === 'skill' ? `<label class="small" for="ldSk">Skill yang disebut GM</label><select class="s" id="ldSk">${sk.map(([n, , m, pr]) => `<option value="${esc(n)}">${pr ? '● ' : ''}${esc(n)} ${fmtMod(m)}</option>`).join('')}</select>`
+      : `<label class="small" for="ldAb">Ability yang disebut GM</label><select class="s" id="ldAb">${ABILS.map((a, i) => `<option value="${i}" ${a === 'CON' ? 'selected' : ''}>${ABIL_SEDERHANA[a].n} (${a}) ${fmtMod(cd.ab[i])} — ${esc(UJI_CONTOH[a])}</option>`).join('')}</select>`}
+      ${modeDadu !== 'aksi' ? `<div class="seg ld-adv" role="radiogroup" aria-label="Advantage"><button class="seg-b on" data-adv="0" type="button">Normal</button><button class="seg-b" data-adv="1" type="button">Advantage</button><button class="seg-b" data-adv="-1" type="button">Disadvantage</button></div>` : ''}
+      <button class="btn ld-btn" id="ldGo" type="button">🎲 Lempar</button></div>
+    <div id="ldHasil" class="ld-hasil" aria-live="polite"></div>`;
+  el.querySelectorAll('[data-md]').forEach(b => b.onclick = () => { modeDadu = b.dataset.md; renderDadu(cd); });
+  let adv = 0; el.querySelectorAll('[data-adv]').forEach(b => b.onclick = () => { adv = +b.dataset.adv; el.querySelectorAll('[data-adv]').forEach(x => x.classList.toggle('on', x === b)); });
+  $('ldGo').onclick = () => {
+    const out = $('ldHasil'); let html;
+    if (modeDadu === 'aksi') {
+      const sisi = sisiDadu(cd.dadu); const hasil = sisi.map(lempar); const jml = hasil.reduce((a, b) => a + b, 0);
+      const kritis = hasil.every((v, i) => v === sisi[i]); const gagal = hasil.every(v => v === 1);
+      html = `<div class="ld-dadu">${hasil.map((v, i) => `<span class="ld-d"><small>d${sisi[i]}</small>${v}</span>`).join('<i>+</i>')}<i>=</i><span class="ld-tot">${jml}</span></div>
+        <p class="ld-sebut">Bilang ke GM: <b>“${jml}!”</b>${cd.bonus ? ` <span class="small">(GM menambah bonus +${esc(cd.bonus)})</span>` : ''}</p>
+        ${kritis ? '<p class="ld-tag ok">✨ KRITIS: semua dadu angka tertinggi. Pasti berhasil!</p>' : gagal ? '<p class="ld-tag bad">💀 GAGAL TOTAL: semua dadu angka 1.</p>' : ''}`;
+    } else {
+      const a = lempar(20), b = lempar(20); const d = adv > 0 ? Math.max(a, b) : adv < 0 ? Math.min(a, b) : a;
+      let nama, m;
+      if (modeDadu === 'skill') { const r = cd.sks.find(x => x[0] === $('ldSk').value); nama = r[0]; m = r[2]; }
+      else { const i = +$('ldAb').value; nama = `Uji ${ABIL_SEDERHANA[ABILS[i]].n}`; m = cd.ab[i]; }
+      html = `<div class="ld-dadu">${adv ? `<span class="ld-d ${d === a ? '' : 'redup'}"><small>d20</small>${a}</span><span class="ld-d ${d === b && a !== b ? '' : d === b ? 'redup' : 'redup'}"><small>d20</small>${b}</span><i>→</i>` : ''}<span class="ld-d"><small>d20</small>${d}</span><i>${m < 0 ? '−' : '+'}</i><span class="ld-d mod"><small>${esc(nama)}</small>${Math.abs(m)}</span><i>=</i><span class="ld-tot">${d + m}</span></div>
+        <p class="ld-sebut">Bilang ke GM: <b>“${esc(nama)} ${d + m}!”</b></p>
+        ${d === 20 ? '<p class="ld-tag ok">✨ Angka 20: hasil luar biasa!</p>' : d === 1 ? '<p class="ld-tag bad">💀 Angka 1: pasti gagal.</p>' : ''}`;
+    }
+    out.classList.remove('muncul'); void out.offsetWidth; out.innerHTML = html; out.classList.add('muncul');
+  };
+}
+function renderArti(cd) {
+  const el = $('kArti'); if (!el) return;
+  if (!cd.ab) { el.remove(); return; }
+  el.innerHTML = `<h2 class="pk-h">Arti angka di kartumu</h2>
+    <div class="arti-grid">${ABILS.map((a, i) => `<div class="arti ${cd.ab[i] >= 2 ? 'kuat' : ''}"><span class="arti-ik" aria-hidden="true">${ABIL_SEDERHANA[a].ikon}</span><div><b>${ABIL_SEDERHANA[a].n} <small>${a}</small> <em>${fmtMod(cd.ab[i])}</em></b><span>${esc(ABIL_SEDERHANA[a].u)}</span></div></div>`).join('')}</div>
+    ${cd.ac != null ? `<div class="arti ac"><span class="arti-ik" aria-hidden="true">🛡️</span><div><b>Pertahanan (AC) <em>${esc(cd.ac)}</em></b><span>Hasil d20 yang kamu kocok di awal, terkunci selamanya. Saat ada serangan mendadak, musuh harus mencapai ${esc(cd.ac)} atau lebih untuk mengenaimu.</span></div></div>` : ''}
+    <p class="small">Plus (+) = jago, minus (−) = kurang jago. Angka ini ditambahkan ke d20.</p>`;
+}
 
 /* ---------- layar penuh (kartu utuh, bisa diperbesar) ---------- */
 function bukaLayarPenuh(src, nama, unduh) {

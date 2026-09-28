@@ -133,3 +133,43 @@ export function matchKelas(kelas: string, genre: string, idx: number, normL: (s:
   const low = raw.toLowerCase(); m = low ? table.find(c => c.kata.some(k => low.includes(k))) : undefined; if (m) return { m, cara: 'kata' };
   return { m: table[Math.max(0, idx) % table.length], cara: 'urutan' };
 }
+
+/* ================= Ability sederhana, Pertahanan (AC), Serangan musuh, Uji Ability ================= */
+/** Nama pendek berbahasa Indonesia + kegunaan, supaya pemain langsung paham arti tiap ability. */
+export const ABIL_SEDERHANA: Record<Abil, { n: string; ikon: string; u: string }> = {
+  STR: { n: 'Kuat', ikon: '💪', u: 'mengangkat, memanjat, mendobrak' },
+  DEX: { n: 'Lincah', ikon: '🤸', u: 'menghindar, menyelinap, melompat' },
+  CON: { n: 'Tahan', ikon: '🛡️', u: 'menahan racun, lelah, dingin, dan sakit' },
+  INT: { n: 'Pintar', ikon: '🧠', u: 'mengingat, menyelidiki, sihir' },
+  WIS: { n: 'Peka', ikon: '👁️', u: 'melihat, naluri, merawat luka' },
+  CHA: { n: 'Pesona', ikon: '✨', u: 'membujuk, berbohong, menakut-nakuti' },
+};
+/** Pertahanan (Armor Class): hasil 1 d20 yang dikocok pemain SEKALI di awal, lalu terkunci. */
+export function nilaiPertahanan(p: unknown): number | null {
+  const v = p && typeof p === 'object' ? Math.round(num((p as { nilai?: unknown }).nilai, 0)) : 0;
+  return v >= 1 && v <= 20 ? v : null;
+}
+
+/** Kekuatan serangan musuh: d20 + bonus ini melawan Pertahanan pahlawan. */
+export const MUSUH: { k: string; nama: string; bonus: number; ket: string }[] = [
+  { k: 'lemah', nama: 'Lemah', bonus: 2, ket: 'tikus raksasa, preman, zombie lambat' },
+  { k: 'biasa', nama: 'Biasa', bonus: 4, ket: 'prajurit, serigala, penjaga' },
+  { k: 'kuat', nama: 'Kuat', bonus: 6, ket: 'ogre, pemimpin geng, monster' },
+  { k: 'bos', nama: 'Bos', bonus: 8, ket: 'naga, raja iblis, bos terakhir' },
+];
+export interface HasilSerang { d20: number; bonus: number; total: number; ac: number; kena: boolean; kritis: boolean; luput: boolean; luka: number }
+/** Aturan: total ≥ AC = kena (−1 Nyawa). d20 = 20 selalu kena (−2). d20 = 1 selalu luput. */
+export function seranganMusuh(d20: number, bonus: number, ac: number): HasilSerang {
+  const total = d20 + bonus; const kritis = d20 === 20; const luput = d20 === 1;
+  const kena = kritis || (!luput && total >= ac);
+  return { d20, bonus, total, ac, kena, kritis, luput, luka: kena ? (kritis ? 2 : 1) : 0 };
+}
+/** Peluang musuh mengenai (0–1), untuk ditampilkan ke GM. */
+export function peluangKena(bonus: number, ac: number): number {
+  let n = 0; for (let r = 1; r <= 20; r++) if (seranganMusuh(r, bonus, ac).kena) n++; return n / 20;
+}
+/** Uji Ability (saving throw): d20 + ability ≥ DC. Dipakai saat pahlawan harus MENAHAN sesuatu. */
+export const UJI_CONTOH: Record<Abil, string> = {
+  STR: 'tetap berdiri saat didorong raksasa', DEX: 'melompat menghindari jebakan/ledakan', CON: 'menahan racun, lelah, atau dingin',
+  INT: 'melawan ilusi dan tipuan sihir', WIS: 'tidak terpengaruh rasa takut atau hipnotis', CHA: 'melawan kerasukan atau kutukan',
+};

@@ -114,3 +114,16 @@ describe('improvisasi & utilitas', () => {
   });
   it('utilitas', () => { expect(slug('Senna Ardalén!')).toBe('sennaardalen'); expect(esc('<b>"x"</b>')).toBe('&lt;b&gt;&quot;x&quot;&lt;/b&gt;'); expect(fmtMod(-2)).toBe('−2'); expect(normL('Kelas / Peran (pilih)')).toBe('kelasperan'); });
 });
+
+import { nilaiPertahanan, seranganMusuh, peluangKena } from './skills';
+describe('Pertahanan (AC) & serangan musuh', () => {
+  it('Pertahanan = d20 terkunci (1–20), selain itu dianggap belum ada', () => {
+    expect(nilaiPertahanan({ nilai: 14 })).toBe(14); expect(nilaiPertahanan({ nilai: 0 })).toBeNull();
+    expect(nilaiPertahanan({ nilai: 21 })).toBeNull(); expect(nilaiPertahanan(null)).toBeNull();
+  });
+  it('kena bila total ≥ AC; 20 selalu kena 2 luka; 1 selalu luput', () => {
+    expect(seranganMusuh(9, 4, 13).kena).toBe(true); expect(seranganMusuh(8, 4, 13).kena).toBe(false);
+    expect(seranganMusuh(20, 0, 30)).toMatchObject({ kena: true, luka: 2 }); expect(seranganMusuh(1, 30, 5).kena).toBe(false);
+  });
+  it('peluang kena musuh biasa (+4) ke AC 13 = 60%', () => { expect(peluangKena(4, 13)).toBeCloseTo(0.6); });
+});
