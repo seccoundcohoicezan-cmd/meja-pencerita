@@ -617,6 +617,7 @@ const JSON_SPEC=`{
       "judul": "Judul adegan",
       "ringkas": "1 kalimat apa yang terjadi di adegan ini",
       "latar": { "tempat": "Lokasi spesifik", "waktu": "malam", "cuaca": "hujan rintik", "suasana": "tegang, sunyi, bau dupa" },
+      "musik": { "suasana": "calm" },
       "mati": [],
       "narasi": "Paragraf 1\\n\\nParagraf 2",
       "pasif": { "skill": "Perception", "dc": 14, "info": "Petunjuk yang hanya dibacakan GM bila Perception pasif pahlawan >= dc (opsional)" },
@@ -857,6 +858,9 @@ Aturan isi JSON:
 - "ringkasan", "ringkas", dan "latar" WAJIB diisi untuk seluruh cerita dan setiap adegan.
 - "mati": daftar ID pahlawan yang gugur. Kosongkan [] jika tidak ada.
 - "narasi" boleh berisi \\n\\n untuk pemisah paragraf.
+- "musik.suasana" (opsional, untuk musik latar otomatis): suasana DOMINAN adegan itu, salah satu dari
+  "calm" (tenang, reflektif, haru), "happy" (bahagia, kemenangan, perayaan), "slow_fun" (santai, lucu, perjalanan),
+  "war" (perang, duel, pengejaran, ancaman besar), atau "neutral" bila belum jelas. Jangan ubah cerita demi musik.
 - Semua field skill individu (skill_check, kontes, pasif, hasil_wajib, berhasil_bersih, berhasil_komplikasi,
   gagal_total, efek_komplikasi, efek_gagal_total, efek_jika_berhasil) OPSIONAL. Hapus bila tidak dipakai.
 - "skill" memakai nama baku persis dari daftar 18 skill. Pelaku skill_cek/kontes/skill_bantuan hanya 1 orang.`;
@@ -1546,7 +1550,7 @@ function markGiliran(ids){const s=W.sesi;if(!s)return;const no=scnNoSafe();if(!n
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('#rApply');if(!b||b.disabled||!RC||!W||!W.sesi)return;
   let ids=[];if($('rHero'))ids=[$('rHero').value];else if($('rTbl')&&document.querySelector('#rTbl tr[data-id]'))ids=[...document.querySelectorAll('#rTbl tr[data-id]')].filter(tr=>tr.querySelector('.in').checked).map(tr=>tr.dataset.id);
   else ids=(RC.o.pelaku||[]).filter(p=>party().includes(p));markGiliran(ids);
-  const vh=document.querySelector('#rOut .vhead');if(vh)bus.emit('scene',{type:'hasil',cls:[...vh.classList].find(c=>c!=='vhead')||'',judul:vh.childNodes[0]?vh.childNodes[0].textContent:'',sub:(vh.querySelector('small')||{}).textContent||'',teks:(document.querySelector('#rOut .read')||{}).textContent||''})},true);
+  const vh=document.querySelector('#rOut .vhead');if(vh)bus.emit('scene',{type:'hasil',cls:[...vh.classList].find(c=>c!=='vhead')||'',judul:vh.childNodes[0]?vh.childNodes[0].textContent:'',sub:(vh.querySelector('small')||{}).textContent||'',teks:(document.querySelector('#rOut .read')||{}).textContent||'',jenis:RC&&RC.o?RC.o.jenis:''})},true);
 $('playWrap').addEventListener('click',e=>{const g=e.target.closest('[data-giliran]');if(!g||!W.sesi)return;const no=scnNoSafe();if(!no)return;const s=W.sesi;s.giliran=s.giliran||{};
   const a=new Set(s.giliran[no]||[]);a.has(g.dataset.giliran)?a.delete(g.dataset.giliran):a.add(g.dataset.giliran);s.giliran[no]=[...a];save();renderSide()});
 function renderGiliran(){const el=$('giliranInfo');if(!el||!W.sesi)return;const no=scnNoSafe();if(!no){el.innerHTML='';return}
