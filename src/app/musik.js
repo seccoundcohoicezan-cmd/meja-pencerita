@@ -51,7 +51,7 @@ const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
 function bacaPref() {
-  const d = { auto: true, vol: 60, bisu: false, ringkas: window.matchMedia('(max-width: 600px)').matches, kat: null };
+  const d = { auto: true, vol: 60, bisu: false, mini: true, kat: null };
   try { return Object.assign(d, JSON.parse(localStorage.getItem(PREF_KEY) || '{}')); } catch (e) { return d; }
 }
 
@@ -80,7 +80,7 @@ export function initMusik() {
   <header class="mz-head">
     <h2 id="mzH">${IKON.musik}<span class="mz-h-teks">Musik Adaptif</span><span class="mz-h-eq">${IKON.eq}</span></h2>
     <button class="mz-auto" id="mzAuto" type="button" role="switch" aria-checked="true" title="Auto: musik mengikuti suasana adegan">Auto <b>ON</b></button>
-    <button class="mz-ikon" id="mzRingkas" type="button" aria-pressed="false" title="Ringkas panel">${IKON.ringkas}</button>
+    <button class="mz-ikon" id="mzRingkas" type="button" aria-pressed="false" title="Perkecil jadi pemutar mini">${IKON.ringkas}</button>
     <button class="mz-ikon" id="mzTutup" type="button" aria-label="Tutup panel musik (musik dijeda)" title="Tutup (musik dijeda)">${IKON.tutup}</button>
   </header>
   <div class="mz-status"><span class="mz-chip" id="mzChip">Netral</span><small id="mzAsal">Menunggu adegan…</small></div>
@@ -233,16 +233,16 @@ export function initMusik() {
     } else sr.hidden = true;
     const ln = $('mzLaunch'); ln.classList.toggle('main', main); $('mzLKat').textContent = st.dimulai ? info.nama : 'Musik';
     ln.setAttribute('aria-label', `Musik Adaptif: ${info.nama}${main ? ', sedang diputar' : ''}`);
-    $('mzPanel').classList.toggle('ringkas', !!pref.ringkas); $('mzRingkas').setAttribute('aria-pressed', String(!!pref.ringkas));
-    $('mzRingkas').title = pref.ringkas ? 'Tampilkan semua kontrol' : 'Ringkas panel'; $('mzRingkas').setAttribute('aria-label', $('mzRingkas').title);
-    $('mzRingkas').innerHTML = pref.ringkas ? IKON.luas : IKON.ringkas;
+    $('mzPanel').classList.toggle('ringkas', !!pref.mini); document.body.classList.toggle('mz-mini', !!pref.mini); $('mzRingkas').setAttribute('aria-pressed', String(!!pref.mini));
+    $('mzRingkas').title = pref.mini ? 'Perbesar panel musik' : 'Perkecil jadi pemutar mini'; $('mzRingkas').setAttribute('aria-label', $('mzRingkas').title);
+    $('mzRingkas').innerHTML = pref.mini ? IKON.luas : IKON.ringkas;
   }
 
   // Body diberi ruang setinggi panel supaya tombol aplikasi tidak pernah tertutup panel.
   new ResizeObserver(() => document.body.style.setProperty('--mz-h', ($('mzPanel').hidden ? 0 : $('mzPanel').offsetHeight) + 'px')).observe($('mzPanel'));
   $('mzLaunch').onclick = () => { const buka = $('mzPanel').hidden; bukaPanel(buka); if (buka) $('mzAuto').focus(); };
   $('mzTutup').onclick = () => { bukaPanel(false); $('mzLaunch').focus(); };
-  $('mzRingkas').onclick = () => { pref.ringkas = !pref.ringkas; simpan(); render(); };
+  $('mzRingkas').onclick = () => { pref.mini = !pref.mini; simpan(); render(); };
   $('mzMulai').onclick = () => { st.dijeda = false; if (st.diblokir && st.lagu) { st.diblokir = false; pemutar.main(); render(); } else mulai(); };
   $('mzPlay').onclick = () => {
     if (!st.dimulai || !st.lagu) { mulai(); return; }

@@ -102,7 +102,7 @@ body.mz-buka.fokus .play > aside, body.mz-buka.fokus .fk-kanan { max-height: cal
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 /* Ringkas: pemutar & kontrol inti tetap terlihat, sisanya disembunyikan. */
-.mz-panel.ringkas .mz-kat, .mz-panel.ringkas .mz-catatan, .mz-panel.ringkas .mz-saran, .mz-panel.ringkas .mz-status small { display: none; }
+/* (mode mini: lihat bagian akhir berkas) */
 
 body.fokus .mz-launch { bottom: 12px; right: 12px; }
 @media (max-width: 600px) {
@@ -133,3 +133,24 @@ body.fokus .mz-launch { bottom: 12px; right: 12px; }
 .mz-kb[aria-pressed="true"] { box-shadow: 0 0 0 1px #f3d98f, 0 0 18px rgba(196, 26, 36, .55); }
 .mz-catatan { text-align: center; }
 @media (max-width: 600px) { .mz-play { width: 52px; height: 52px; min-width: 52px; } .mz-kb { min-height: 52px; } .mz-h-eq { display: none; } }
+
+/* ===== Mode mini: pemutar kecil melayang di pojok, TIDAK memakan ruang halaman.
+   Pemutar tetap terlihat (min. 200px tinggi) sesuai kebijakan YouTube, musik tetap jalan. ===== */
+body.mz-buka.mz-mini { padding-bottom: 0; }
+.mz-panel.ringkas { left: auto; right: 16px; bottom: 16px; width: 320px; max-height: none; overflow: visible; padding: 10px; border: 1px solid var(--mz-garis); border-radius: 16px; box-shadow: 0 18px 44px rgba(0, 0, 0, .65); }
+.mz-panel.ringkas .mz-isi { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: 'layar layar' 'lagu lagu' 'kontrol head'; gap: 6px 8px; }
+.mz-panel.ringkas .mz-layar { min-height: 202px; aspect-ratio: auto; height: 202px; }
+.mz-panel.ringkas .mz-status, .mz-panel.ringkas .mz-saran, .mz-panel.ringkas .mz-kat, .mz-panel.ringkas .mz-catatan, .mz-panel.ringkas .mz-pesan,
+.mz-panel.ringkas .mz-head h2, .mz-panel.ringkas .mz-auto, .mz-panel.ringkas #mzKunci, .mz-panel.ringkas .mz-vol, .mz-panel.ringkas .mz-lagu small { display: none; }
+.mz-panel.ringkas .mz-lagu { min-height: 0; margin: 0; font-size: 13px; }
+.mz-panel.ringkas .mz-kontrol { gap: 6px; }
+.mz-panel.ringkas .mz-btn, .mz-panel.ringkas .mz-ikon { min-width: 40px; min-height: 40px; }
+.mz-panel.ringkas .mz-play { width: 44px; height: 44px; min-width: 44px; box-shadow: 0 0 0 3px rgba(163, 20, 28, .25); }
+.mz-panel.ringkas .mz-play .mz-svg { width: 20px; height: 20px; }
+.mz-panel.ringkas .mz-head { gap: 6px; }
+.mz-panel.ringkas .mz-kosong p { display: none; }
+@media (max-width: 600px) {
+  /* Di HP pemutar mini selebar layar, jadi tetap diberi ruang agar konten bawah bisa digulir keluar. */
+  body.mz-buka.mz-mini { padding-bottom: var(--mz-h, 0px); }
+  .mz-panel.ringkas { left: 8px; right: 8px; bottom: 8px; width: auto; }
+}
