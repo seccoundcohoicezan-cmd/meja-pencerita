@@ -30,6 +30,9 @@ const IKON = {
   play: svg('<path d="M8 5v14l11-7z" fill="currentColor"/>'),
   pause: svg('<path d="M7 5h4v14H7zM13 5h4v14h-4z" fill="currentColor"/>'),
   next: svg('<path d="M6 5v14l9-7zM16 5h3v14h-3z" fill="currentColor"/>'),
+  prev: svg('<path d="M18 5v14l-9-7zM5 5h3v14H5z" fill="currentColor"/>'),
+  petir: svg('<path d="M13 2L4 14h7l-1 8 9-12h-7z" fill="currentColor"/>'),
+  eq: svg('<path d="M5 20V11M10 20V5M15 20v-8M20 20V8" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>'),
   kunci: svg('<rect x="5" y="11" width="14" height="10" rx="2" fill="currentColor"/><path d="M8 11V8a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="2"/>'),
   buka: svg('<rect x="5" y="11" width="14" height="10" rx="2" fill="currentColor"/><path d="M8 11V8a4 4 0 0 1 7.5-2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>'),
   suara: svg('<path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>'),
@@ -75,7 +78,7 @@ export function initMusik() {
 </button>
 <section class="mz-panel noterm" id="mzPanel" aria-labelledby="mzH" hidden><div class="mz-isi">
   <header class="mz-head">
-    <h2 id="mzH">${IKON.musik}<span class="mz-h-teks">Musik Adaptif</span></h2>
+    <h2 id="mzH">${IKON.musik}<span class="mz-h-teks">Musik Adaptif</span><span class="mz-h-eq">${IKON.eq}</span></h2>
     <button class="mz-auto" id="mzAuto" type="button" role="switch" aria-checked="true" title="Auto: musik mengikuti suasana adegan">Auto <b>ON</b></button>
     <button class="mz-ikon" id="mzRingkas" type="button" aria-pressed="false" title="Ringkas panel">${IKON.ringkas}</button>
     <button class="mz-ikon" id="mzTutup" type="button" aria-label="Tutup panel musik (musik dijeda)" title="Tutup (musik dijeda)">${IKON.tutup}</button>
@@ -88,6 +91,7 @@ export function initMusik() {
   </div>
   <p class="mz-lagu" id="mzLagu" aria-live="polite">Belum ada musik diputar.</p>
   <div class="mz-kontrol">
+    <button class="mz-btn" id="mzPrev" type="button" aria-label="Musik sebelumnya" title="Musik sebelumnya">${IKON.prev}</button>
     <button class="mz-btn mz-play" id="mzPlay" type="button" aria-label="Putar musik">${IKON.play}</button>
     <button class="mz-btn" id="mzNext" type="button" aria-label="Musik berikutnya" title="Musik berikutnya">${IKON.next}</button>
     <button class="mz-btn" id="mzKunci" type="button" aria-pressed="false" aria-label="Kunci musik" title="Kunci musik ini (tidak diganti otomatis)">${IKON.buka}</button>
@@ -136,9 +140,9 @@ export function initMusik() {
     try { if (st.dijeda) { await pemutar.siapkan(lagu.id); st.memuat = false; render(); } else await pemutar.putar(lagu.id, { halus: true }); }
     catch (e) { st.memuat = false; st.galat = e.message || 'Pemutar YouTube gagal dimuat.'; render(); }
   }
-  function berikutnya(halusSaja) {
+  function berikutnya(halusSaja, arah = 1) {
     if (!st.kandidat.length) { if (st.kat) gantiKategori(st.kat); return; }
-    st.idx = (st.idx + 1) % st.kandidat.length; st.putaran[st.kat] = st.idx + 1;
+    st.idx = (st.idx + arah + st.kandidat.length) % st.kandidat.length; st.putaran[st.kat] = st.idx + 1;
     if (!halusSaja) st.memuat = true; putarIdx();
   }
   function jalankan(k) {
@@ -203,14 +207,14 @@ export function initMusik() {
     $('mzChip').innerHTML = `${ikonKat(kat)}${esc(info.nama)}`; $('mzChip').dataset.k = kat;
     $('mzAsal').textContent = st.asal || (atur.mode === 'manual' ? 'Dipilih manual' : 'Menunggu adegan…');
     const auto = atur.mode === 'auto';
-    $('mzAuto').setAttribute('aria-checked', String(auto)); $('mzAuto').innerHTML = `Auto <b>${auto ? 'ON' : 'OFF'}</b>`;
+    $('mzAuto').setAttribute('aria-checked', String(auto)); $('mzAuto').innerHTML = `${IKON.petir}Auto <b>${auto ? 'ON' : 'OFF'}</b>`;
     document.querySelectorAll('[data-mzk]').forEach(b => b.setAttribute('aria-pressed', String(!auto && b.dataset.mzk === atur.aktif)));
     $('mzKunci').setAttribute('aria-pressed', String(atur.kunci)); $('mzKunci').innerHTML = atur.kunci ? IKON.kunci : IKON.buka;
     $('mzKunci').title = atur.kunci ? 'Musik dikunci: tidak diganti otomatis (klik untuk membuka)' : 'Kunci musik ini (tidak diganti otomatis)';
     $('mzPlay').innerHTML = main ? IKON.pause : IKON.play; $('mzPlay').setAttribute('aria-label', main ? 'Jeda musik' : 'Putar musik');
     $('mzBisu').innerHTML = pemutar.bisu ? IKON.bisu : IKON.suara; $('mzBisu').setAttribute('aria-pressed', String(pemutar.bisu)); $('mzBisu').setAttribute('aria-label', pemutar.bisu ? 'Bunyikan' : 'Bisukan');
     $('mzVol').value = String(pemutar.vol); $('mzVol').setAttribute('aria-valuetext', pemutar.bisu ? 'bisu' : pemutar.vol + '%');
-    $('mzNext').disabled = !st.dimulai;
+    $('mzNext').disabled = !st.dimulai; $('mzPrev').disabled = !st.dimulai;
     $('mzKosong').hidden = st.dimulai && !!st.lagu; $('mzYT').hidden = !(st.dimulai && st.lagu);
     $('mzMulai').textContent = st.diblokir ? 'Mulai musik (browser menahan autoplay)' : 'Mulai musik';
     if (st.diblokir) { $('mzKosong').hidden = false; }
@@ -245,6 +249,7 @@ export function initMusik() {
     if (pemutar.sedangMain()) { pemutar.jeda(); st.dijeda = true; } else { st.diblokir = false; st.dijeda = false; pemutar.main(); }
   };
   $('mzNext').onclick = () => { st.gagalBeruntun = 0; st.dijeda = false; berikutnya(false); };
+  $('mzPrev').onclick = () => { st.gagalBeruntun = 0; st.dijeda = false; berikutnya(false, -1); };
   $('mzKunci').onclick = () => { atur.setKunci(!atur.kunci); pesan(atur.kunci ? 'Musik dikunci: tidak akan diganti otomatis, diulang bila selesai.' : 'Kunci dibuka.'); render(); };
   $('mzBisu').onclick = () => { pref.bisu = !pemutar.bisu; pemutar.setBisu(pref.bisu); simpan(); render(); };
   $('mzVol').oninput = e => { pref.vol = +e.target.value; pemutar.setVolume(pref.vol); if (pemutar.bisu && pref.vol > 0) { pemutar.setBisu(false); pref.bisu = false; } simpan(); render(); };

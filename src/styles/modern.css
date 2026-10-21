@@ -1,0 +1,147 @@
+/* =====================================================================
+   Tema modern (lapisan di atas tema.css): sudut membulat, ikon garis SVG,
+   tab bertahap berbentuk panah, tombol header gelap, pita judul, tile latar.
+   Warna & huruf tetap dari tema lama (darah, emas, perkamen, Cinzel/Garamond).
+   ===================================================================== */
+:root {
+  --r-panel: 14px; --r-btn: 9px; --r-pil: 999px;
+  --kaca: linear-gradient(180deg, rgba(34, 21, 17, .92), rgba(18, 11, 9, .94));
+  --garis-emas: rgba(201, 162, 74, .55);
+  --bayang-panel: 0 14px 34px rgba(0, 0, 0, .45);
+  --gelap-tile: linear-gradient(180deg, #2a1b15, #160e0b);
+}
+
+/* ---------- ikon ---------- */
+.ik { width: 1.2em; height: 1.2em; flex: none; display: inline-block; vertical-align: -.22em; }
+i[data-ikon] { display: inline-flex; font-style: normal; }
+.btn, .dbtn, .back-btn, .gbadge, .tab { display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+.btn .ik, .dbtn .ik { width: 18px; height: 18px; }
+
+/* ---------- bilah atas ---------- */
+.back-btn { height: 44px; padding: 0 18px 0 14px; border-radius: var(--r-pil); background: rgba(13, 8, 7, .6); backdrop-filter: blur(4px); gap: 8px; }
+.back-btn .ik { width: 20px; height: 20px; }
+.menu-toggle { display: none; place-items: center; border-radius: 10px; }
+.menu-toggle .ik { width: 22px; height: 22px; }
+.motto::before { content: '“'; } .motto::after { content: '”'; }
+.akun-btn { border-radius: var(--r-pil); padding-right: 12px; gap: 12px; }
+.akun-btn::after { content: ''; width: 8px; height: 8px; margin-left: 2px; border-right: 2px solid #d8c29a; border-bottom: 2px solid #d8c29a; transform: rotate(45deg) translateY(-3px); flex: none; }
+
+/* ---------- menu samping ---------- */
+.sidenav nav { gap: 4px; padding: 0 12px; }
+.snav { gap: 12px; padding: 12px 12px; border-radius: 10px; font-family: var(--display); letter-spacing: .04em; text-transform: uppercase; font-size: 13.5px; white-space: nowrap; }
+.snav .ico { width: 26px; display: inline-grid; place-items: center; }
+.snav .ico .ik { width: 24px; height: 24px; }
+.snav.active { background: linear-gradient(90deg, #b8161f, #7a0c11); box-shadow: inset 0 0 0 1px rgba(224, 179, 90, .55), 0 6px 18px rgba(163, 20, 28, .35);
+  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%); padding-right: 22px; }
+.side-art { margin-top: 24px; }
+.side-card { position: absolute; left: 12px; right: 12px; bottom: 14px; display: flex; gap: 10px; align-items: flex-start; padding: 12px; border-radius: 12px;
+  background: rgba(13, 8, 7, .82); border: 1px solid var(--garis-emas); color: #efe1c3; box-shadow: 0 10px 24px rgba(0, 0, 0, .55); }
+.side-card .ik { width: 24px; height: 24px; color: var(--emas); }
+.side-card b { display: block; font-family: var(--display); font-size: 13.5px; color: #f7e9c8; }
+.side-card small { display: block; margin-top: 3px; font-size: 12.5px; line-height: 1.35; color: #d3bf98; }
+
+/* ---------- kepala halaman ---------- */
+.page-head { gap: 18px; margin-bottom: 18px; }
+.page-head .emblem { width: 72px; height: 72px; border-radius: 12px; border: 2px solid rgba(201, 162, 74, .75); box-shadow: 0 0 0 4px rgba(13, 8, 7, .8), 0 0 26px rgba(163, 20, 28, .5); }
+.page-head h1 { font-size: clamp(26px, 3vw, 40px); letter-spacing: .03em; }
+.page-head p { font-size: 18px; }
+.ph-actions { gap: 10px; }
+.ph-actions .dbtn, .page-head .dbtn { background: var(--kaca); color: #f1e2c0; border: 1px solid var(--garis-emas); border-radius: 10px; padding: 9px 14px; min-height: 46px; box-shadow: 0 6px 16px rgba(0, 0, 0, .35); }
+.ph-actions .dbtn:hover, .page-head .dbtn:hover { border-color: var(--emas); background: linear-gradient(180deg, #3a2419, #1c110d); color: #fff; }
+.ph-actions .dbtn .ik { color: var(--emas); }
+.gbadge { border-radius: 10px; padding: 11px 18px; min-height: 46px; font-family: var(--display); font-size: 14.5px; letter-spacing: .03em; }
+
+/* ---------- tab langkah (panah) ---------- */
+nav.tabs { gap: 2px; margin-bottom: 16px; border-bottom: 2px solid rgba(163, 20, 28, .55); padding-bottom: 0; }
+.tab { position: relative; flex: 1 1 0; justify-content: flex-start; min-height: 54px; padding: 8px 30px 8px 22px; border: 0; border-radius: 0;
+  background: linear-gradient(180deg, #2a1a14, #170d0a); color: #ecdcb9; font-size: 15.5px;
+  clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 50%, calc(100% - 18px) 100%, 0 100%, 18px 50%); box-shadow: inset 0 1px 0 rgba(201, 162, 74, .35); }
+.tab:first-child { clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 50%, calc(100% - 18px) 100%, 0 100%); border-radius: 10px 0 0 0; padding-left: 16px; }
+.tab:hover { background: linear-gradient(180deg, #3a2419, #1e120e); color: #fff; }
+.tab .n { width: 30px; height: 30px; line-height: 28px; margin-right: 4px; flex: none; font-size: 15px; border: 2px solid var(--emas); color: #f7e7c2; background: rgba(0, 0, 0, .3); font-family: var(--display); }
+.tab.active { background: linear-gradient(180deg, #c41a24, #7a0c11); color: #fff; box-shadow: none; }
+.tab.active .n { background: #fff; color: var(--darah); border-color: #fff; }
+.tab:focus-visible { outline-offset: -4px; }
+
+/* ---------- panel perkamen ---------- */
+.panel { border-radius: var(--r-panel); border-color: rgba(138, 106, 44, .9); padding: 18px 20px;
+  box-shadow: inset 0 0 0 4px var(--perkamen2), inset 0 0 0 5px rgba(176, 141, 79, .55), var(--bayang-panel); }
+.panel + .panel { margin-top: 16px; }
+.panel h2 { letter-spacing: .02em; }
+.ptitle-row { flex-direction: column; align-items: stretch; margin-bottom: 4px; }
+.ptitle-row > .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.ptitle-row > .row .btn, .ptitle-row > .row .dbtn { width: 100%; white-space: nowrap; padding-left: 10px; padding-right: 10px; }
+body.fokus .ptitle-row > .row { grid-template-columns: 1fr; }
+/* pita judul cerita */
+#pTitle { position: relative; display: block; align-self: flex-start; max-width: 100%; margin: -4px 0 6px -6px !important; padding: 8px 34px 8px 20px; color: #f7e7c2 !important; font-size: 21px;
+  background: linear-gradient(180deg, #b8161f, #6e0c10); clip-path: polygon(0 0, 100% 0, calc(100% - 16px) 50%, 100% 100%, 0 100%, 10px 50%);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, .5); }
+
+/* ---------- tombol ---------- */
+.btn { border-radius: var(--r-btn); padding: 10px 18px; min-height: 44px; box-shadow: 0 3px 0 #3b0507, 0 8px 18px rgba(110, 12, 16, .25); }
+.dbtn { border-radius: var(--r-btn); padding: 8px 12px; min-height: 42px; background: linear-gradient(180deg, #f5ead0, #e3d2aa); border-color: #b39866;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .6), 0 2px 5px rgba(60, 40, 20, .14); }
+.dbtn:hover:not(:disabled) { background: linear-gradient(180deg, #fbf3df, #ecdcb7); border-color: #8a6a2c; }
+.dbtn.red { background: linear-gradient(180deg, #fff4ee, #f3dfd2); border-color: var(--darah); color: var(--darah2); }
+.btn.fk-masuk { padding: 10px 18px; font-size: 15px; }
+.hbtns { gap: 6px; margin-top: 8px; }
+.hbtns .dbtn { padding: 6px 12px; font-size: 13.5px; min-height: 40px; }
+.hbtns .dbtn .ik { width: 16px; height: 16px; }
+.dbtn .perlu { font-weight: 700; color: #7a5a14; }
+.mini { width: 38px; height: 38px; border-radius: 10px; }
+.giliran { width: 26px; height: 26px; }
+
+/* ---------- kolom isian ---------- */
+.field input, .field select, .field textarea, select.s, input.s { border-radius: 10px; padding: 9px 12px; background: #fbf5e6; border-color: #b39866; }
+.field select, select.s { min-height: 46px; }
+.field label { font-size: 14px; }
+
+/* ---------- meja permainan ---------- */
+.play { gap: 18px; }
+.layar-bar { gap: 8px; padding-bottom: 12px; margin-bottom: 12px; border-bottom: 1px solid rgba(176, 141, 79, .45); }
+.layar-bar .small { margin-right: 4px; }
+#scene > h2 { font-size: clamp(22px, 2.2vw, 30px); letter-spacing: .02em; margin-bottom: 6px; }
+details.gm summary { display: inline-flex; align-items: center; gap: 8px; }
+details.gm summary .ik { width: 18px; height: 18px; }
+.latar { gap: 10px; margin: 10px 0 14px; }
+.latar div { background: var(--gelap-tile); border-radius: 12px; padding: 12px 14px; font-size: 17px; border: 1px solid rgba(201, 162, 74, .25); box-shadow: 0 6px 14px rgba(0, 0, 0, .25); }
+.latar span { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-family: var(--display); font-size: 11.5px; letter-spacing: .08em; }
+.latar span .ik { width: 20px; height: 20px; color: #f1d58b; }
+.read { border-radius: 0 10px 10px 0; }
+.opt { border-radius: 12px; padding: 12px 14px; box-shadow: 0 3px 10px rgba(60, 40, 20, .08); }
+.event, .quest, .fate, .hint, .warn, .ok { border-radius: 10px; }
+.roller, .verdict { border-radius: 12px; overflow: hidden; }
+.sbbox { gap: 14px; }
+.log { border-radius: 10px; }
+.fk-h { display: flex; align-items: center; gap: 8px; }
+.fk-label { display: inline-flex; align-items: center; gap: 6px; }
+
+/* ---------- beranda ---------- */
+.camp-new .plus { display: grid; place-items: center; width: 56px; height: 56px; border-radius: 50%; border: 2px dashed var(--emas); }
+.camp-new .plus .ik { width: 28px; height: 28px; }
+.camp-card .dbtn, .camp-card .dbtn:hover:not(:disabled) { background: #2d1c15; color: #eadcbc; border-color: rgba(201, 162, 74, .5); box-shadow: none; }
+.camp-card .dbtn.red { background: #2d1512; color: #ffb1a6; border-color: #9a2a22; }
+.camp-card { border-radius: var(--r-panel); }
+.camp-card .dbtn { border-radius: var(--r-btn); }
+.gcard { border-radius: var(--r-panel); }
+
+/* ---------- modal & toast ---------- */
+.modal .panel { border-radius: 16px; }
+#toast { border-radius: 12px; }
+.seg-b { border-radius: var(--r-btn); }
+
+/* ---------- responsif ---------- */
+@media (max-width: 1180px) {
+  .tab { font-size: 14px; padding-right: 24px; }
+}
+@media (max-width: 980px) {
+  .menu-toggle { display: inline-grid; }
+  .back-btn { height: 42px; }
+  .snav.active { clip-path: none; }
+  .tab { flex: none; min-height: 48px; }
+  .page-head .emblem { width: 52px; height: 52px; }
+  .ph-actions .dbtn, .page-head .dbtn, .gbadge { min-height: 42px; padding: 8px 12px; }
+  .panel { padding: 14px; }
+  #pTitle { font-size: 18px; }
+}
+@media (max-width: 420px) { .back-btn { width: 42px; padding: 0; } }

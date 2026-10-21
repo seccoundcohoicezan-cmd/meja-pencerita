@@ -111,3 +111,25 @@ body.fokus .mz-launch { bottom: 12px; right: 12px; }
   .mz-panel { padding: 8px 10px; }
 }
 @media (prefers-reduced-motion: reduce) { .mz-eq i, .mz-spin { animation: none; } .mz-launch:hover { transform: none; } }
+
+/* Tampilan modern (mengikuti tema modern.css) */
+.mz-panel { padding: 12px 18px; background: linear-gradient(180deg, #1d120e, #0f0806); }
+.mz-layar { border-radius: 12px; border-color: rgba(201, 162, 74, .45); box-shadow: 0 8px 22px rgba(0, 0, 0, .5); }
+.mz-h-eq { display: inline-flex; padding-left: 10px; margin-left: 4px; border-left: 1px solid rgba(201, 162, 74, .4); color: var(--emas); }
+.mz-h-eq .mz-svg { width: 18px; height: 18px; }
+.mz-auto { gap: 6px; border-radius: 10px; min-height: 44px; letter-spacing: .06em; }
+.mz-auto .mz-svg { width: 16px; height: 16px; }
+.mz-auto[aria-checked="true"] { background: linear-gradient(180deg, #1f4a3a, #12301f); border-color: #6fbf8f; color: #dff5e6; }
+.mz-ikon, .mz-btn { border-radius: 10px; }
+.mz-chip { padding: 5px 14px; font-size: 14.5px; border-width: 1.5px; }
+.mz-chip[data-k="war"] { background: linear-gradient(180deg, #a3141c, #5c0a0e); }
+.mz-status small { padding: 4px 12px; border: 1px solid rgba(201, 162, 74, .4); border-radius: 999px; }
+.mz-kontrol { gap: 10px; }
+.mz-play { width: 58px; height: 58px; min-width: 58px; border-radius: 50%; border: 2px solid #f0b0a8; box-shadow: 0 0 0 4px rgba(163, 20, 28, .25), 0 8px 18px rgba(163, 20, 28, .45); }
+.mz-play .mz-svg { width: 26px; height: 26px; }
+.mz-vol input { accent-color: #e0303a; max-width: 240px; }
+.mz-kb { border-radius: 12px; min-height: 64px; gap: 4px; border-color: rgba(201, 162, 74, .7); background: linear-gradient(180deg, #2a1a14, #160d0a); font-size: 14px; letter-spacing: .04em; }
+.mz-kb .mz-svg { width: 24px; height: 24px; }
+.mz-kb[aria-pressed="true"] { box-shadow: 0 0 0 1px #f3d98f, 0 0 18px rgba(196, 26, 36, .55); }
+.mz-catatan { text-align: center; }
+@media (max-width: 600px) { .mz-play { width: 52px; height: 52px; min-width: 52px; } .mz-kb { min-height: 52px; } .mz-h-eq { display: none; } }
