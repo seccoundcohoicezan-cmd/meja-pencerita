@@ -9,6 +9,8 @@ import { initLayarSender } from './layar-sender.js';
 import { splashSelesai } from '../shared/splash.js';
 
 initLayarSender();
+// Musik Adaptif dimuat terpisah (tidak memperlambat halaman); gagal dimuat pun tidak mengganggu cerita.
+import('./musik.js').then(m => m.initMusik()).catch(e => console.error('[musik] gagal dimuat', e));
 splashSelesai();
 
 Promise.all([import('./cloud.js'), import('./moderator.js')])

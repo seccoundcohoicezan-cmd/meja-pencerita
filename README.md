@@ -13,6 +13,7 @@ Alat bercerita untuk Game Master: pahlawan, pembuat prompt cerita, kalkulator da
 - **Pertahanan (AC) — pakem**: pemain mengocok **1 d20 fisik sekali di awal**; GM memasukkannya lalu klik **🔒 Kunci Pertahanan** (atau lewat baris *Pertahanan* di formulir WA). Setelah terkunci, database menolak setiap perubahan. Tombol **⚔ Diserang** (serangan musuh / mendadak) melempar d20 + bonus musuh (Lemah +2 · Biasa +4 · Kuat +6 · Bos +8); hasil ≥ Pertahanan = −1 Nyawa (20 = −2, 1 = luput).
 - **Uji ability** (tombol **🎲 Uji**): d20 + ability ≥ DC saat pahlawan harus menahan racun, jebakan, rasa takut, dst. Tahan (CON) sekarang punya fungsi.
 - **🎯 Mode Fokus Pencerita** (tab Main, tombol F): layar tiga kolom tanpa distraksi — pahlawan/Stack/ramuan · narasi & opsi · dadu & Arah cerita (dari data cerita, offline). Pintasan ←/→, Esc, layar penuh. Tombol ⚔ Diserang kini bisa langsung mengunci Pertahanan bila belum.
+- **🎵 Musik Adaptif** (tombol ♪ di kanan bawah): musik latar YouTube yang mengikuti suasana adegan (Tenang · Senang · Santai · Perang). Mode **Auto** membaca adegan aktif di perangkat (latar, ringkas, narasi, jenis tantangan, hasil lemparan) lalu mengganti musik dengan jeda minimum & transisi volume; mode **Manual** memilih suasana sendiri; 🔒 mengunci lagu. Lihat bagian *Musik Adaptif (YouTube API)* di bawah.
 - **Dadu digital** di Portal Pemain, bisa dinyalakan/dimatikan moderator di **Moderator → Pengaturan** (berlaku untuk semua pemain); **❓ Contekan GM** di halaman Main.
 
 ---
@@ -56,7 +57,9 @@ Semua aman dijalankan ulang, urut 001 → 005. Kalau 001–004 sudah pernah dija
    |---|---|
    | `VITE_KONTAK_EMAIL` | email kontakmu (tampil di Kebijakan Privasi) |
 
-   Variabel lain di `.env.example` opsional; tanpa diisi, nilai bawaan di `src/shared/config.js` dipakai.
+   | `YOUTUBE_API_KEY` | (opsional) key YouTube Data API v3 untuk Musik Adaptif — **tanpa** awalan `VITE_`, lihat bagian *Musik Adaptif* |
+
+   Variabel `VITE_*` lain opsional; tanpa diisi, nilai bawaan di `src/shared/config.js` dipakai.
 4. Klik **Deploy**. Bila project `dndmastery` sudah ada di Vercel, cukup hubungkan repository ini di **Settings → Git**.
 
 Setiap `git push` ke `main` otomatis men-deploy ulang.
@@ -70,6 +73,27 @@ Setiap `git push` ke `main` otomatis men-deploy ulang.
 Aplikasi hanya memakai Google. Kamu boleh mematikan provider **Email** di Supabase → Authentication → Providers.
 
 ---
+
+## Musik Adaptif (YouTube API)
+Musik **tetap berfungsi tanpa API key**: aplikasi memakai daftar musik cadangan (25 video YouTube yang sudah dicek bisa disematkan, di `src/app/musik-cari.js`). API key membuat pencarian otomatis, bervariasi, dan disesuaikan dengan genre campaign.
+
+1. Google Cloud Console → pilih/buat project → **APIs & Services → Library** → aktifkan **YouTube Data API v3**.
+2. **Credentials → Create credentials → API key**. Klik key itu → **API restrictions → Restrict key → YouTube Data API v3**. (Application restrictions biarkan *None*: key dipakai server Vercel, bukan browser.)
+3. Vercel → project → **Settings → Environment Variables** → tambah `YOUTUBE_API_KEY` = key tadi (Production & Preview) → **Redeploy**.
+4. Uji: buka `https://dndmastery.vercel.app/api/musik?kategori=calm&genre=fantasy` → harus berisi `"ok":true` dan daftar `items`. Jika `belum_dikonfigurasi`, variabel belum terbaca (cek nama & redeploy).
+
+Keamanan & kuota:
+- Key **hanya** dibaca di server (`api/musik.js`). Jangan pernah memberi awalan `VITE_` (semua `VITE_*` terlihat publik).
+- Browser hanya boleh meminta kategori & genre yang dikenal, bukan kata kunci bebas. Hasil di-cache di CDN Vercel 24 jam, di server 6 jam, dan di perangkat 3 hari, jadi pemakaian kuota sangat kecil (1 pencarian ≈ 101 unit dari kuota gratis 10.000 unit/hari).
+- Bila kuota habis / key ditolak / internet putus, aplikasi otomatis kembali ke daftar cadangan; cerita tetap berjalan normal.
+
+Lokal: buat `.env.local` berisi `YOUTUBE_API_KEY=...` lalu `npm run dev` (Vite melayani `/api/musik` sendiri).
+
+Cara kerja singkat:
+- **Deteksi suasana** (`src/core/musik.ts`): skor per kategori dari latar suasana, judul, ringkas, narasi (paragraf terakhir diberi bobot lebih), teks opsi, dan jenis tantangan (Serangan Bos/Duel → Perang). Menangani negasi ("tanpa perlawanan") dan "pertempuran berakhir" (→ Tenang). Bukti tipis → Netral (musik dipertahankan). Prompt cerita kini meminta AI mengisi `"musik": {"suasana": "calm|happy|slow_fun|war|neutral"}` per adegan (opsional); bila ada, tanda ini dipakai lebih dulu. Teks cerita tidak dikirim ke layanan mana pun.
+- **Pergantian** (`PengaturMusik`): ambang keyakinan 50%, jeda minimum 40 detik antar pergantian (12 detik untuk perubahan sangat jelas ≥80%, misalnya tiba-tiba perang), usulan tertunda dibatalkan bila adegan kembali ke suasana semula, fade-out/fade-in volume.
+- **Menambah kategori** (Sad, Suspense, Romantic, Horror, Epic): sudah ada kata kunci deteksi & kueri pencarian; ubah `aktif: true` di `SUASANA` (`src/core/musik.ts`), tambahkan ke `KATEGORI_MANUAL`, ikon di `src/app/musik.js`, dan daftar cadangan di `src/app/musik-cari.js`.
+- Pemutar YouTube selalu terlihat saat memutar (kebijakan YouTube); menutup panel menjeda musik. Tombol ▁ meringkas panel.
 
 ## Moderator
 - **Pemilik web (terkunci):** `seccoundcohoicezan@gmail.com`. Dikunci di database (`email_pemilik()` di `003_moderator.sql`), bukan di browser, jadi tidak bisa diakali dari aplikasi. Email harus sudah terverifikasi (Google otomatis).
@@ -88,6 +112,7 @@ Aplikasi hanya memakai Google. Kamu boleh mematikan provider **Email** di Supaba
 4a. Kunci Pertahanan satu pahlawan (mis. 14), lalu coba ubah lagi → tidak bisa. Klik **⚔ Diserang** dan **🎲 Uji** pada pahlawan → hasil tercatat di riwayat dan bisa dibatalkan.
 4b. Selesaikan sesi → buka lagi link tadi → muncul pesan kode sudah tidak berlaku.
 5. Selesaikan sesi → **Terbitkan ke portal pemain** → rekap muncul di portal.
+5a. Tab Main → tombol **♪ Musik** kanan bawah → **Mulai musik** → pindah adegan: label suasana & musik ikut berganti (paling cepat tiap 40 detik). Klik **Perang** → Auto OFF dan musik tidak ditimpa lagi; klik **Auto** untuk kembali.
 6. Buka **Layar TV** dari menu kiri → adegan & hasil tampil di jendela kedua.
 7. Masuk dengan email pemilik → menu **Moderator** → log aksi berisi langkah-langkah di atas.
 8. Di HP: tombol ☰ membuka menu dengan tombol ✕; tombol ← dan tombol Back HP kembali ke halaman sebelumnya.
@@ -109,7 +134,8 @@ npm run build      # hasil ke dist/
 ## Struktur
 ```
 src/core/     logika inti TypeScript + unit test (dadu, skill, peluang, kartu, improvisasi)
-src/app/      aplikasi GM (main.js), cloud.js (Supabase), moderator.js, layar-sender.js
+src/app/      aplikasi GM (main.js), cloud.js (Supabase), moderator.js, layar-sender.js, musik*.js (Musik Adaptif)
+api/          Vercel Function: musik.js (pencarian YouTube, key di server)
 src/portal/   portal pemain
 src/layar/    layar presentasi TV
 src/shared/   config, klien Supabase, splash, halaman legal
