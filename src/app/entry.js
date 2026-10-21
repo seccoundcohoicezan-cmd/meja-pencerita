@@ -4,10 +4,13 @@ import '@fontsource/eb-garamond/400.css';
 import '@fontsource/eb-garamond/400-italic.css';
 import '../styles/app.css';
 import '../styles/tema.css';
+import '../styles/modern.css';
 import './main.js';
 import { initLayarSender } from './layar-sender.js';
 import { splashSelesai } from '../shared/splash.js';
+import { pasangIkon } from '../shared/ikon.js';
 
+pasangIkon();
 initLayarSender();
 // Musik Adaptif dimuat terpisah (tidak memperlambat halaman); gagal dimuat pun tidak mengganggu cerita.
 import('./musik.js').then(m => m.initMusik()).catch(e => console.error('[musik] gagal dimuat', e));

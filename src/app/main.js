@@ -7,6 +7,7 @@ import { ABILS, ABIL_NAMA, ABILITY_ARRAY, SKILLS, findSkill, skAbil, DC_TABLE, d
 import { loadImg, wrapText, heart, rrect, fitFont, drawCard, dlCanvas, FOTO_AWAL } from '../core/card';
 import { pD20, pPasif, pKontes, pPool, pKelompok, pDuelRonde, pDuel, pBoss, pct } from '../core/prob';
 import { improv, IMPROV_JENIS } from '../core/improv';
+import { ik } from '../shared/ikon.js';
 
 /* ======================= STATE ======================= */
 const KEY='masterydnd-v3', V2KEY='meja-pencerita-sistem-v2', OLDKEY='meja-pencerita-sistem-v1';
@@ -157,7 +158,7 @@ function renderGenres(){
 function campStatus(c){if(c.sesi&&!c.sesi.ended&&c.story)return 'Sesi berjalan';if(c.sesi&&c.sesi.ended)return 'Bab selesai';if(c.story)return 'Cerita siap dimainkan';if((c.heroes||[]).length)return 'Menyiapkan pahlawan';return 'Baru'}
 function renderBeranda(){const list=Object.values(R.camps).sort((a,b)=>(b.diubah||0)-(a.diubah||0));
   const cloud=bus.app&&bus.app.cloudInfo?bus.app.cloudInfo():null;
-  $('campList').innerHTML=`<button class="camp-card camp-new" id="newCampBtn"><span class="plus">＋</span><b>Campaign baru</b><span class="small">Pilih genre, lalu siapkan pahlawan.</span></button>`+
+  $('campList').innerHTML=`<button class="camp-card camp-new" id="newCampBtn"><span class="plus" aria-hidden="true">${ik('plus')}</span><b>Campaign baru</b><span class="small">Pilih genre, lalu siapkan pahlawan.</span></button>`+
    list.map(c=>{const n=(c.heroes||[]).length;return `<article class="camp-card" style="--acc:${ACCENT[c.genre]||'#d9a441'}">
     <div class="cc-top"><span class="cc-genre">${esc(genreNama(c.genre,c.custom))}</span><span class="cc-status">${esc(campStatus(c))}</span></div>
     <h3>${esc(c.nama)}</h3>
@@ -932,8 +933,8 @@ function normalizeStory(d){const warn=[];const ids=W.heroes.map(h=>h.id);
 }
 function findEv(j){const s=String(j||'').toLowerCase().replace(/[\s-]+/g,'_');if(EV_TYPES[s])return s;return ['sangat_baik','keajaiban','bencana','buruk','tenang','baik'].find(k=>s.includes(k))||null}
 const WAKTU_ICON=w=>{const t=String(w||'').toLowerCase();return /tengah malam|dini/.test(t)?'🌑':/malam/.test(t)?'🌙':/senja|sore/.test(t)?'🌇':/pagi|fajar|subuh/.test(t)?'🌅':/siang/.test(t)?'☀️':'🕰️'};
-function latarBox(l){if(!l)return '<div class="small">(latar tidak tersedia)</div>';const c=(k,lab,ic='')=>`<div><span>${lab}</span>${ic}${esc(l[k]||'—')}</div>`;
-  return `<div class="latar">${c('tempat','Tempat')}${c('waktu','Waktu',WAKTU_ICON(l.waktu)+' ')}${c('cuaca','Cuaca')}${c('suasana','Suasana')}</div>`}
+function latarBox(l){if(!l)return '<div class="small">(latar tidak tersedia)</div>';const c=(k,lab,ikon)=>`<div><span>${ik(ikon)}${lab}</span>${esc(l[k]||'—')}</div>`;
+  return `<div class="latar">${c('tempat','Tempat','pin')}${c('waktu','Waktu','jam')}${c('cuaca','Cuaca','cuaca')}${c('suasana','Suasana','topeng')}</div>`}
 function summaryHTML(d){const r=d.ringkasan||{};const heroName=id=>{const h=W.heroes.find(x=>x.id===id);return h?h.nama:id};
   const deaths=[];d.adegan.forEach(a=>{a.mati.forEach(p=>deaths.push(`${heroName(p)} (Adegan ${a.no}, otomatis)`));a.opsi.forEach(o=>{[...o.efek_berhasil.mati.map(p=>[p,'berhasil']),...o.efek_gagal.mati.map(p=>[p,'gagal'])].forEach(([p,w])=>deaths.push(`${heroName(p)} (Adegan ${a.no} opsi ${o.kode} jika ${w})`))})});
   return `<div class="syn">${r.sinopsis?String(r.sinopsis).split(/\n\s*\n/).map(p=>`<p>${esc(p)}</p>`).join(''):'<p class="small">(Sinopsis tidak ada di data cerita.)</p>'}
@@ -1015,10 +1016,10 @@ function renderSide(){const s=W.sesi;
     const acted=((s.giliran||{})[scnNoSafe()]||[]).includes(id);
     return `<div class="hero ${down(id)?'down':''}"><div class="top"><div><button class="giliran ${acted?'on':''}" data-giliran="${esc(id)}" title="${acted?'Sudah beraksi di adegan ini (klik untuk batalkan)':'Belum beraksi di adegan ini (klik untuk tandai)'}" aria-label="Giliran ${esc(h.nama)}">✦</button><b>${esc(h.nama)}</b> <span class="small">${dStr(poolOf(id))} +${bonusOf(id)}${acOf(h)?` · <span title="Pertahanan (AC), terkunci">🛡${acOf(h)}</span>`:' · <span title="Pertahanan belum dikunci">🛡—</span>'}</span>${dead(id)?'<span class="badge gugur">☠ Gugur</span>':down(id)?'<span class="badge">Tumbang</span>':''}${pd.bonus?`<span class="badge skill">Skill +${pd.bonus}</span>`:''}${pd.bonus_tim?`<span class="badge skill">Tim +${pd.bonus_tim}</span>`:''}${pd.kritis?'<span class="badge skill">Auto Kritis</span>':''}${pd.perisai?'<span class="badge shield">Perisai</span>':''}${pd.adv&&!pd.dis?'<span class="badge adv">Advantage</span>':''}${pd.dis&&!pd.adv?'<span class="badge dis">Disadvantage</span>':''}${pd.adv||pd.dis?`<button class="dbtn" data-clradv="${esc(id)}" style="padding:0 5px;font-size:11px;margin-left:3px" title="Hapus Advantage/Disadvantage">×</button>`:''}</div>
       <div>${Array.from({length:mx},(_,i)=>`<button class="heart ${i+1>s.hati[id]?'off':''}" data-h="${esc(id)}" data-i="${i+1}" aria-label="${esc(h.nama)} nyawa ${i+1}">♥</button>`).join('')}</div></div>
-      <div class="hbtns"><button class="dbtn" data-sk="${esc(id)}" ${s.skill[id]<=0||down(id)?'disabled':''} title="${esc(h.sk.efek||'')}">⚡ ${esc(h.sk.nama||'Skill Khusus')} <span class="dots">${[0,1,2].map(i=>`<span class="dot ${i>=s.skill[id]?'used':''}"></span>`).join('')}</span></button>
-      <button class="dbtn red" data-sp="${esc(id)}" ${s.hati[id]<num(h.sp.biaya,1)||dead(id)?'disabled':''} title="${esc(h.sp.efek||'')}">♥ ${esc(h.sp.nama||'Pengorbanan')}</button>
-      <button class="dbtn ${acOf(h)?'':'perlu-ac'}" data-atk="${esc(id)}" ${dead(id)?'disabled':''} title="${acOf(h)?'Serangan musuh / mendadak: d20 + bonus musuh melawan Pertahanan':'Pertahanan belum dikunci: klik untuk mengisinya sekarang'}">⚔ Diserang${acOf(h)?'':' 🔒?'}</button>
-      <button class="dbtn" data-uji="${esc(id)}" ${dead(id)||!h.ability?'disabled':''} title="Uji ability: menahan racun, jebakan, rasa takut, dll.">🎲 Uji</button></div></div>`}).join('');
+      <div class="hbtns"><button class="dbtn" data-sk="${esc(id)}" ${s.skill[id]<=0||down(id)?'disabled':''} title="${esc(h.sk.efek||'')}">${ik('petir')}${esc(h.sk.nama||'Skill Khusus')} <span class="dots">${[0,1,2].map(i=>`<span class="dot ${i>=s.skill[id]?'used':''}"></span>`).join('')}</span></button>
+      <button class="dbtn red" data-sp="${esc(id)}" ${s.hati[id]<num(h.sp.biaya,1)||dead(id)?'disabled':''} title="${esc(h.sp.efek||'')}">${ik('hati')}${esc(h.sp.nama||'Pengorbanan')}</button>
+      <button class="dbtn ${acOf(h)?'':'perlu-ac'}" data-atk="${esc(id)}" ${dead(id)?'disabled':''} title="${acOf(h)?'Serangan musuh / mendadak: d20 + bonus musuh melawan Pertahanan':'Pertahanan belum dikunci: klik untuk mengisinya sekarang'}">${ik('pedang')}Diserang${acOf(h)?'':' <span class="perlu">?</span>'}</button>
+      <button class="dbtn" data-uji="${esc(id)}" ${dead(id)||!h.ability?'disabled':''} title="Uji ability: menahan racun, jebakan, rasa takut, dll.">${ik('dadu')}Uji</button></div></div>`}).join('');
   $('sbNum').textContent=s.sb;$('sbNum').classList.toggle('zero',s.sb===0);
   $('shiftInfo').innerHTML=s.shift?`<div class="${s.shift>0?'warn':'ok'}" style="margin:8px 0 0">Tantangan berikutnya <b>${s.shift>0?'naik':'turun'} ${Math.abs(s.shift)} tingkat</b> (akibat kejadian acak). <button class="dbtn" id="clrShift" style="padding:1px 8px">Batalkan</button></div>`:'';
   if($('clrShift'))$('clrShift').onclick=()=>{s.shift=0;log('Perubahan tingkat dibatalkan');save();renderSide();refreshRoller()};
@@ -1151,7 +1152,7 @@ function renderScene(){
   s.matiDone=s.matiDone||{};let fateMsg='';
   if(a.mati&&a.mati.length){const done=s.matiDone[a.no];
     fateMsg=`<div class="fate">☠ <b>Takdir:</b> ${esc(a.mati.map(p=>H(p).nama).join(', '))} gugur di adegan ini. ${done?'Nyawanya sudah habis dan tidak bisa dipulihkan.':'Takdir berlaku otomatis saat kelompok tiba di adegan ini lewat tombol Lanjut.'} Bacakan kematiannya dari narasi di bawah.${done?'':' <button class="dbtn" id="applyFate" style="margin-left:6px">Terapkan takdir sekarang</button>'}</div>`}
-  $('scene').innerHTML=`<details class="gm"><summary>📜 Ringkasan cerita keseluruhan (khusus GM)</summary>${summaryHTML(W.story)}</details>
+  $('scene').innerHTML=`<details class="gm"><summary>${ik('buku')} Ringkasan cerita keseluruhan (khusus GM)</summary>${summaryHTML(W.story)}</details>
     <h2 style="margin-top:6px">Adegan ${a.no} — ${esc(a.judul)}</h2>
     <p class="small"><b>Latar untuk GM</b> — hayati sebelum membacakan narasi.${a.ringkas?` <i>${esc(a.ringkas)}</i>`:''}</p>
     ${latarBox(a.latar)}${fateMsg}
@@ -1670,7 +1671,7 @@ function layarScene(a){return {type:'scene',no:a.no,judul:a.judul,latar:a.latar|
 function layarParty(){if(!W||!W.sesi)return {type:'party',heroes:[]};const s=W.sesi;
   return {type:'party',tn:T('nyawa'),genre:R.genre,heroes:party().map(id=>{const h=H(id);return {id,uid:h.uid,nama:h.nama,hati:s.hati[id],maks:maxH(id),gugur:dead(id),tumbang:down(id)}}),sb:s.sb,stack:T('stack')}}
 function renderLayarBar(){const el=$('layarBar');if(!el)return;
-  el.innerHTML=`<span class="small">Layar presentasi:</span><button class="dbtn" id="lyBuka" type="button">▣ Buka layar</button><button class="dbtn" id="lyScene" type="button">Tampilkan adegan ini</button><button class="dbtn ${LAYAR_TIRAI?'red':''}" id="lyTirai" type="button">${LAYAR_TIRAI?'Buka tirai':'Tutup tirai'}</button>`;
+  el.innerHTML=`<span class="small">Layar presentasi:</span><button class="dbtn" id="lyBuka" type="button">${ik('layar')}Buka layar</button><button class="dbtn" id="lyScene" type="button">${ik('film')}Tampilkan adegan ini</button><button class="dbtn ${LAYAR_TIRAI?'red':''}" id="lyTirai" type="button">${ik('tirai')}${LAYAR_TIRAI?'Buka tirai':'Tutup tirai'}</button>`;
   $('lyBuka').onclick=()=>bus.emit('bukaLayar');$('lyScene').onclick=()=>{if(W.sesi&&!W.sesi.ended)bus.emit('scene',layarScene(scn()));bus.emit('party',layarParty())};
   $('lyTirai').onclick=()=>{LAYAR_TIRAI=!LAYAR_TIRAI;bus.emit('scene',{type:'tirai',on:LAYAR_TIRAI});renderLayarBar()}}
 
@@ -1753,7 +1754,7 @@ function renderArah(){const el=$('fkArah');if(!el||!W||!W.sesi||!W.story)return;
     const qs=Object.entries(s.quests||{}).filter(([,q])=>!q.selesai);if(qs.length)saran.push({t:'info',x:`Quest terbuka: ${qs.map(([k])=>`<b>${esc(k)}</b>`).join(', ')}.`});
     adegan=`<div class="fk-opsi"><small>Opsi di adegan ini</small>${a.opsi.map(o=>`<span class="tagk t-${o.jenis}">${esc(o.kode)} · ${lbl(o.jenis)}</span>`).join(' ')}</div>
       ${nx?`<div class="fk-next"><small>Berikutnya</small><b>Adegan ${nx.no} — ${esc(nx.judul)}</b>${nx.ringkas?`<span>${esc(nx.ringkas)}</span>`:''}</div>`:`<div class="fk-next akhir"><small>Adegan terakhir</small><b>Setelah ini: klik Ke Ending</b></div>`}`}
-  el.innerHTML=`<h2 class="fk-h">🧭 Arah cerita</h2>
+  el.innerHTML=`<h2 class="fk-h">${ik('kompas')} Arah cerita</h2>
     <div class="fk-ending"><div><small>Menuju ending</small><b>${esc(cur?cur.nama:'—')}</b></div><div class="fk-sb"><small>Stack</small><b>${sb}</b></div></div>
     <div class="fk-jalur" aria-label="Urutan ending">${es.map(e=>`<span class="${e===cur?'on':''}" title="Stack ≤ ${e.maks>=99?'∞':e.maks}">${esc(e.nama)}</span>`).join('<i>›</i>')}</div>
     ${adegan}
@@ -1762,7 +1763,7 @@ $('fokusBtn').onclick=masukFokus;$('fkKeluar').onclick=keluarFokus;
 $('fkPrev').onclick=()=>$('prevScn').click();$('fkNext').onclick=()=>$('nextScn').click();
 $('fkUndo').onclick=()=>{if(W&&W.undo&&W.undo.length)undoTo(W.undo.length-1)};
 $('fkFull').onclick=()=>{if(document.fullscreenElement)document.exitFullscreen().catch(()=>{});else document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen().catch(()=>toast('Browser menolak layar penuh. Tekan F11.',true))};
-document.addEventListener('fullscreenchange',()=>{$('fkFull').textContent=document.fullscreenElement?'⛶ Keluar layar penuh':'⛶ Layar penuh'});
+document.addEventListener('fullscreenchange',()=>{$('fkFull').lastChild.textContent=document.fullscreenElement?'Keluar layar penuh':'Layar penuh'});
 new MutationObserver(()=>{if(fokusAktif())fokusSusun()}).observe($('scene'),{childList:true});
 new MutationObserver(()=>{if(fokusAktif())renderArah()}).observe($('party'),{childList:true});
 bus.on('tab',p=>{if(p!=='play')keluarFokus();else if(localStorage.getItem(FOKUS_KEY)&&W&&W.sesi&&W.story&&!fokusAktif())masukFokus()});
